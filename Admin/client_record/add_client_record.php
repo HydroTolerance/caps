@@ -34,6 +34,13 @@ if (isset($_POST['submit'])) {
     $econtact = $_POST['client_emergency_person'];
     $relation = $_POST['client_relation'];
     $econtactno = $_POST['client_emergency_contact_number'];
+    $avatarFileName = ''; // Initialize with an empty value
+
+    if ($gender === 'Male') {
+        $avatarFileName = 'maleAvatar.png'; // Set the male avatar filename
+    } elseif ($gender === 'Female') {
+        $avatarFileName = 'femaleAvatar.png'; // Set the female avatar filename
+    }
 
     // Check if the data already exists
     $checkSql = "SELECT COUNT(*) FROM zp_client_record WHERE client_firstname = ? AND client_lastname = ?";
@@ -55,10 +62,11 @@ if (isset($_POST['submit'])) {
             </script>";
         } else {
             // Data doesn't exist, proceed with insertion
-            $insertSql = "INSERT INTO zp_client_record (client_firstname, client_lastname, client_birthday, client_number, client_gender, client_email, client_emergency_person, client_relation, client_emergency_contact_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            $insertSql = "INSERT INTO zp_client_record (client_firstname, client_lastname, client_birthday, client_number, client_gender, client_email, client_emergency_person, client_relation, client_emergency_contact_number, client_avatar) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $insertStmt = mysqli_prepare($conn, $insertSql);
             if ($insertStmt) {
-                mysqli_stmt_bind_param($insertStmt, "sssssssss", $fname, $lname, $birthday, $contact, $gender, $email, $econtact, $relation, $econtactno);
+                mysqli_stmt_bind_param($insertStmt, "ssssssssss", $fname, $lname, $birthday, $contact, $gender, $email, $econtact, $relation, $econtactno, $avatarFileName);
+
                 if (mysqli_stmt_execute($insertStmt)) {
                     echo "<script>
                         Swal.fire({
@@ -117,14 +125,14 @@ if (isset($_POST['submit'])) {
                                         </div>
                                     </div>
                                     <div class="row">
-                                        <div class="mb-3 col-md-6">
-                                            <label class="mb-3">Sex:</label>
-                                            <select class="form-control" name="client_gender" required>
-                                                <option selected="true" disabled></option>
-                                                <option value="Male">Male</option>
-                                                <option value="Female">Female</option>
-                                            </select>
-                                        </div>
+                                    <div class="mb-3 col-md-6">
+                                        <label class="mb-3">Gender:</label>
+                                        <select class="form-control" name="client_gender" id="client_gender" required>
+                                            <option selected="true" disabled></option>
+                                            <option value="Male">Male</option>
+                                            <option value="Female">Female</option>
+                                        </select>
+                                    </div>
                                         <div class="mb-3 col-md-6">
                                             <label class="mb-3">Date of Birth:</label>
                                             <input class="form-control" type="date" name="client_birthday" id="d" required>
