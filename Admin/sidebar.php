@@ -8,7 +8,7 @@
         .sidebar-no-scroll {
             position: sticky;
             top: 0;
-            height: 100vh;
+            height: 100%;
             overflow-y: auto;
             background-color: #6537AE;
             color: #fff;

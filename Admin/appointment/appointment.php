@@ -137,7 +137,6 @@ checklogin();
             </tbody>
         </table>
         </div>
-    </main>
 </div>
 <div class="modal fade" id="dataModal" tabindex="-1" aria-labelledby="dataModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
