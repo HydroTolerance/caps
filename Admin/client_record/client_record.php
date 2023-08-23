@@ -63,6 +63,7 @@
             <?php include "../sidebar.php"; ?>
             <div class="col main-content custom-navbar bg-light">
                 <?php include "../navbar.php"?>
+                <div class="ms-3">
                 <div>
                     <a href="add_client_record.php">
                         <button class="create_patients btn btn-purple bg-purple text-white ms-3 mb-3 mt-2 col-xl-2">CREATE CLIENT</button>
@@ -70,6 +71,7 @@
                 </div>
                 <div>
                     <div class="ms-3">
+                    <div class="bg-white p-3 rounded-3 shadow mb-3">
                         <table id="clientTable" class="display nowrap responsive" style="width:100%">
                             <thead>
                                 <tr>
@@ -106,6 +108,8 @@
                                 ?>
                             </tbody>
                         </table>
+                    </div>
+                    </div>
                     </div>
                 </div>
             </div>

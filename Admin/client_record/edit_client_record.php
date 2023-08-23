@@ -208,23 +208,22 @@ while ($info_row = mysqli_fetch_assoc($info_result)) {
                 <?php include "../navbar.php";?>
                 <div class="ms-3">
                     <div class="m-2 bg-white text-dark p-4 rounded-4 border border-4 shadow-sm">
-                        <h2 style="color:6537AE;">Client Record (Edit)</h2>
+                        <h2 style="color:6537AE;" class="text-center">Client Record (Edit)</h2>
                         <form method="post">
-                            
-                            <div class="row mb-3">
-                                <input class="form-label" type="hidden" name="id" value="<?php echo $id; ?>">
-                                <div class="col-md-6">
-                                    <!-- display the image in the datbase -->
+                            <div class="row mb-3 justify-content-center">
+                                <div class="col-md-2">
                                     <img src="<?php echo $avatar; ?>" alt="Avatar" style="width: 150px; height: 150px; border-radius: 50%;">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="mb-2">First Name:</label>
                                     <input class="form-control" type="text" name="client_firstname" value="<?php echo $fname; ?>" required>
-                                </div>
-                                <div class="col-md-6">
                                     <label class="mb-2">Last Name:</label>
                                     <input class="form-control" type="text" name="client_lastname" value="<?php echo $lname; ?>" required>
                                 </div>
+                            </div>
+                            <div class="row mb-3">
+                                <input class="form-label" type="hidden" name="id" value="<?php echo $id; ?>">
+                                
                             </div>
                             <div class="row mb-3">
                                 <div class="col-md-6">
@@ -371,9 +370,9 @@ while ($info_row = mysqli_fetch_assoc($info_result)) {
                     $('#calendar').fullCalendar({
                         editable:true,
                         header:{
-                        left:'prev, next today',
+                        left:'prev,next',
                         center:'title',
-                        right:'month, agendaWeek, agendaDay'
+                        right:'today'
                         },
                     })
                 });

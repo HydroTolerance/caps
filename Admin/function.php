@@ -34,7 +34,7 @@
     function checklogin() {
         session_start();
         if (!isset($_SESSION['clinic_email']) || !isset($_SESSION['clinic_role'])) {
-            header("Location: ../login.php");
+            header("Location: login.php");
             exit();
         }
     }
