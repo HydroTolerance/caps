@@ -13,10 +13,9 @@ if (isset($_POST['update'])) {
     $id = $_POST['id'];
     $email = $_POST['email'];
     $reason = $_POST['apt_reason'];
-    
-    $query = "UPDATE book1 SET apt_reason = '$reason', appointment_status = 'Cancelled' WHERE id = $id";
-    $result = mysqli_query($conn, $query);
-
+    $stmt = mysqli_prepare($conn, "UPDATE book1 SET email=?, apt_reason = ?, appointment_status = 'Cancelled' WHERE id =?");
+    mysqli_stmt_bind_param($stmt, "ssi", $email, $reason, $id);
+    $result = mysqli_stmt_execute($stmt);
     if ($result) {
         require 'phpmailer/PHPMailerAutoload.php';
         $mail = new PHPMailer(true);
@@ -41,6 +40,7 @@ if (isset($_POST['update'])) {
 
             $mail->send();
             header("Location: appointment.php");
+            exit();
         } catch (Exception $e) {
             echo "Email could not be sent. Mailer Error: {$mail->ErrorInfo}";
         }
@@ -48,11 +48,11 @@ if (isset($_POST['update'])) {
 }
 if (isset($_POST['id'])) {
     $id = $_POST['id'];
-    $query = "SELECT * FROM book1 WHERE id = $id";
-    $result = mysqli_query($conn, $query);
-
-    if ($result && mysqli_num_rows($result) > 0) {
-        $row = mysqli_fetch_assoc($result);
+    $stmt = mysqli_prepare($conn, "SELECT * FROM book1 WHERE id = ?");
+    mysqli_stmt_bind_param($stmt, "i", $id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    if ($row = mysqli_fetch_assoc($result)) {
         $email = $row['email'];
     }
 }

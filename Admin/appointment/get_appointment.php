@@ -3,14 +3,13 @@ include "../../db_connect/config.php";
 
 if (isset($_POST['id'])) {
     $id = $_POST['id'];
-    $query = "SELECT * FROM book1 WHERE id = $id";
-    $result = mysqli_query($conn, $query);
-
-    if ($result && mysqli_num_rows($result) > 0) {
-        $row = mysqli_fetch_assoc($result);
+    $stmt = mysqli_prepare($conn, "SELECT * FROM book1 WHERE id = ?");
+    mysqli_stmt_bind_param($stmt, "i", $id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    if ($row = mysqli_fetch_array($result)) {
         $fullName = $row['firstname'] . ' ' . $row['lastname'];
         $formattedDate = date('M d, Y', strtotime($row['date']));
-
         $output = '
             <table class="table">
                 <tbody>

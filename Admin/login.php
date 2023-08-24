@@ -2,9 +2,9 @@
 include "../db_connect/config.php";
 session_start();
 if (isset($_SESSION['clinic_email']) && isset($_SESSION['clinic_role'])) {
-    switch ($_SESSION['role']) {
+    switch ($_SESSION['clinic_role']) {
         case 'Admin':
-            header("Location: /dashboard/dashboard.php");
+            header("Location: dashboard/dashboard.php");
             exit();
         case 'Derma':
             header("Location: derma.php");
