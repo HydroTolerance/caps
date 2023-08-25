@@ -1,3 +1,20 @@
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+        <title>Dashboard</title>
+        <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
+        <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
+        <link rel="stylesheet" href="../css/style.css">
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css">
+        <style>
+        </style>
+    </head>
+    <body>
     <?php
     include "../function.php";
     checklogin();
@@ -58,28 +75,13 @@
         mysqli_stmt_bind_param($info_stmt, "isssss", $id, $date_diagnosis, $history, $management, $diagnosis, $diagnosis);
 
         if ($info_stmt->execute()) {
-            echo "<script>
-            window.addEventListener('DOMContentLoaded', (event) => {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success!',
-                    text: 'Data Updated successfully.'
-                }).then(function() {
-                    window.location.href = 'edit_client_record.php?id=" . $id . "';
-                });
-            });
-        </script>";
-    } else {
-    echo "<script>
-            window.addEventListener('DOMContentLoaded', (event) => {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error!',
-                    text: 'Failed to add data.'
-                });
-            });
-        </script>";
-    }
+            echo '<script src="js/record.js"></script>';
+            echo '<script>handleInsertResponse(true, ' . $id . ' );</script>';
+        } else {
+            echo '<script src="js/record.js"></script>';
+            echo '<script>handleInsertResponse(false, ' . $id . ' );</script>';
+        }
+        
 
         // Close the prepared statement and database connection
         mysqli_stmt_close($info_stmt);
@@ -96,27 +98,9 @@
         $info_stmt = mysqli_prepare($conn, $info_sql);
         mysqli_stmt_bind_param($info_stmt, "iss", $id, $date, $date);
         if ($info_stmt->execute()) {
-            echo "<script>
-            window.addEventListener('DOMContentLoaded', (event) => {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success!',
-                    text: 'Data Updated successfully.'
-                }).then(function() {
-                    window.location.href = 'edit_client_record.php?id=" . $id . "';
-                });
-            });
-        </script>";
+            echo "<script src='js/record.js'></script>";
     } else {
-    echo "<script>
-            window.addEventListener('DOMContentLoaded', (event) => {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error!',
-                    text: 'Failed to add data.'
-                });
-            });
-        </script>";
+    echo "<script src='js/record.js'></script>";
     }
 
         // Close the prepared statement and database connection
@@ -144,27 +128,9 @@
         mysqli_stmt_bind_param($stmt_update_client, "sssssssssi", $fname, $lname, $dob, $gender, $contact, $email, $econtact, $relation, $econtactno, $id);
 
         if ($stmt_update_client->execute()) {
-            echo "<script>
-            window.addEventListener('DOMContentLoaded', (event) => {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success!',
-                    text: 'Data Updated successfully.'
-                }).then(function() {
-                    window.location.href = 'client_record.php';
-                });
-            });
-        </script>";
+            echo "<script src='js/record.js'></script>";
     } else {
-    echo "<script>
-            window.addEventListener('DOMContentLoaded', (event) => {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error!',
-                    text: 'Failed to add data.'
-                });
-            });
-        </script>";
+    echo "<script src='js/record.js'></script>";
     }
 
 $appointments = array();
@@ -184,22 +150,6 @@ while ($info_row = mysqli_fetch_assoc($info_result)) {
     }
     
     ?>
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-        <title>Dashboard</title>
-        <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
-        <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
-        <link rel="stylesheet" href="../css/style.css">
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css" rel="stylesheet">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css">
-        <style>
-        </style>
-    </head>
-    <body>
     <div class="container-fluid">
         <div class="row flex-nowrap">
             <?php include "../sidebar.php"; ?>
