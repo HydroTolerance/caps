@@ -1,3 +1,20 @@
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+        <title>Dashboard</title>
+        <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
+        <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
+        <link rel="stylesheet" href="../css/style.css">
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css">
+        <style>
+        </style>
+    </head>
+    <body>
     <?php
     include "../function.php";
     checklogin();
@@ -58,28 +75,13 @@
         mysqli_stmt_bind_param($info_stmt, "isssss", $id, $date_diagnosis, $history, $management, $diagnosis, $diagnosis);
 
         if ($info_stmt->execute()) {
-            echo "<script>
-            window.addEventListener('DOMContentLoaded', (event) => {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success!',
-                    text: 'Data Updated successfully.'
-                }).then(function() {
-                    window.location.href = 'edit_client_record.php?id=" . $id . "';
-                });
-            });
-        </script>";
-    } else {
-    echo "<script>
-            window.addEventListener('DOMContentLoaded', (event) => {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error!',
-                    text: 'Failed to add data.'
-                });
-            });
-        </script>";
-    }
+            echo '<script src="js/record.js"></script>';
+            echo '<script>handleInsertResponse(true, ' . $id . ' );</script>';
+        } else {
+            echo '<script src="js/record.js"></script>';
+            echo '<script>handleInsertResponse(false, ' . $id . ' );</script>';
+        }
+        
 
         // Close the prepared statement and database connection
         mysqli_stmt_close($info_stmt);
@@ -96,27 +98,9 @@
         $info_stmt = mysqli_prepare($conn, $info_sql);
         mysqli_stmt_bind_param($info_stmt, "iss", $id, $date, $date);
         if ($info_stmt->execute()) {
-            echo "<script>
-            window.addEventListener('DOMContentLoaded', (event) => {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success!',
-                    text: 'Data Updated successfully.'
-                }).then(function() {
-                    window.location.href = 'edit_client_record.php?id=" . $id . "';
-                });
-            });
-        </script>";
+            echo "<script src='js/record.js'></script>";
     } else {
-    echo "<script>
-            window.addEventListener('DOMContentLoaded', (event) => {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error!',
-                    text: 'Failed to add data.'
-                });
-            });
-        </script>";
+    echo "<script src='js/record.js'></script>";
     }
 
         // Close the prepared statement and database connection
@@ -144,63 +128,14 @@
         mysqli_stmt_bind_param($stmt_update_client, "sssssssssi", $fname, $lname, $dob, $gender, $contact, $email, $econtact, $relation, $econtactno, $id);
 
         if ($stmt_update_client->execute()) {
-            echo "<script>
-            window.addEventListener('DOMContentLoaded', (event) => {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success!',
-                    text: 'Data Updated successfully.'
-                }).then(function() {
-                    window.location.href = 'client_record.php';
-                });
-            });
-        </script>";
+            echo "<script src='js/record.js'></script>";
     } else {
-    echo "<script>
-            window.addEventListener('DOMContentLoaded', (event) => {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error!',
-                    text: 'Failed to add data.'
-                });
-            });
-        </script>";
+    echo "<script src='js/record.js'></script>";
     }
-// Fetch appointment dates from the database
-$appointments = array();
-$info_sql = "SELECT date_appointment FROM zp_derma_appointment WHERE patient_id=?";
-$info_stmt = mysqli_prepare($conn, $info_sql);
-mysqli_stmt_bind_param($info_stmt, "i", $id);
-mysqli_stmt_execute($info_stmt);
-$info_result = mysqli_stmt_get_result($info_stmt);
 
-while ($info_row = mysqli_fetch_assoc($info_result)) {
-    // Convert and format the date to ISO 8601 format (YYYY-MM-DD)
-    $appointmentDate = date('Y-m-d', strtotime($info_row['date_appointment']));
-    $appointments[] = array('title' => 'Appointment', 'start' => $appointmentDate);
-}
-        // Close the prepared statement and database connection
-        mysqli_stmt_close($stmt_update_client);
-        mysqli_close($conn);
     }
     
     ?>
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-        <title>Dashboard</title>
-        <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
-        <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
-        <link rel="stylesheet" href="../css/style.css">
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css" rel="stylesheet">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css">
-        <style>
-        </style>
-    </head>
-    <body>
     <div class="container-fluid">
         <div class="row flex-nowrap">
             <?php include "../sidebar.php"; ?>
@@ -269,7 +204,11 @@ while ($info_row = mysqli_fetch_assoc($info_result)) {
                                 <a class="btn btn-warning" href="client_record.php">Cancel</a>
                             </div>
                         </form>
-                        <form method="post">
+                        <button onclick="showDiagnosis()">Show Diagnosis</button>
+                        <button onclick="showAppointment()">Show Appointment</button>
+
+                        <div id="diagnosisContainer">
+                            <form method="post">
                                 <input type="hidden" name="id" value="<?php echo $id; ?>">
 
                                 <div class="mb-3">
@@ -292,18 +231,7 @@ while ($info_row = mysqli_fetch_assoc($info_result)) {
                                     <input class="btn btn-purple bg-purple text-white" type="submit" name="add_diagnosis" value="Add Diagnosis">
                                 </div>
                             </form>
-                            <form method="post">
-                                <input type="hidden" name="id" value="<?php echo $id; ?>">
-
-                                <div class="mb-3">
-                                    <label class="mb-3">Date of appointment:</label>
-                                    <input class="form-control" name="date_appointment" type="date"></input>
-                                </div>
-                                <div class="mb-3">
-                                    <input class="btn btn-purple bg-purple text-white" type="submit" name="add_appointment" value="Add Appointment">
-                                </div>
-                            </form>
-                        <div>
+                            <div>
                             <div class="bg-white text-dark p-4 rounded-4 border border-4 shadow-sm mb-3">
                                 <h2 style="color: 6537AE;">Diagnosis</h2>
                                 <?php
@@ -351,9 +279,27 @@ while ($info_row = mysqli_fetch_assoc($info_result)) {
                                 ?>
                             </div>
                         </div>
-                        <div>
+                        </div>
+                        <div id="appointmentContainer" style="display: none;">
+                            <form method="post">
+                                <input type="hidden" name="id" value="<?php echo $id; ?>">
+
+                                <div class="mb-3">
+                                    <label class="mb-3">Date of appointment:</label>
+                                    <input class="form-control" name="date_appointment" type="date"></input>
+                                </div>
+                                <div class="mb-3">
+                                    <input class="btn btn-purple bg-purple text-white" type="submit" name="add_appointment" value="Add Appointment">
+                                </div>
+                            </form>
+                            <div>
                                 <div id="calendar"></div>
                             </div>
+                        </div>
+                        
+                            
+                        
+                        
                     </div>
                 </div>
             </div>
@@ -377,5 +323,20 @@ while ($info_row = mysqli_fetch_assoc($info_result)) {
                     })
                 });
         </script>
+        <script>
+    const diagnosisContainer = document.getElementById('diagnosisContainer');
+    const appointmentContainer = document.getElementById('appointmentContainer');
+
+    function showDiagnosis() {
+        diagnosisContainer.style.display = 'block';
+        appointmentContainer.style.display = 'none';
+    }
+
+    function showAppointment() {
+        diagnosisContainer.style.display = 'none';
+        appointmentContainer.style.display = 'block';
+    }
+</script>
+
     </body>
     </html>

@@ -1,6 +1,7 @@
 <?php 
 include "../function.php";
 checklogin();
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -107,7 +108,9 @@ checklogin();
             <tbody>
                 <?php
                 include "../../db_connect/config.php";
-                $result = mysqli_query($conn, "SELECT * FROM book1");
+                $stmt = mysqli_prepare($conn, "SELECT * FROM book1");
+                mysqli_stmt_execute($stmt);
+                $result = mysqli_stmt_get_result($stmt);
                 while ($row = mysqli_fetch_array($result)) {
                     ?>
                     <tr>
