@@ -133,20 +133,6 @@
     echo "<script src='js/record.js'></script>";
     }
 
-$appointments = array();
-$info_sql = "SELECT date_appointment FROM zp_derma_appointment WHERE patient_id=?";
-$info_stmt = mysqli_prepare($conn, $info_sql);
-mysqli_stmt_bind_param($info_stmt, "i", $id);
-mysqli_stmt_execute($info_stmt);
-$info_result = mysqli_stmt_get_result($info_stmt);
-while ($info_row = mysqli_fetch_assoc($info_result)) {
-    // Convert and format the date to ISO 8601 format (YYYY-MM-DD)
-    $appointmentDate = date('Y-m-d', strtotime($info_row['date_appointment']));
-    $appointments[] = array('title' => 'Appointment', 'start' => $appointmentDate);
-}
-        // Close the prepared statement and database connection
-        mysqli_stmt_close($stmt_update_client);
-        mysqli_close($conn);
     }
     
     ?>
