@@ -1,5 +1,4 @@
 function handleInsertResponse(success) {
-    window.addEventListener('DOMContentLoaded', (event) => {
     if (success) {
         Swal.fire({
             icon: 'success',
@@ -15,7 +14,6 @@ function handleInsertResponse(success) {
             text: 'Failed to add data.'
         });
     }
-})
 };
 
 
