@@ -62,10 +62,11 @@ if (isset($_POST['submit'])) {
             </script>";
         } else {
             // Data doesn't exist, proceed with insertion
-            $insertSql = "INSERT INTO zp_client_record (client_firstname, client_lastname, client_birthday, client_number, client_gender, client_email, client_emergency_person, client_relation, client_emergency_contact_number, client_avatar) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            $record_id = generateRecordID();
+            $insertSql = "INSERT INTO zp_client_record (clinic_number, client_firstname, client_lastname, client_birthday, client_number, client_gender, client_email, client_emergency_person, client_relation, client_emergency_contact_number, client_avatar) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $insertStmt = mysqli_prepare($conn, $insertSql);
             if ($insertStmt) {
-                mysqli_stmt_bind_param($insertStmt, "ssssssssss", $fname, $lname, $birthday, $contact, $gender, $email, $econtact, $relation, $econtactno, $avatarFileName);
+                mysqli_stmt_bind_param($insertStmt, "sssssssssss", $record_id, $fname, $lname, $birthday, $contact, $gender, $email, $econtact, $relation, $econtactno, $avatarFileName);
 
                 if (mysqli_stmt_execute($insertStmt)) {
                     echo "<script>
@@ -99,6 +100,15 @@ if (isset($_POST['submit'])) {
     }
 
     mysqli_close($conn);
+}
+function generateRecordID() {
+    include "../../db_connect/config.php";
+    $sql = "SELECT MAX(SUBSTRING_INDEX(clinic_number, '-', -1)) AS max_counter FROM zp_client_record";
+    $result = mysqli_query($conn, $sql);
+    $row = mysqli_fetch_assoc($result);
+    $max_counter = intval($row['max_counter']);
+    $recordID = 'clinic_number-' . str_pad($max_counter + 1, 3, '0', STR_PAD_LEFT);
+    return $recordID;
 }
 ?>
     <div class="container-fluid">

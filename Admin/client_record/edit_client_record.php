@@ -1,4 +1,7 @@
-
+<?php
+    include "../function.php";
+    checklogin();
+?>
     <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -16,8 +19,7 @@
     </head>
     <body>
     <?php
-    include "../function.php";
-    checklogin();
+
     if (isset($_GET['id'])) {
         $id = $_GET['id'];
         include "../../db_connect/config.php";
@@ -75,11 +77,20 @@
         mysqli_stmt_bind_param($info_stmt, "isssss", $id, $date_diagnosis, $history, $management, $diagnosis, $diagnosis);
 
         if ($info_stmt->execute()) {
-            echo '<script src="js/record.js"></script>';
-            echo '<script>handleInsertResponse(true, ' . $id . ' );</script>';
-        } else {
-            echo '<script src="js/record.js"></script>';
-            echo '<script>handleInsertResponse(false, ' . $id . ' );</script>';
+            echo "<script>
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: 'Data Updated successfully.'
+                }).then(function() {
+                    window.location.href = 'edit_client_record.php?id=" . $id . "';
+                });</script>";
+        }else {
+            echo" Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: 'Failed to add data.'
+            });";
         }
         
 
@@ -92,15 +103,28 @@
 
         $id = $_POST['id'];
         $date = $_POST['date_appointment'];
+        $time = $_POST['time_appointment'];
 
         // Insert or update diagnosis information in zp_derma_record table
-        $info_sql = "INSERT INTO zp_derma_appointment (patient_id, date_appointment) VALUES (?, ?) ON DUPLICATE KEY UPDATE date_appointment=?";
+        $info_sql = "INSERT INTO zp_derma_appointment (patient_id, date_appointment, time_appointment) VALUES (?, ?, ?)";
         $info_stmt = mysqli_prepare($conn, $info_sql);
-        mysqli_stmt_bind_param($info_stmt, "iss", $id, $date, $date);
+        mysqli_stmt_bind_param($info_stmt, "iss", $id, $date, $time);
         if ($info_stmt->execute()) {
-            echo "<script src='js/record.js'></script>";
-    } else {
-    echo "<script src='js/record.js'></script>";
+            echo "<script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: 'Data Updated successfully.'
+            }).then(function() {
+                window.location.href = 'edit_client_record.php?id=" . $id . "';
+            });</script>";
+        exit();
+    }else {
+        echo" Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: 'Failed to add data.'
+        });";
     }
 
         // Close the prepared statement and database connection
@@ -128,11 +152,23 @@
         mysqli_stmt_bind_param($stmt_update_client, "sssssssssi", $fname, $lname, $dob, $gender, $contact, $email, $econtact, $relation, $econtactno, $id);
 
         if ($stmt_update_client->execute()) {
-            echo "<script src='js/record.js'></script>";
-    } else {
-    echo "<script src='js/record.js'></script>";
+            echo "<script>
+            window.addEventListener('DOMContentLoaded', (event) => {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: 'Data Updated successfully.'
+            }).then(function() {
+                window.location.href = 'edit_client_record.php?id=" . $id . "';
+            });
+        });</script>";
+    }else {
+        echo" Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: 'Failed to add data.'
+        });";
     }
-
     }
     
     ?>
@@ -200,14 +236,16 @@
                                 </div>
                             </div>
                             <div class="mb-3">
-                                <input class="btn btn-purple bg-purple text-white" type="submit" name="update_diagnosis" value="Update">
+                                <input class="btn btn-purple bg-purple text-white" type="submit" name="update_client" value="Update">
                                 <a class="btn btn-warning" href="client_record.php">Cancel</a>
                             </div>
                         </form>
-                        <button onclick="showDiagnosis()">Show Diagnosis</button>
-                        <button onclick="showAppointment()">Show Appointment</button>
+                        <div class="d-flex flex-row-reverse">
+                        <button onclick="showDiagnosis()" class="btn border-end border-top border-start">Show Diagnosis</button>
+                        <button onclick="showAppointment()" class="btn border-end border-top border-start">Show Appointment</button>
+                        </div>
 
-                        <div id="diagnosisContainer">
+                        <div id="diagnosisContainer" class="border p-3">
                             <form method="post">
                                 <input type="hidden" name="id" value="<?php echo $id; ?>">
 
@@ -245,7 +283,7 @@
                                     $info_result = mysqli_stmt_get_result($info_stmt);
 
                                     if (mysqli_num_rows($info_result) > 0) {
-                                        echo '<table class="table table-bordered table-striped">';
+                                        echo '<table class="table table-bordered table-striped" id="clientTable">';
                                         echo '  <thead>
                                                     <tr>
                                                         <th style="width:20%">Date:</th>
@@ -277,22 +315,67 @@
                                     mysqli_close($conn);
                                 }
                                 ?>
+                                <?php
+                                if (isset($_GET['id'])) {
+                                    include "../../db_connect/config.php";
+                                    $id = $_GET['id'];
+                                    $info_sql = "SELECT * FROM zp_derma_appointment WHERE patient_id=?";
+                                    $info_stmt = mysqli_prepare($conn, $info_sql);
+                                    mysqli_stmt_bind_param($info_stmt, "i", $id);
+                                    mysqli_stmt_execute($info_stmt);
+                                    $info_result = mysqli_stmt_get_result($info_stmt);
+
+                                    if (mysqli_num_rows($info_result) > 0) {
+                                        echo '<table class="table table-bordered table-striped" id="clientTable">';
+                                        echo '  <thead>
+                                                    <tr>
+                                                        <th>Date of Appointment:</th>
+                                                        <th>Time of Appointment:</th>
+                                                    </tr>
+                                                </thead>';
+                                        echo '<tbody>';
+                                        while ($info_row = mysqli_fetch_assoc($info_result)) {
+                                            $date_appointment = $info_row['date_appointment'];
+                                            $time_appointment = $info_row['time_appointment'];
+                                            echo '
+                                            <tr>
+                                                <td>' . date("F jS Y ", strtotime(strval($date_appointment))) . '</td> 
+                                                <td>'.$time_appointment.'</td>
+                                            </tr>';
+                                        }
+                                        echo '</tbody></table>';
+                                    } else {
+                                        echo '<p>No diagnosis information available for this patient.</p>';
+                                    }
+
+                                    mysqli_stmt_close($info_stmt);
+                                    mysqli_close($conn);
+                                }
+                                ?>
                             </div>
                         </div>
                         </div>
-                        <div id="appointmentContainer" style="display: none;">
+                        <div id="appointmentContainer" style="display: none;" class="border p-3">
                             <form method="post">
                                 <input type="hidden" name="id" value="<?php echo $id; ?>">
 
-                                <div class="mb-3">
-                                    <label class="mb-3">Date of appointment:</label>
-                                    <input class="form-control" name="date_appointment" type="date"></input>
+                                <div>
+                                    <label for="">Schedule Date (Rescheduled)</label>
+                                    <input type="date" class="form-control" placeholder="Enter Schedule Date" id="d" name="date_appointment" required value="<?php echo isset($date) ? $date : ''; ?>">
+                                </div>
+                                <div>
+                                    <label>Select Time Appointment (Rescheduled)</label>
+                                    <select class="form-control" name="time_appointment" id="time" placeholder="Enter Time Appointment" required>
+                                        <?php if (isset($time)) : ?>
+                                            <option value="<?php echo $time; ?>" selected><?php echo $time; ?></option>
+                                        <?php endif; ?>
+                                    </select>
                                 </div>
                                 <div class="mb-3">
                                     <input class="btn btn-purple bg-purple text-white" type="submit" name="add_appointment" value="Add Appointment">
                                 </div>
                             </form>
-                            <div>
+                            <div style="width: 70%;" class="d-flex justify-content-center">
                                 <div id="calendar"></div>
                             </div>
                         </div>
@@ -305,38 +388,9 @@
             </div>
         </div>
     </div>
+    <script src="js/record.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
-    <script>
-                    // Initialize Summernote on the textarea
-                    $(document).ready(function() {
-                    $('#summernote').summernote({
-                        height: 200 // You can adjust the height as needed
-                    });
-                    $('#calendar').fullCalendar({
-                        editable:true,
-                        header:{
-                        left:'prev,next',
-                        center:'title',
-                        right:'today'
-                        },
-                    })
-                });
-        </script>
-        <script>
-    const diagnosisContainer = document.getElementById('diagnosisContainer');
-    const appointmentContainer = document.getElementById('appointmentContainer');
-
-    function showDiagnosis() {
-        diagnosisContainer.style.display = 'block';
-        appointmentContainer.style.display = 'none';
-    }
-
-    function showAppointment() {
-        diagnosisContainer.style.display = 'none';
-        appointmentContainer.style.display = 'block';
-    }
-</script>
 
     </body>
     </html>

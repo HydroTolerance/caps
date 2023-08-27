@@ -1,4 +1,8 @@
-<?php include "../function.php"?>
+<?php 
+include "../function.php";
+checklogin();
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,53 +12,11 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
     <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.4/css/jquery.dataTables.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/rowreorder/1.2.8/css/rowReorder.dataTables.min.css">
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.dataTables.min.css">
-    
-    <style>
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th, td {
-            padding: 8px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-
-        th {
-            background-color: #f2f2f2;
-        }
-        .action-buttons a {
-            margin-right: 10px;
-            color: #222;
-            text-decoration: none;
-        }
-
-        .action-buttons a:hover {
-            color: #777;
-        }
-
-        .dataTables_filter input {
-            margin-top: 10px;
-            margin-right: 10px;
-            margin-bottom: 20px;
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 </head>
 
 <body>
@@ -63,16 +25,16 @@
             <?php include "../sidebar.php"; ?>
             <div class="col main-content custom-navbar bg-light">
                 <?php include "../navbar.php"?>
-                <div class="ms-3">
+                <div class="ms-3 mx-3">
                 <div>
                     <a href="add_client_record.php">
                         <button class="create_patients btn btn-purple bg-purple text-white ms-3 mb-3 mt-2 col-xl-2">CREATE CLIENT</button>
                     </a>
                 </div>
                 <div>
-                    <div class="ms-3">
-                    <div class="bg-white p-3 rounded-3 shadow mb-3">
-                        <table id="clientTable" class="display nowrap responsive" style="width:100%">
+                    <div>
+                    <div class="bg-white p-3 rounded-3 border w-100">
+                        <table id="clientTable" class="table table-striped nowrap" style="width:100%">
                             <thead>
                                 <tr>
                                     <th>First Name</th>
@@ -117,10 +79,6 @@
     </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.datatables.net/1.11.4/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/rowreorder/1.2.8/js/dataTables.rowReorder.min.js"></script>
-<script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
