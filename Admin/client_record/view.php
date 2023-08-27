@@ -14,8 +14,7 @@
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css">
-        <style>
-        </style>
+        
     </head>
     <body>
     <?php
@@ -122,7 +121,7 @@
                                     $info_result = mysqli_stmt_get_result($info_stmt);
 
                                     if (mysqli_num_rows($info_result) > 0) {
-                                        echo '<table class="table table-bordered table-striped" id="clientTable">';
+                                        echo '<table class="table table-striped nowrap" id="clientTable">';
                                         echo '  <thead>
                                                     <tr>
                                                         <th style="width:20%">Date:</th>
@@ -192,7 +191,6 @@
                         rowReorder: {
                             selector: 'td:nth-child(2)'
                         },
-
                     });
                 });
                 const diagnosisContainer = document.getElementById('diagnosisContainer');
@@ -202,7 +200,6 @@
                     diagnosisContainer.style.display = 'block';
                     appointmentContainer.style.display = 'none';
                 }
-
                 function showAppointment() {
                     diagnosisContainer.style.display = 'none';
                     appointmentContainer.style.display = 'block';

@@ -1,5 +1,5 @@
 <?php
-include "../db_connect/config.php";
+include "../../db_connect/config.php";
 $d = $_GET['d'];
 $query = "SELECT appointment_slots.slots, 
                  COUNT(book1.time) AS num_bookings_book1,

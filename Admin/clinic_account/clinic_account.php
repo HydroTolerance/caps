@@ -1,5 +1,6 @@
 <?php 
 include "../function.php";
+
 checklogin();
 ?>
 <!DOCTYPE html>
@@ -10,11 +11,8 @@ checklogin();
     <title>Clinic Account</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css">
     <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-pro@latest/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="../css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/rowreorder/1.2.8/css/rowReorder.dataTables.min.css">
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.dataTables.min.css">
 </head>
 <body>
 <div class="container-fluid">
@@ -31,8 +29,8 @@ checklogin();
                 <button type="button" class="btn btn-primary" onclick="showInsertModal()">Insert</button>
             <div class="container">
                 <div class="row">
-                    <div>
-                        <table id="table_clinic" class="cell-border stripe display nowrap" style="width:100%">
+                    <div class="bg-white p-3 rounded-3 border w-100">
+                        <table id="table_clinic" class="table table-striped nowra" style="width:100%">
                             <thead>
                                 <tr>
                                     <th>#</th>
@@ -103,12 +101,17 @@ checklogin();
         </div>
     </div>
 </div>
+<script>
+        $(document).ready(function() {
+            $('#clientTable').DataTable({
+                responsive: true,
+                rowReorder: {
+                    selector: 'td:nth-child(2)'
+                }
+            });
+        });
+    </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.10.2/umd/popper.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/5.3.0/js/bootstrap.min.js"></script>
-<script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/rowreorder/1.2.8/js/dataTables.rowReorder.min.js"></script>
-<script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.all.min.js"></script>
 <script src="js/clinic.js"></script>
 </body>
