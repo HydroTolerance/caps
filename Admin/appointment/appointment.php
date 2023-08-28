@@ -15,6 +15,68 @@ checklogin();
     <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <script src="../appointment/js/appointment.js"></script>
+    
+    <style>
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .action-buttons a {
+            margin-right: 10px;
+            color: #222;
+            text-decoration: none;
+        }
+
+        .action-buttons a:hover {
+            color: #777;
+        }
+
+        .dataTables_filter input {
+            margin-top: 10px;
+            margin-right: 10px;
+            margin-bottom: 20px;
+        }
+        .status-cancelled {
+    color: red;
+}
+
+.status-approved {
+    color: green;
+}
+
+.status-rescheduled {
+    color: blue;
+}
+.content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width:100%;
+  height:100%;
+}
+
+    </style>
 </head>
 
 <body>
@@ -25,8 +87,8 @@ checklogin();
         <?php include "../navbar.php"?>
         <div class="mx-3">
                 <h1 class="text-purple">Appointment</h1>
-                <div class="bg-white p-3 rounded-3 border mb-3">
-                <table id="patientTable" class="table table-striped nowrap" style="width:100%">
+                <div class="bg-white p-3 rounded-3 border w-100 mb-3">
+                <table id="patientTable" class="display nowrap responsive" style="width:100%">
             <thead>
                 <tr>
                     <th>Appointment ID</th>

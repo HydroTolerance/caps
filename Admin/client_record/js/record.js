@@ -1,23 +1,5 @@
-// Initialize Summernote on the textarea
-$(document).ready(function() {
-    $('#summernote').summernote({
-        height: 200 // You can adjust the height as needed
-    });
-    $('#calendar').fullCalendar({
-        editable: true,
-        header: {
-            left: 'prev,next',
-            center: 'title',
-            right: 'today'
-        },
-        events: 'get_schedule.php',
-        eventClick: function(event) {
-            // Handle event click here
-            alert('Event clicked: ' + event.title);
-        }
-    });
-});
-const diagnosisContainer = document.getElementById('diagnosisContainer');
+
+    const diagnosisContainer = document.getElementById('diagnosisContainer');
 const appointmentContainer = document.getElementById('appointmentContainer');
 
 function showDiagnosis() {
@@ -80,4 +62,3 @@ function updateTime() {
     xmlhttp.open("GET", "get_slot.php?d=" + encodeURIComponent(selectedDate), true);
     xmlhttp.send();
 }
-        

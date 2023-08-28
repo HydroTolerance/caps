@@ -170,21 +170,24 @@
             </div>
         </div>
     </div>
+    <script src="js/record.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
     <script>
                     // Initialize Summernote on the textarea
                     $(document).ready(function() {
-                    $('#summernote').summernote({
-                        height: 200 // You can adjust the height as needed
-                    });
-                    $('#calendar').fullCalendar({
-                        editable:true,
-                        header:{
-                        left:'prev,next',
-                        center:'title',
-                        right:'today'
+                        $('#calendar').fullCalendar({
+                        editable: true,
+                        header: {
+                            left: 'prev,next today',
+                            center: 'title',
+                            right: 'month,agendaWeek,agendaDay'
                         },
+                        events: './get_schedule.php?id=<?php echo $id; ?>', // Add the user ID
+                        eventClick: function(event) {
+                            // Handle event click here
+                            alert('Event clicked: ' + event.title);
+                        }
                     });
                     $('#clientTable').DataTable({
                         responsive: true,
@@ -193,17 +196,6 @@
                         },
                     });
                 });
-                const diagnosisContainer = document.getElementById('diagnosisContainer');
-                const appointmentContainer = document.getElementById('appointmentContainer');
-
-                function showDiagnosis() {
-                    diagnosisContainer.style.display = 'block';
-                    appointmentContainer.style.display = 'none';
-                }
-                function showAppointment() {
-                    diagnosisContainer.style.display = 'none';
-                    appointmentContainer.style.display = 'block';
-                }
     </script>
     </body>
     </html>
