@@ -1,6 +1,7 @@
 <?php
 include "../function.php";
 checklogin();
+$userData = $_SESSION['zep_acc'];
 ?>
 <?php
     include "../../db_connect/config.php";
@@ -31,8 +32,22 @@ checklogin();
     $rowFemale = mysqli_fetch_assoc($resultFemale);
     $totalFemale = $rowFemale['total_female'];
 
+    $today = date("Y-m-d");
+    $stmt = mysqli_query($conn, " SELECT COUNT(*) as total_appointment FROM (SELECT date FROM book1 UNION ALL SELECT date_appointment FROM zp_derma_appointment) AS combined_dates WHERE DATE(date) = '$today'");
+    $appointment_count = mysqli_fetch_assoc($stmt);
+    $totalAppointments = $appointment_count['total_appointment'];
+
     $queryTotalPatients = "SELECT COUNT(*) as total_patient FROM zp_client_record";
     $resultTotalPatients = mysqli_query($conn, $queryTotalPatients);
+    
+    $queryServices = "SELECT services, COUNT(*) as service_count FROM  book1 WHERE YEAR(created) = $currentYear GROUP BY services";
+            $resultServices = mysqli_query($conn, $queryServices);
+            $serviceLabels = [];
+            $serviceCounts = [];
+            while ($rowService = mysqli_fetch_assoc($resultServices)) {
+                $serviceLabels[] = $rowService['services'];
+                $serviceCounts[] = $rowService['service_count'];
+            }
 
     if ($resultTotalPatients) {
         $rowTotalPatients = mysqli_fetch_assoc($resultTotalPatients);
@@ -57,7 +72,6 @@ checklogin();
         
     </head>
     <style>
-      
         .dropdown-menu {
         margin-left: -2rem;
     }
@@ -81,7 +95,7 @@ checklogin();
             }
         }
     </style>
-    <body>   
+    <body> 
     <div class="container-fluid">
     <div class="row flex-nowrap">
         <?php include "../sidebar.php"; ?>
@@ -89,14 +103,22 @@ checklogin();
         <?php include "../navbar.php"?>
         <div class="container">
             <div class="row ">
-                <div class="d-flex justify-content-center align-items-center">
+                <div class="d-flex justify-content-center fade-in">
                     <!-- Purple Box -->
                     <div class="bg-purple col-xl-8 p-3 rounded mb-3 shadow mx-2">
                         <!-- Container for Text and Picture  -->
                         <div class="d-flex justify-content-between">
                             <div>
                                 <h2 class="text-white">Hello Arola</h2>
-                                <span class="text-white">Today you have <?php ?> appointments for this day!</span>
+                                <div>
+                                    <div>
+                                        <span class="text-white">Total of appointment Today Are!</span>
+                                    </div>
+                                    <br>
+                                    <div>
+                                        <h1 class="text-white"><?php echo $totalAppointments; ?></h1>
+                                    </div>
+                                </div>
                             </div>
                             <div class="col-auto">
                                 <img src="../image/dashboard.png" alt="" height="160px" class="w-100">
@@ -107,39 +129,50 @@ checklogin();
             </div>
         </div>
             <div class="container-fluid">
+                <div class="row justify-content-center">
+                    <div class="col-md-10 mt-2 fade-in">
+                        <div class="border bg-body rounded pt-3 pb-3 d-flex justify-content-center align-items-center">
+                            <div class="mx-2 text-center">
+                                <h5>Services</h5>
+                                <div>
+                                    <canvas id="serviceChart" width="1000" height="200"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container-fluid">
               <div class="row justify-content-center">
                 <div class="col-md-5 mt-2 fade-in">
-                    <div class="shadow bg-body rounded pt-3 pb-3 d-flex justify-content-center align-items-center flex-shrink-0 h-100">
-                        <div>
-                          <canvas id="appointmentChart" width="200" height="200"></canvas>
-                            <div>
-                            <div class="mx-2">
-                                    <label>Total Appointments</label>
-                                    <label><?php echo $totalApproved + $totalPending + $totalReschedule; ?></label>
-                                </div>
+                    <div class="border bg-body rounded pt-3 justify-content-center pb-3 d-flex  h-100">
+                      <div class="mx-2 text-center">
+                            <h5>Total Appointments: <?php echo $totalApproved + $totalPending + $totalReschedule; ?></h5>
+                            <div style="margin: -50px;">
+                              <canvas id="appointmentChart" width="300" height="300"></canvas>
                             </div>
                         </div>
                       </div>
                   </div>
                   <!-- Total Patients Chart -->
                   <div class="col-md-5 mt-2 fade-in">
-                        <div class="shadow bg-body rounded pt-3 pb-3 d-flex justify-content-center align-items-center flex-shrink-0 h-100">
-                            <div>
-                                <canvas id="patientChart" width="200" height="200"></canvas>
-                                <div>
-                                  <div class="mx-2">
-                                        <label>Total Patients</label>
-                                        <label><?php echo $totalPatient; ?></label>
+                        <div class="border bg-body rounded pt-3 pb-3 d-flex justify-content-center align-items-center flex-shrink-0 h-100">
+                          <div class="mx-2 text-center">
+                                  <h5>Total Patients: <?php echo $totalPatient; ?></h5>
+                                  <div style="margin: -50px;">
+                                    <canvas id="patientChart" width="300" height="300"></canvas>
                                   </div>
-                                </div>
+                                  
                             </div>
                         </div>
                     </div>
+                    
                 </div>
               </div>
+              
         
-    
-                        <div class="text-center shadow mt-4 mb-5 bg-white p-4 rounded mx-4 fade-in" id="calendar"></div>
+                        <div>
+                        <div class="text-center mt-4 mb-5 bg-white p-4 border rounded mx-4 fade-in"  id="calendar"></div>
                         </div>
                     </div>
                 </div>
@@ -149,88 +182,19 @@ checklogin();
             </ul>
         </div>
     </div>
+    <script src="js/dashboard.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script></script>
     <script>
-  function renderEventDetails(event, element) {
-    var time = event.time ? '<br>' + event.time : '';
-    element.find('.fc-title').append(time);
-    element.addClass('rendered');
-
-    var details = '<div class="event-details">' +
-      '<strong>Name:</strong> ' + event.name + '<br>' +
-      '<strong>Number:</strong> ' + event.number + '<br>' +
-      '<strong>Email:</strong> ' + event.email + '<br>' +
-      '<strong>Health Concern:</strong> ' + event.healthConcern + '<br>' +
-      '<strong>Services:</strong> ' + event.services + '<br>' +
-      '<strong>Date:</strong> ' + event.date + '<br>' +
-      '<strong>Time:</strong> ' + event.time +
-      '</div>';
-
-    tippy(element[0], {
-      placement: 'bottom-start',
-      interactive: true,
-      content: details,
-      allowHTML: true,
-      animation: 'scale',
-      appendTo: document.body,
-    });
-
-    element.css({
-      'background-color': event.color,
-      'border-color': event.color
-    });
-  }
-
-  $(document).ready(function() {
-    $('#calendar').fullCalendar({
-      events: './get_booking.php',
-      eventRender: function(event, element) {
-        var duplicate = checkForDuplicateEvent(event);
-
-        if (!element.hasClass('rendered') && !duplicate) {
-          renderEventDetails(event, element);
-        }
-      },
-      viewRender: function(view, element) {
-        $('.event-details').remove(); // Remove existing tooltips
-      },
-      eventAfterAllRender: function(view) {
-        $('.fc-event').each(function() {
-          var event = $(this);
-          var tooltip = event.data('tippy');
-          if (tooltip) {
-            tooltip.enable(); // Enable tooltips for rendered events
-          }
-        });
-      }
-    });
-  });
-
-  // Function to check for duplicate events
-  function checkForDuplicateEvent(event) {
-    var existingEvents = $('#calendar').fullCalendar('clientEvents');
-
-    for (var i = 0; i < existingEvents.length; i++) {
-      var existingEvent = existingEvents[i];
-
-      if (existingEvent.id !== event.id && existingEvent.title === event.title && existingEvent.start.isSame(event.start)) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-    </script>
-<script>
-    $(document).ready(function() {
+        $(document).ready(function() {
         // Data for the pie charts
         var appointmentChartData = {
-            labels: ['Approved', 'Pending', 'Rescheduled'],
             datasets: [{
                 data: [<?php echo $totalApproved; ?>, <?php echo $totalPending; ?>, <?php echo $totalReschedule; ?>],
                 backgroundColor: ['#28a745', '#ffc107', '#dc3545'],
             }],
+            labels: ['Approved', 'Pending', 'Rescheduled'],
         };
 
         var patientChartData = {
@@ -247,15 +211,67 @@ checklogin();
             data: appointmentChartData,
             options: {
                 responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'right', // Change the position to 'bottom'
+                    },
+                },
+                cutout: '60%', // Adjust the hole size (optional)
             },
         });
+
 
         var patientChart = new Chart(document.getElementById('patientChart'), {
             type: 'doughnut',
             data: patientChartData,
-            
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'right', // Change the position to 'bottom'
+                    },
+                },
+                cutout: '60%', // Adjust the hole size (optional)
+            },
+        });
+        var serviceChartData = {
+            labels: <?php echo json_encode($serviceLabels); ?>,
+            datasets: [{
+                label: 'Service Count',
+                data: <?php echo json_encode($serviceCounts); ?>,
+                backgroundColor: ['rgba(255, 99, 132, 0.2)','rgba(255, 159, 64, 0.2)','rgba(255, 205, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(201, 203, 207, 0.2)'
+                ],
+                borderColor: [
+                'rgb(255, 99, 132)',
+                'rgb(255, 159, 64)',
+                'rgb(255, 205, 86)',
+                'rgb(75, 192, 192)',
+                'rgb(54, 162, 235)',
+                'rgb(153, 102, 255)',
+                'rgb(201, 203, 207)'
+                ],
+                borderWidth: 1
+            }]
+        };
+
+        // Create bar chart
+        var serviceChart = new Chart(document.getElementById('serviceChart'), {
+            type: 'bar',
+            data: serviceChartData,
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+            }
         });
     });
-</script>
+    </script>
     </body>
 </html>

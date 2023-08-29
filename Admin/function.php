@@ -40,8 +40,8 @@
     
         // Store the original URL only if user is not logged in
         if (!isset($_SESSION['clinic_email']) || !isset($_SESSION['clinic_role'])) {
-            $_SESSION['original_url'] = $_SERVER['REQUEST_URI'];
-            header("Location: login.php");
+        
+            header("Location: ../login.php");
             exit();
         }
     }

@@ -104,28 +104,58 @@
         $id = $_POST['id'];
         $date = $_POST['date_appointment'];
         $time = $_POST['time_appointment'];
+        $services = $_POST['services_appointment'];
 
         // Insert or update diagnosis information in zp_derma_record table
-        $info_sql = "INSERT INTO zp_derma_appointment (patient_id, date_appointment, time_appointment) VALUES (?, ?, ?)";
-        $info_stmt = mysqli_prepare($conn, $info_sql);
-        mysqli_stmt_bind_param($info_stmt, "iss", $id, $date, $time);
-        if ($info_stmt->execute()) {
-            echo "<script>
-            Swal.fire({
-                icon: 'success',
-                title: 'Success!',
-                text: 'Data Updated successfully.'
-            }).then(function() {
-                window.location.href = 'edit_client_record.php?id=" . $id . "';
-            });</script>";
-        exit();
-    }else {
-        echo" Swal.fire({
-            icon: 'error',
-            title: 'Error!',
-            text: 'Failed to add data.'
-        });";
-    }
+        if (isset($_POST['add_appointment'])) {
+            include "../../db_connect/config.php"; // Include your database configuration
+        
+            $id = $_POST['id'];
+            $date = $_POST['date_appointment'];
+            $time = $_POST['time_appointment'];
+            $services = $_POST['services_appointment'];
+        
+            // Fetch client's first name from zp_client_record
+            $name_sql = "SELECT client_firstname, client_lastname FROM zp_client_record WHERE id=?";
+            $name_stmt = mysqli_prepare($conn, $name_sql);
+            mysqli_stmt_bind_param($name_stmt, "i", $id);
+            mysqli_stmt_execute($name_stmt);
+            $name_result = mysqli_stmt_get_result($name_stmt);
+        
+            if ($name_row = mysqli_fetch_assoc($name_result)) {
+                $fname = $name_row['client_firstname'] ." ". $name_row['client_lastname'];
+        
+                // Insert appointment into zp_derma_appointment table
+                $info_sql = "INSERT INTO zp_derma_appointment (patient_id, name_appointment, date_appointment, time_appointment, services_appointment) VALUES (?, ?, ?, ?, ?)";
+                $info_stmt = mysqli_prepare($conn, $info_sql);
+                mysqli_stmt_bind_param($info_stmt, "issss", $id, $fname, $date, $time, $services);
+        
+                if (mysqli_stmt_execute($info_stmt)) {
+                    echo "<script>
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'Data Updated successfully.'
+                    }).then(function() {
+                        window.location.href = 'edit_client_record.php?id=" . $id . "';
+                    });
+                    </script>";
+                    exit();
+                } else {
+                    echo "<script>
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'Failed to add data.'
+                    });
+                    </script>";
+                }
+            } else {
+                echo "Client not found";
+                exit;
+            }
+        }
+        
 
         // Close the prepared statement and database connection
         mysqli_stmt_close($info_stmt);
@@ -364,14 +394,24 @@
                                     <input type="date" class="form-control" placeholder="Enter Schedule Date" id="d" name="date_appointment" required value="<?php echo isset($date) ? $date : ''; ?>">
                                 </div>
                                 <div>
-                                    <label>Select Time Appointment (Rescheduled)</label>
+                                    <label>Select Time Appointment <span class="text-danger">*</span></label>
                                     <select class="form-control" name="time_appointment" id="time" placeholder="Enter Time Appointment" required>
                                         <?php if (isset($time)) : ?>
                                             <option value="<?php echo $time; ?>" selected><?php echo $time; ?></option>
                                         <?php endif; ?>
                                     </select>
                                 </div>
-                                <div class="mb-3">
+                                <div>
+                                <label>Services <span class="text-danger">*</span></label>
+                                <select class="form-select" name="services_appointment">
+                                    <option value="Consultation" required></option>
+                                    <option value="Nail">Nail</option>
+                                    <option value="Hair">Hair</option>
+                                    <option value="Skin">Skin</option>
+                                    <option value="Face">Face</option>
+                                </select>
+                                </div>
+                                <div class="mb-3 mt-3">
                                     <input class="btn btn-purple bg-purple text-white" type="submit" name="add_appointment" value="Add Appointment">
                                 </div>
                             </form>
@@ -391,6 +431,26 @@
     <script src="js/record.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
+    <!-- Existing code... -->
 
+<script>
+    $(document).ready(function() {
+        $('#calendar').fullCalendar({
+            editable: true,
+            header: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'month,agendaWeek,agendaDay'
+            },
+            events: './get_schedule.php?id=<?php echo $id; ?>', // Add the user ID
+            eventClick: function(event) {
+                // Handle event click here
+                alert('Event clicked: ' + event.title);
+            }
+        });
+
+        // Rest of your JavaScript code...
+    });
+</script>
     </body>
     </html>
