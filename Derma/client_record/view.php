@@ -1,7 +1,6 @@
 <?php
-include "../function.php";
-checklogin();
-$userData = $_SESSION['zep_acc'];
+    include "../function.php";
+    checklogin();
 ?>
     <!DOCTYPE html>
     <html lang="en">
@@ -71,7 +70,7 @@ $userData = $_SESSION['zep_acc'];
                 <div class="ms-3">
                     <div class="m-2 bg-white text-dark p-4 rounded-4 border border-4 shadow-sm">
                         <h2 style="color:6537AE;" class="text-center mb-5">Client Record (View)</h2>
-                        <div cl>
+                        <div>
                             <div class="row mb-3 justify-content-center">
                                 <input type="hidden" name="id" value="<?php echo $id; ?>">
                                 <div class="col-md-2">
@@ -94,12 +93,6 @@ $userData = $_SESSION['zep_acc'];
                                     <label class="mb-3"><b>Contact Number Person:</b> <?php echo $econtactno; ?></label><br>
                                     <label class="mb-3"><b>Relation:</b> <?php echo $relation; ?></label><br>
                                 </div>
-                            </div>
-                            <div class="row mb-3">
-                                
-                            </div>
-                            <div class="row">
-                                
                             </div>
                         </div>
                         <div class="d-flex flex-row-reverse">

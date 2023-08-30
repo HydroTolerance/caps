@@ -1,23 +1,23 @@
-<?php 
+<?php
 include "../function.php";
 checklogin();
+$userData = $_SESSION['zep_acc'];
+?>
+<?php 
 
 if(isset($_POST['submit'])){
     include "../../db_connect/config.php";
     $service = $_POST['services'];
 
-    // Prepare the SQL statement using placeholders
     $sql = "INSERT INTO service (services) VALUES (?)";
 
-    // Create a prepared statement
     $stmt = mysqli_prepare($conn, $sql);
     mysqli_stmt_bind_param($stmt, "s", $service);
 
-    // Execute the prepared statement
     if (mysqli_stmt_execute($stmt)) {
         mysqli_stmt_close($stmt);
         mysqli_close($conn);
-        header("Location: service.php"); // Redirect to faq.php
+        header("Location: service.php");
         exit();
     } else {
         echo "Error: " . mysqli_error($conn);
@@ -36,16 +36,9 @@ if(isset($_POST['submit'])){
         <title>Dashboard</title>
         <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
         <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10.15.5/dist/sweetalert2.min.css">
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.15.5/dist/sweetalert2.min.js"></script>
-        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css">
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
-        <link rel="stylesheet" href="../css/style.css">
         <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400&display=swap" rel="stylesheet">
-            <!-- Include Summernote CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.0/dist/sweetalert2.min.css" rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.css" rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.0/dist/sweetalert2.min.css" rel="stylesheet">
     </head>
     <body>
     <div class="container-fluid">
@@ -54,8 +47,9 @@ if(isset($_POST['submit'])){
         <div class="col main-content custom-navbar bg-light">
         <?php include "../navbar.php"?>
         <div class="mx-3">
-        <button type="button" class="btn btn-primary" onclick="addServiceModal()">Insert</button>
-                <table id="clientTable" class="clientTable" style="padding: 20px;">
+            <button type="button" class="btn btn-primary mb-3" onclick="addServiceModal()">Add Services</button>
+            <div class="bg-white p-3 rounded-3 border w-100">
+                <table id="clientTable" class="table table-striped nowrap">
                     <thead>
                         <tr>
                             <th>#</th>
@@ -84,7 +78,7 @@ if(isset($_POST['submit'])){
                         ?>
                     </tbody>
                 </table>
-        </div>
+            </div>
         </div>
     </div>
 </div>
@@ -115,25 +109,8 @@ if(isset($_POST['submit'])){
         </div>
     </div>
 </div> 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
-<!-- Include Summernote JS -->
-<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.0/dist/sweetalert2.min.js"></script>
 <script>
-    $(document).ready(function() {
-        // Initialize Summernote on the textarea
-        $('.summernote').summernote();
-
-        $('#clientTable').DataTable({
-            responsive: true,
-            rowReorder: {
-                selector: 'td:nth-child(2)'
-            }
-        });
-    });
-
     function showRescheduleModal(id) {
         $.ajax({
             url: 'edit_service.php',
@@ -176,13 +153,10 @@ if(isset($_POST['submit'])){
                     type: 'GET',
                     data: { id: id },
                     success: function (response) {
-                        // Handle the response or refresh the page if needed
-                        // For example, you can redirect to faq.php after successful deletion:
                         window.location.href = 'service.php';
                     },
                     error: function (xhr, status, error) {
                         console.log(xhr.responseText);
-                        // Show an error alert using SweetAlert2
                         Swal.fire({
                             icon: 'error',
                             title: 'Oops...',
@@ -193,9 +167,20 @@ if(isset($_POST['submit'])){
             }
         });
 
-        // Prevent the default behavior of the link
         return false;
     }
+</script>
+<script>
+        $(document).ready(function() {
+        $('#clientTable').DataTable({
+                responsive: true,
+                rowReorder: {
+                    selector: 'td:nth-child(2)'
+                }
+            });
+        // Initialize Summernote on the textarea
+        $('.summernote').summernote();
+    });
 </script>
     </body>
 </html>

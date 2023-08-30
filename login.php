@@ -1,70 +1,56 @@
 <?php
-include "../db_connect/config.php";
+include "db_connect/config.php";
 session_start();
-if (isset($_SESSION['clinic_email']) && isset($_SESSION['clinic_role'])) {
-    switch ($_SESSION['clinic_role']) {
-        case 'Admin':
-            header("Location: dashboard/dashboard.php");
-            exit();
-        case 'Derma':
-            header("Location: derma.php");
-            exit();
-        case 'Staff':
-            header("Location: Staff.php");
-            exit();
-        default:
-            $error_message = "Invalid role.";
-            break;
-    }
-}
+
 if (isset($_POST["submit"])) {
   $email = mysqli_real_escape_string($conn, trim($_POST['clinic_email']));
   $password = trim($_POST['clinic_password']);
-  $role = $_POST['clinic_role'];
 
   $sql = mysqli_query($conn, "SELECT * FROM zp_accounts WHERE clinic_email = '$email'");
   $count = mysqli_num_rows($sql);
 
   if ($count > 0) {
-      $fetch = mysqli_fetch_assoc($sql);
-      $hashpassword = $fetch["clinic_password"];
-      $accountStatus = $fetch["account_status"];
+    $fetch = mysqli_fetch_assoc($sql);
+    $hashpassword = $fetch["clinic_password"];
+    $accountStatus = $fetch["account_status"];
 
-      if (password_verify($password, $hashpassword)) {
-          if ($accountStatus === 'active') {
-              if ($fetch["clinic_role"] == $role) {
-                  $_SESSION['clinic_email'] = $email;
-                  $_SESSION['clinic_role'] = $role;
+    if (password_verify($password, $hashpassword)) {
+        if ($accountStatus === 'active') {
+            $role = $fetch["clinic_role"];
 
-                  switch ($role) {
-                      case 'Admin':
-                          header("Location: dashboard/dashboard.php");
-                          exit();
-                      case 'Derma':
-                          header("Location: derma.php");
-                          exit();
-                      case 'Staff':
-                          header("Location: Staff.php");
-                          exit();
-                      default:
-                          $error_message = "Invalid role.";
-                          break;
-                  }
-              } else {
-                  $error_message = "You do not have access to this role.";
-              }
-          } else {
-              // Account is deactivated
-              $error_message = "Deactivated account. Please contact the administrator.";
-          }
-      } else {
-          $error_message = "Invalid email or password, please try again.";
-      }
-  } else {
-      $error_message = "Invalid email or password, please try again.";
-  }
+            $_SESSION['clinic_email'] = $email;
+            $_SESSION['clinic_role'] = $role;
+
+            // Fetch all data and store it in a session variable
+            $_SESSION['zep_acc'] = $fetch;
+
+            switch ($role) {
+                case 'Admin':
+                    header("Location: Admin/dashboard/dashboard.php");
+                    exit();
+                case 'Derma':
+                    header("Location: Derma/dashboard/dashboard.php");
+                    exit();
+                case 'Staff':
+                    header("Location: Staff/dashboard/dashboard.php");
+                    exit();
+                default:
+                    $error_message = "Invalid role.";
+                    break;
+            }
+        } else {
+            // Account is deactivated
+            $error_message = "Deactivated account. Please contact the administrator.";
+        }
+    } else {
+        $error_message = "Invalid email or password, please try again.";
+    }
+} else {
+    $error_message = "Invalid email or password, please try again.";
+}
 }
 ?>
+
 
 
 
@@ -76,8 +62,8 @@ if (isset($_POST["submit"])) {
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../bootstrap/dist/css/bootstrap.min.css">
-    <script src="../bootstrap/dist/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="bootstrap/dist/css/bootstrap.min.css">
+    <script src="bootstrap/dist/js/bootstrap.min.js"></script>
     <title>Document</title>
     <style>
         .gradient-custom-2 {
@@ -129,15 +115,6 @@ border-bottom-right-radius: .3rem;
                   <div class="form-outline ">
                     <input type="password" id="form2Example22" class="form-control" name="clinic_password" required/>
                     <label class="form-label" for="form2Example22">Password</label>
-                  </div>
-                  <div class="form-outline ">
-                    <select name="clinic_role" id="" class="form-control" required>
-                      <option selected="true" disabled></option>
-                      <option value="Admin">Admin</option>
-                      <option value="Derma">Derma</option>
-                      <option value="Staff">Staff</option>
-                    </select>
-                    <label class="form-label" for="form2Example11">Select you Role</label>
                   </div>
                   <?php
                     if (isset($error_message)) {

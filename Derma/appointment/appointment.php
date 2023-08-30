@@ -1,7 +1,7 @@
 <?php 
 include "../function.php";
 checklogin();
-$userData = $_SESSION['zep_acc'];
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -99,7 +99,6 @@ $userData = $_SESSION['zep_acc'];
                     <th>Reference Code</th>
                     <th>Status</th>
                     <th>View All</th>
-                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -121,14 +120,6 @@ $userData = $_SESSION['zep_acc'];
                             <?php echo $row['appointment_status']; ?>
                         </td>
                         <td><button class="btn btn-link" onclick="showData('<?php echo $row['id']; ?>')"> <i class="bi bi-eye-fill text-center dark text-dark fs-4"></i></button></td>
-                        <td>
-                            <select class="form-select" name="status" onchange="updateStatus(<?php echo $row['id']; ?>, this.value)">
-                                <option <?php if ($row['appointment_status'] === 'Pending') echo 'selected'; ?>>Pending</option>
-                                <option value="Approved" <?php if ($row['appointment_status'] === 'Approved') echo 'selected'; ?>>Approved</option>
-                                <option value="Rescheduled" <?php if ($row['appointment_status'] === 'Rescheduled') echo 'selected'; ?>>Rescheduled</option>
-                                <option value="Cancelled" <?php if ($row['appointment_status'] === 'Cancelled') echo 'selected'; ?>>Cancelled</option>
-                            </select>
-                        </td>
                     </tr>
                     <?php
                 }
@@ -152,33 +143,6 @@ $userData = $_SESSION['zep_acc'];
     </div>
 </div>
 
-<div class="modal fade" id="rescheduleModal" tabindex="-1" aria-labelledby="rescheduleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="rescheduleModalLabel">Reschedule Appointment</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <!-- Reschedule form will be dynamically inserted here -->
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="cancelledModal" tabindex="-1" aria-labelledby="cancelledLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="cancelledLabel">Cancelled Appointment</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <!-- Cancelled appointment details will be dynamically inserted here -->
-            </div>
-        </div>
-    </div>
-</div>
 
 </div>
                 
