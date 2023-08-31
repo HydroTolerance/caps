@@ -90,11 +90,11 @@ function generateAppointmentID() {
             <div class="col-12">
                 <h3 class="fs-4 text-uppercase mb-4" style="color: #6537AE;">Appointment form</h3>
             </div>
-            <form action="" method="post">
+            <form action="" method="post" data-parsley-validate>
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label for="">First Name (Required)</label>
-                        <input type="text" class="form-control" placeholder="First Name" name="firstname" required>
+                        <input type="text" class="form-control" placeholder="First Name" name="firstname" required data-parsley-required="true">
                     </div>
                     <div class="col-md-6">
                         <label for="">Last Name (Required)</label>
@@ -102,7 +102,7 @@ function generateAppointmentID() {
                     </div>
                     <div class="col-md-6">
                         <label for="">Phone Number (Required)</label>
-                        <input type="tel" class="form-control" placeholder="Phone Number" pattern="[0-9]{11}" name="number" required>
+                        <input type="tel" class="form-control" placeholder="Phone Number" pattern="[0-9]{11}" name="number" required data-parsley-pattern="[0-9]{11}" data-parsley-trigger="keyup" data-parsley-error-message="Enter a valid 11-digit phone number">
                     </div>
                     <div class="col-md-6">
                         <label for="">Email (Required)</label>
@@ -140,6 +140,12 @@ function generateAppointmentID() {
     </div>
 </div>
 </main>
+<script src="https://cdn.jsdelivr.net/npm/parsleyjs"></script>
+<script>
+    $(document).ready(function() {
+        $('#your-form-id').parsley();
+    });
+</script>
 <script>
 function updateTime() {
     var d = document.getElementById("d").value;

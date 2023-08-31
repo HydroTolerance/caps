@@ -1,20 +1,20 @@
 <?php
 include "../db_connect/config.php";
 $d = $_GET['d'];
-$query = "SELECT appointment_slots.slots, 
-                 COUNT(book1.time) AS num_bookings_book1,
-                 COUNT(zp_derma_appointment.time_appointment) AS num_bookings
-          FROM appointment_slots
-          LEFT JOIN book1 ON appointment_slots.slots = book1.time AND book1.date = '$d'
-          LEFT JOIN zp_derma_appointment ON appointment_slots.slots = zp_derma_appointment.time_appointment AND zp_derma_appointment.date_appointment = '$d'
+$query = "SELECT appointment_slots.slots, COUNT(total_bookings.time) AS total_bookings FROM appointment_slots
+          LEFT JOIN (
+              SELECT time FROM book1 WHERE date = '$d'
+              UNION ALL
+              SELECT time_appointment AS time FROM zp_derma_appointment WHERE date_appointment = '$d'
+          ) AS total_bookings ON appointment_slots.slots = total_bookings.time
           GROUP BY appointment_slots.slots";
 
 $result = mysqli_query($conn, $query);
 $slots = array();
 while ($row = mysqli_fetch_array($result)) {
     $slot = $row['slots'];
-    $num_bookings = $row['num_bookings'];
-    $slots[$slot] = $num_bookings;
+    $total_bookings = $row['total_bookings'];
+    $slots[$slot] = $total_bookings;
 }
 
 // Fetch the slots_left value from the slots table
