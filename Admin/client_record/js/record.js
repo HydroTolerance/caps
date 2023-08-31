@@ -28,10 +28,17 @@ var time = document.getElementById("time");
 
 d.addEventListener("change", updateTime);
 
-function updateTime() {
-    var selectedDate = d.value;
-    time.innerHTML = "";
+document.getElementById("d").addEventListener("change", updateTime);
 
+// Initial time slots update when the page loads
+updateTime();
+
+function updateTime() {
+    var d = document.getElementById("d").value;
+    var timeSelect = document.getElementById("time");
+    timeSelect.innerHTML = "";
+
+    // Send an AJAX request to get available time slots
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
@@ -42,23 +49,17 @@ function updateTime() {
             for (var slot in slots) {
                 var option = document.createElement("option");
                 option.value = slot;
-                option.text = slot;
                 var num_bookings = slots[slot];
                 var slotsLeftForOption = slotsLeft - num_bookings;
                 if (slotsLeftForOption <= 0) {
                     option.disabled = true;
                     slotsLeftForOption = 0;
                 }
-                time.add(option);
-                var slotText = option.text + " (" + slotsLeftForOption + " slot(s) left)";
-                option.text = slotText;
+                option.text = slot + " (" + slotsLeftForOption + " slot(s) left)";
+                timeSelect.appendChild(option);
             }
-
-
-            var num_slots = Object.keys(slots).length;
-            document.getElementById("num_slots").innerHTML = " (" + num_slots + " slots available)";
         }
     };
-    xmlhttp.open("GET", "get_slot.php?d=" + encodeURIComponent(selectedDate), true);
+    xmlhttp.open("GET", "get_slot.php?d=" + encodeURIComponent(d), true);
     xmlhttp.send();
 }

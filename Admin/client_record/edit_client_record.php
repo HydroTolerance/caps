@@ -1,6 +1,7 @@
 <?php
-    include "../function.php";
-    checklogin();
+include "../function.php";
+checklogin();
+$userData = $_SESSION['zep_acc'];
 ?>
     <!DOCTYPE html>
     <html lang="en">
@@ -105,62 +106,52 @@
         $date = $_POST['date_appointment'];
         $time = $_POST['time_appointment'];
         $services = $_POST['services_appointment'];
+        
+        // Fetch client's first name from zp_client_record
+        $name_sql = "SELECT client_firstname, client_lastname FROM zp_client_record WHERE id=?";
+        $name_stmt = mysqli_prepare($conn, $name_sql);
+        mysqli_stmt_bind_param($name_stmt, "i", $id);
+        mysqli_stmt_execute($name_stmt);
+        $name_result = mysqli_stmt_get_result($name_stmt);
+    
+        if ($name_row = mysqli_fetch_assoc($name_result)) {
+            $fname = $name_row['client_firstname'] ." ". $name_row['client_lastname'];
 
-        // Insert or update diagnosis information in zp_derma_record table
-        if (isset($_POST['add_appointment'])) {
-            include "../../db_connect/config.php"; // Include your database configuration
-        
-            $id = $_POST['id'];
-            $date = $_POST['date_appointment'];
-            $time = $_POST['time_appointment'];
-            $services = $_POST['services_appointment'];
-        
-            // Fetch client's first name from zp_client_record
-            $name_sql = "SELECT client_firstname, client_lastname FROM zp_client_record WHERE id=?";
-            $name_stmt = mysqli_prepare($conn, $name_sql);
-            mysqli_stmt_bind_param($name_stmt, "i", $id);
-            mysqli_stmt_execute($name_stmt);
-            $name_result = mysqli_stmt_get_result($name_stmt);
-        
-            if ($name_row = mysqli_fetch_assoc($name_result)) {
-                $fname = $name_row['client_firstname'] ." ". $name_row['client_lastname'];
-        
-                // Insert appointment into zp_derma_appointment table
-                $info_sql = "INSERT INTO zp_derma_appointment (patient_id, name_appointment, date_appointment, time_appointment, services_appointment) VALUES (?, ?, ?, ?, ?)";
-                $info_stmt = mysqli_prepare($conn, $info_sql);
-                mysqli_stmt_bind_param($info_stmt, "issss", $id, $fname, $date, $time, $services);
-        
-                if (mysqli_stmt_execute($info_stmt)) {
-                    echo "<script>
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Success!',
-                        text: 'Data Updated successfully.'
-                    }).then(function() {
-                        window.location.href = 'edit_client_record.php?id=" . $id . "';
-                    });
-                    </script>";
-                    exit();
-                } else {
-                    echo "<script>
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error!',
-                        text: 'Failed to add data.'
-                    });
-                    </script>";
-                }
+            $info_sql = "INSERT INTO zp_derma_appointment (patient_id, name_appointment, date_appointment, time_appointment, services_appointment) VALUES (?, ?, ?, ?, ?)";
+            $info_stmt = mysqli_prepare($conn, $info_sql);
+            mysqli_stmt_bind_param($info_stmt, "issss", $id, $fname, $date, $time, $services);
+    
+            if (mysqli_stmt_execute($info_stmt)) {
+                echo "<script>
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: 'Data Updated successfully.'
+                }).then(function() {
+                    window.location.href = 'edit_client_record.php?id=" . $id . "';
+                });
+                </script>";
+                exit();
             } else {
-                echo "Client not found";
-                exit;
+                echo "<script>
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: 'Failed to add data.'
+                });
+                </script>";
             }
+        } else {
+            echo "Client not found";
+            exit;
         }
+                // Close the prepared statement and database connection
+    mysqli_stmt_close($info_stmt);
+    mysqli_close($conn);
+    }
         
 
-        // Close the prepared statement and database connection
-        mysqli_stmt_close($info_stmt);
-        mysqli_close($conn);
-    }
+
 
     if (isset($_POST['update_client'])) {
         include "../../db_connect/config.php"; // Include your database configuration
@@ -431,7 +422,6 @@
     <script src="js/record.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
-    <!-- Existing code... -->
 
 <script>
     $(document).ready(function() {
@@ -442,15 +432,20 @@
                 center: 'title',
                 right: 'month,agendaWeek,agendaDay'
             },
-            events: './get_schedule.php?id=<?php echo $id; ?>', // Add the user ID
+            eventLimit: true, // for all non-agenda views
+            views: {
+                agenda: {
+                eventLimit: 6 // adjust to 6 only for agendaWeek/agendaDay
+                }
+            },
+            events: './get_schedule.php?id=<?php echo $id; ?>',
             eventClick: function(event) {
                 // Handle event click here
                 alert('Event clicked: ' + event.title);
             }
         });
-
-        // Rest of your JavaScript code...
     });
 </script>
+
     </body>
     </html>

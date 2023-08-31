@@ -1,6 +1,7 @@
 <?php
-    include "../function.php";
-    checklogin();
+include "../function.php";
+checklogin();
+$userData = $_SESSION['zep_acc'];
 ?>
     <!DOCTYPE html>
     <html lang="en">
