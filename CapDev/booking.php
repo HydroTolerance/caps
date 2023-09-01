@@ -65,6 +65,53 @@ function generateAppointmentID() {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js">
+      </script>
+    <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js">
+      </script>
+    <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/additional-methods.min.js">
+      </script>
+      <script>
+        $().ready(function () {
+ 
+            $("#signUpForm").validate({
+                rules: {
+                    firstname: "required",
+                    lastname: "required",
+                    username: {
+                        required: true,
+                        minlength: 2
+                    },
+                    number: {
+                        required: true,
+                        minlength: 11,
+                        number: true,
+                    },
+                    email: {
+                        required: true,
+                        email: true
+                    },
+                    agree: "required"
+                },
+                messages: {
+                    firstname: " Please enter your firstname",
+                    lastname: " Please enter your lastname",
+                    username: {
+                        required: " Please enter a username",
+                        minlength:
+                      " Your username must consist of at least 2 characters"
+                    },
+                    number: {
+                        required: " Please enter a number",
+                        minlength:
+                      " Your number must be consist of at least 11 numbers",
+                      number : "Please enter only number"
+                    },
+                    agree: "Please accept our policy"
+                }
+            });
+        });
+    </script>
     <script src="../js/appointment.js"></script>
     <title>Document</title>
     <style>
@@ -80,6 +127,9 @@ function generateAppointmentID() {
         option:enabled {
             cursor: pointer;
         }
+        .error {
+        color: #F00;
+        }
     </style>
 </head>
 <body style="background-color: #6537AE;">
@@ -90,11 +140,11 @@ function generateAppointmentID() {
             <div class="col-12">
                 <h3 class="fs-4 text-uppercase mb-4" style="color: #6537AE;">Appointment form</h3>
             </div>
-            <form action="" method="post" data-parsley-validate>
+            <form action="" method="post" id="signUpForm">
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label for="">First Name (Required)</label>
-                        <input type="text" class="form-control" placeholder="First Name" name="firstname" required data-parsley-required="true">
+                        <input type="text" class="form-control" placeholder="First Name" name="firstname">
                     </div>
                     <div class="col-md-6">
                         <label for="">Last Name (Required)</label>
@@ -102,11 +152,11 @@ function generateAppointmentID() {
                     </div>
                     <div class="col-md-6">
                         <label for="">Phone Number (Required)</label>
-                        <input type="tel" class="form-control" placeholder="Phone Number" pattern="[0-9]{11}" name="number" required data-parsley-pattern="[0-9]{11}" data-parsley-trigger="keyup" data-parsley-error-message="Enter a valid 11-digit phone number">
+                        <input type="tel" class="form-control" id="number" placeholder="Phone Number"  name="number">
                     </div>
                     <div class="col-md-6">
                         <label for="">Email (Required)</label>
-                        <input type="email" class="form-control" placeholder="Enter Email" name="email" required>
+                        <input type="email" class="form-control" placeholder="Enter Email" name="email" id="e">
                     </div>
                     <div class="col-md-6">
                         <label for="">Schedule Date (Required)</label>
@@ -140,12 +190,6 @@ function generateAppointmentID() {
     </div>
 </div>
 </main>
-<script src="https://cdn.jsdelivr.net/npm/parsleyjs"></script>
-<script>
-    $(document).ready(function() {
-        $('#your-form-id').parsley();
-    });
-</script>
 <script>
 function updateTime() {
     var d = document.getElementById("d").value;
