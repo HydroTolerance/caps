@@ -43,7 +43,7 @@ $(document).ready(function() {
           center: 'title',
           right: 'month,agendaWeek,agendaDay,listMonth'
       },
-      events: './get_booking.php',
+      events: 'get_booking.php',
       eventRender: function(event, element) {
           var duplicate = checkForDuplicateEvent(event);
 
