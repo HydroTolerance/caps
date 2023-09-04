@@ -1,4 +1,26 @@
 <?php
+include "../function.php";
+checklogin();
+$userData = $_SESSION['zep_acc'];
+?>
+<?php
+    if(!$_SERVER['HTTP_X_REQUESTED_WITH'])
+    {
+    header("HTTP/1.0 403 Forbidden");
+    exit;
+    }
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">   
+    <title>Edit FAQ</title>
+</head>
+
+<body>
+<?php
 if (isset($_GET['id'])) {
     include "../../db_connect/config.php";
     $id = $_GET['id'];
@@ -33,28 +55,12 @@ if (isset($_POST['edit_submit'])) {
     }
 }
 ?>
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">   
-    <title>Edit FAQ</title>
-</head>
-
-<body>
 <form method="post" action="<?php echo $_SERVER['PHP_SELF'] . '?id=' . $id; ?>">
     <label for="edit_answer">Answer:</label>
     <textarea name="services" class="summernote"><?php echo $row['services']; ?></textarea>
     <input type="submit" name="edit_submit" value="Submit">
 </form>
 
-    <script>
-        $(document).ready(function() {
-            $('.summernote').summernote({
-                
-            });
-        });
-    </script>
+
 </body>
 </html>

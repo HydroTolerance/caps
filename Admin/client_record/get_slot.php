@@ -5,7 +5,6 @@ $slots_query = "SELECT slots_left FROM slots WHERE id = 1";
 $slots_result = mysqli_query($conn, $slots_query);
 $slots_row = mysqli_fetch_assoc($slots_result);
 $slots_left_value = $slots_row['slots_left'];
-
 $query = "SELECT appointment_slots.slots,
             ($slots_left_value - 
              IFNULL(bookings_and_appointments.num_bookings, 0)) AS available_slots
@@ -35,16 +34,11 @@ while ($row = mysqli_fetch_assoc($result)) {
     if ($available_slots_for_slot < 0) {
         $available_slots_for_slot = 0;
     }
-
-    // Store the available slots for this slot
     $slots[$slot] = $available_slots_for_slot;
 }
-// Create the response array
 $response = [
     'slots' => $slots,
     'slots_left' => $slots_left_value
 ];
-
-// Return the response as a JSON-encoded string
 echo json_encode($response);
 ?>

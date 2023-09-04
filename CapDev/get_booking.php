@@ -1,10 +1,5 @@
 <?php
-// process_date.php
-
-// Perform your MySQL query to fetch the data for the specific date
 include "../db_connect/config.php";
-
-// Fetch the events (bookings) data
 $query = "SELECT firstname, date as start FROM book1";
 $result = mysqli_query($conn, $query);
 

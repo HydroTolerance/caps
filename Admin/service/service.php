@@ -60,15 +60,19 @@ if(isset($_POST['submit'])){
                     <tbody>
                         <?php
                         include "../../db_connect/config.php";
-                        $result = mysqli_query($conn, "SELECT * FROM service");
-                        while ($row = mysqli_fetch_array($result)) {
+                        $stmt = mysqli_prepare($conn, "SELECT id, services FROM service");
+                        mysqli_stmt_execute($stmt);
+                        mysqli_stmt_store_result($stmt);
+                        mysqli_stmt_bind_result($stmt, $id, $services);
+
+                        while (mysqli_stmt_fetch($stmt)) {
                             ?>
                             <tr>
-                                <td><?php echo $row['id'] ?></td>
-                                <td><?php echo $row['services'] ?></td>
+                            <td><?php echo $id; ?></td>
+                            <td><?php echo $services; ?></td>
                                 <td class="action-buttons">
-                                    <button onclick="showRescheduleModal('<?php echo $row['id']; ?>')" class="btn btn-purple bg-purple text-white">Edit</button>
-                                    <a href="#" onclick="deleteFAQ(<?php echo $row['id']; ?>)" class="link-dark">
+                                    <button onclick="showRescheduleModal('<?php echo $id; ?>')" class="btn btn-primary">Edit</button>
+                                    <a href="#" onclick="deleteFAQ(<?php echo $id; ?>)" class="link-dark">
                                         <span class="las la-trash" style="font-size: 20px; color:#222; margin-left:40px;"></span>
                                     </a>
                                 </td>

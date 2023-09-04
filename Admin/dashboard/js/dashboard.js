@@ -31,10 +31,10 @@ function renderEventDetails(event, element) {
 
 $(document).ready(function() {
   $('#calendar').fullCalendar({
-    eventLimit: true, // for all non-agenda views
+    eventLimit: true,
   views: {
     agenda: {
-      eventLimit: 6 // adjust to 6 only for agendaWeek/agendaDay
+      eventLimit: 6
     }
   },
       editable: true,
@@ -46,21 +46,8 @@ $(document).ready(function() {
       events: 'get_booking.php',
       eventRender: function(event, element) {
           var duplicate = checkForDuplicateEvent(event);
-
           if (!element.hasClass('rendered') && !duplicate) {
               renderEventDetails(event, element);
-          }
-
-          // Add a check for the event limit here
-          var renderedEvents = $('.fc-event.rendered');
-          var eventLimit = 7; // The number of events to display initially
-          var moreLink = $('.fc-more'); // The "More" link element
-
-          if (renderedEvents.length > eventLimit) {
-              renderedEvents.hide(); // Hide excess events
-              moreLink.show(); // Show the "More" link
-          } else {
-              moreLink.hide(); // Hide the "More" link
           }
       },
       viewRender: function(view, element) {
