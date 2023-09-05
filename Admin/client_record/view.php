@@ -17,6 +17,11 @@ $userData = $_SESSION['zep_acc'];
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css">
         
     </head>
+    <style>
+        .nav-link{
+            color: purple;
+        }
+    </style>
     <body>
     <?php
 
@@ -69,7 +74,7 @@ $userData = $_SESSION['zep_acc'];
             <div class="col main-content custom-navbar bg-light">
                 <?php include "../navbar.php";?>
                 <div class="ms-3">
-                    <div class="m-2 bg-white text-dark p-4 rounded-4 border border-4 shadow-sm">
+                    <div class="m-2 bg-white text-dark rounded-4 border  shadow-sm">
                         <h2 style="color:6537AE;" class="text-center mb-5">Client Record (View)</h2>
                         <div cl>
                             <div class="row mb-3 justify-content-center">
@@ -95,21 +100,19 @@ $userData = $_SESSION['zep_acc'];
                                     <label class="mb-3"><b>Relation:</b> <?php echo $relation; ?></label><br>
                                 </div>
                             </div>
-                            <div class="row mb-3">
-                                
-                            </div>
-                            <div class="row">
-                                
-                            </div>
                         </div>
-                        <div class="d-flex flex-row-reverse">
-                        <button onclick="showDiagnosis()" class="btn border-end border-top border-start">Show Diagnosis</button>
-                        <button onclick="showAppointment()" class="btn border-end border-top border-start">Show Appointment</button>
-                        </div>
+                        <ul class="nav nav-tabs">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="diagnosisTab" href="#">Diagnosis</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="appointmentTab" href="#">Appointment</a>
+                            </li>
+                        </ul>
 
-                        <div id="diagnosisContainer" class="border p-3">
+                        <div id="diagnosisContainer" class="">
                             <div>
-                            <div class="bg-white text-dark p-4 rounded-4 border border-4 shadow-sm mb-3">
+                            <div class="bg-white text-dark p-4  shadow-sm mb-3">
                                 <h2 style="color: 6537AE;">Diagnosis</h2>
                                 <?php
                                 if (isset($_GET['id'])) {
@@ -120,7 +123,6 @@ $userData = $_SESSION['zep_acc'];
                                     mysqli_stmt_bind_param($info_stmt, "i", $id);
                                     mysqli_stmt_execute($info_stmt);
                                     $info_result = mysqli_stmt_get_result($info_stmt);
-
                                     if (mysqli_num_rows($info_result) > 0) {
                                         echo '<table class="table table-striped nowrap" id="clientTable">';
                                         echo '  <thead>
@@ -149,7 +151,6 @@ $userData = $_SESSION['zep_acc'];
                                     } else {
                                         echo '<p>No diagnosis information available for this patient.</p>';
                                     }
-
                                     mysqli_stmt_close($info_stmt);
                                     mysqli_close($conn);
                                 }
@@ -157,15 +158,11 @@ $userData = $_SESSION['zep_acc'];
                             </div>
                         </div>
                         </div>
-                        <div id="appointmentContainer" style="display: none;" class="border p-3">
-                            <div style="width: 70%;" class="d-flex justify-content-center">
-                                <div id="calendar"></div>
+                        <div id="appointmentContainer" style="display: none;">
+                            <div>
+                                <div id="calendar" class="p-3"></div>
                             </div>
                         </div>
-                        
-                            
-                        
-                        
                     </div>
                 </div>
             </div>
@@ -198,5 +195,32 @@ $userData = $_SESSION['zep_acc'];
                     });
                 });
     </script>
+<!-- JavaScript code to handle tab switching -->
+<script>
+    // Function to show the Diagnosis section and make the Diagnosis tab active
+    function showDiagnosisSection() {
+        document.getElementById('diagnosisContainer').style.display = 'block';
+        document.getElementById('appointmentContainer').style.display = 'none';
+
+        // Add "active" class to the Diagnosis tab and remove it from the Appointment tab
+        document.getElementById('diagnosisTab').classList.add('active');
+        document.getElementById('appointmentTab').classList.remove('active');
+    }
+
+    // Function to show the Appointment section and make the Appointment tab active
+    function showAppointmentSection() {
+        document.getElementById('diagnosisContainer').style.display = 'none';
+        document.getElementById('appointmentContainer').style.display = 'block';
+
+        // Add "active" class to the Appointment tab and remove it from the Diagnosis tab
+        document.getElementById('appointmentTab').classList.add('active');
+        document.getElementById('diagnosisTab').classList.remove('active');
+    }
+
+    // Attach click event handlers to the Diagnosis and Appointment tabs
+    document.getElementById('diagnosisTab').addEventListener('click', showDiagnosisSection);
+    document.getElementById('appointmentTab').addEventListener('click', showAppointmentSection);
+</script>
+
     </body>
     </html>

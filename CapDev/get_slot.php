@@ -16,19 +16,13 @@ while ($row = mysqli_fetch_array($result)) {
     $total_bookings = $row['total_bookings'];
     $slots[$slot] = $total_bookings;
 }
-
-// Fetch the slots_left value from the slots table
 $slots_query = "SELECT `slots_left` FROM `slots` WHERE id = 1";
 $slots_result = mysqli_query($conn, $slots_query);
 $slots_row = mysqli_fetch_assoc($slots_result);
 $slots_left_value = $slots_row['slots_left'];
-
-// Add the slots_left value to the response array
 $response = array(
     'slots' => $slots,
     'slots_left' => $slots_left_value
 );
-
-// Return the response as a JSON-encoded string
 echo json_encode($response);
 ?>
