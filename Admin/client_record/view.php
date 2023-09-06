@@ -124,11 +124,12 @@ $userData = $_SESSION['zep_acc'];
                                     mysqli_stmt_execute($info_stmt);
                                     $info_result = mysqli_stmt_get_result($info_stmt);
                                     if (mysqli_num_rows($info_result) > 0) {
+                                        echo '';
                                         echo '<table class="table table-striped nowrap" id="clientTable">';
                                         echo '  <thead>
                                                     <tr>
-                                                        <th style="width:20%">Date:</th>
-                                                        <th style="width:20%">History:</th>
+                                                        <th>Date:</th>
+                                                        <th>History:</th>
                                                         <th>Diagnosis:</th>
                                                         <th>Management:</th>
                                                     </tr>
@@ -195,29 +196,19 @@ $userData = $_SESSION['zep_acc'];
                     });
                 });
     </script>
-<!-- JavaScript code to handle tab switching -->
 <script>
-    // Function to show the Diagnosis section and make the Diagnosis tab active
     function showDiagnosisSection() {
         document.getElementById('diagnosisContainer').style.display = 'block';
         document.getElementById('appointmentContainer').style.display = 'none';
-
-        // Add "active" class to the Diagnosis tab and remove it from the Appointment tab
         document.getElementById('diagnosisTab').classList.add('active');
         document.getElementById('appointmentTab').classList.remove('active');
     }
-
-    // Function to show the Appointment section and make the Appointment tab active
     function showAppointmentSection() {
         document.getElementById('diagnosisContainer').style.display = 'none';
         document.getElementById('appointmentContainer').style.display = 'block';
-
-        // Add "active" class to the Appointment tab and remove it from the Diagnosis tab
         document.getElementById('appointmentTab').classList.add('active');
         document.getElementById('diagnosisTab').classList.remove('active');
     }
-
-    // Attach click event handlers to the Diagnosis and Appointment tabs
     document.getElementById('diagnosisTab').addEventListener('click', showDiagnosisSection);
     document.getElementById('appointmentTab').addEventListener('click', showAppointmentSection);
 </script>

@@ -46,6 +46,7 @@ $userData = $_SESSION['zep_acc'];
             echo "Record not found";
             exit;
         }
+        // Retrieve additional info if available
         $info_sql = "SELECT diagnosis FROM zp_derma_record WHERE patient_id=?";
         $info_stmt = mysqli_prepare($conn, $info_sql);
         mysqli_stmt_bind_param($info_stmt, "i", $id);
@@ -62,42 +63,50 @@ $userData = $_SESSION['zep_acc'];
     }
 
     if (isset($_POST['add_diagnosis'])) {
-        include "../../db_connect/config.php";
+        include "../../db_connect/config.php"; // Include your database configuration
 
         $id = $_POST['id'];
         $diagnosis = $_POST['diagnosis'];
         $history = $_POST['history'];
         $date_diagnosis = $_POST['date_diagnosis'];
         $management = $_POST['management'];
+
+        // Insert or update diagnosis information in zp_derma_record table
         $info_sql = "INSERT INTO zp_derma_record (patient_id, date_diagnosis, history, management, diagnosis) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE diagnosis=?";
         $info_stmt = mysqli_prepare($conn, $info_sql);
         mysqli_stmt_bind_param($info_stmt, "isssss", $id, $date_diagnosis, $history, $management, $diagnosis, $diagnosis);
 
         if ($info_stmt->execute()) {
-            if ($stmt_update_client->execute()) {
-                $message = "Data Updated successfully.";
-                echo "<script >
-                    showSuccessMessage('$message', 'edit_client_record.php?id=" . $id . "');
-                </script>";
-            } else {
-                $message = "Failed to update data.";
-                echo "<script>
-                    showErrorMessage('$message');
-                </script>";
-            }
+            echo "<script>
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: 'Data Updated successfully.'
+                }).then(function() {
+                    window.location.href = 'edit_client_record.php?id=" . $id . "';
+                });</script>";
+        }else {
+            echo" Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: 'Failed to add data.'
+            });";
         }
         
+
+        // Close the prepared statement and database connection
         mysqli_stmt_close($info_stmt);
         mysqli_close($conn);
     }
     if (isset($_POST['add_appointment'])) {
-        include "../../db_connect/config.php";
+        include "../../db_connect/config.php"; // Include your database configuration
 
         $id = $_POST['id'];
         $date = $_POST['date_appointment'];
         $time = $_POST['time_appointment'];
         $services = $_POST['services_appointment'];
         
+        // Fetch client's first name from zp_client_record
         $name_sql = "SELECT client_firstname, client_lastname FROM zp_client_record WHERE id=?";
         $name_stmt = mysqli_prepare($conn, $name_sql);
         mysqli_stmt_bind_param($name_stmt, "i", $id);
@@ -112,28 +121,40 @@ $userData = $_SESSION['zep_acc'];
             mysqli_stmt_bind_param($info_stmt, "issss", $id, $fname, $date, $time, $services);
     
             if (mysqli_stmt_execute($info_stmt)) {
-                if ($stmt_update_client->execute()) {
-                    $message = "Data Updated successfully.";
-                    echo "<script>
-                        showSuccessMessage('$message', 'edit_client_record.php?id=" . $id . "');
-                    </script>";
-                } else {
-                    $message = "Failed to update data.";
-                    echo "<script>
-                        showErrorMessage('$message');
-                    </script>";
-                }
+                echo "<script>
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: 'Data Updated successfully.'
+                }).then(function() {
+                    window.location.href = 'edit_client_record.php?id=" . $id . "';
+                });
+                </script>";
+                exit();
+            } else {
+                echo "<script>
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: 'Failed to add data.'
+                });
+                </script>";
             }
         } else {
             echo "Client not found";
             exit;
         }
+                // Close the prepared statement and database connection
     mysqli_stmt_close($info_stmt);
     mysqli_close($conn);
     }
         
+
+
+
     if (isset($_POST['update_client'])) {
-        include "../../db_connect/config.php";
+        include "../../db_connect/config.php"; // Include your database configuration
+
         $id = $_POST['id'];
         $fname = $_POST['client_firstname'];
         $lname = $_POST['client_lastname'];
@@ -144,21 +165,30 @@ $userData = $_SESSION['zep_acc'];
         $econtact = $_POST['client_emergency_person'];
         $relation = $_POST['client_relation'];
         $econtactno = $_POST['client_emergency_contact_number'];
+
+        // Update patient record in zp_client_record table
         $sql_update_client = "UPDATE zp_client_record SET client_firstname=?, client_lastname=?, client_birthday=?, client_gender=?, client_number=?, client_email=?, client_emergency_person=?, client_relation=?, client_emergency_contact_number=? WHERE id=?";
         $stmt_update_client = mysqli_prepare($conn, $sql_update_client);
         mysqli_stmt_bind_param($stmt_update_client, "sssssssssi", $fname, $lname, $dob, $gender, $contact, $email, $econtact, $relation, $econtactno, $id);
 
         if ($stmt_update_client->execute()) {
-            $message = "Data Updated successfully.";
             echo "<script>
-                showSuccessMessage('$message', 'edit_client_record.php?id=" . $id . "');
-            </script>";
-        } else {
-            $message = "Failed to update data.";
-            echo "<script>
-                showErrorMessage('$message');
-            </script>";
-        }
+            window.addEventListener('DOMContentLoaded', (event) => {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: 'Data Updated successfully.'
+            }).then(function() {
+                window.location.href = 'edit_client_record.php?id=" . $id . "';
+            });
+        });</script>";
+    }else {
+        echo" Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: 'Failed to add data.'
+        });";
+    }
     }
     
     ?>
@@ -167,7 +197,7 @@ $userData = $_SESSION['zep_acc'];
             <?php include "../sidebar.php"; ?>
             <div class="col main-content custom-navbar bg-light">
                 <?php include "../navbar.php";?>
-                    <div class="ms-3">
+                    <div class="mx-3">
                         <a class="btn btn-warning" href="client_record.php">Cancel</a>
                         <h2 style="color:6537AE;" class="text-center">Client Record (Edit)</h2>
                         <form method="post" style="margin-right: 20px;">
@@ -251,7 +281,7 @@ $userData = $_SESSION['zep_acc'];
                                 </div>
                             </div>
                         </form>
-                        <ul class="nav nav-tabs">
+                        <ul class="nav nav-tabs mx-3" >
                                 <li class="nav-item">
                                     <a class="nav-link active" id="diagnosisTab" href="#">Diagnosis</a>
                                 </li>
@@ -260,7 +290,7 @@ $userData = $_SESSION['zep_acc'];
                                 </li>
                             </ul>
 
-                        <div id="diagnosisContainer" class="border p-3">
+                        <div id="diagnosisContainer" class="border p-3 mx-3 bg-white">
                         <form method="post">
                                 <input type="hidden" name="id" value="<?php echo $id; ?>">
 
@@ -295,7 +325,7 @@ $userData = $_SESSION['zep_acc'];
                                 </div>
                             </form>
                             <div>
-                            <div class="bg-white text-dark p-4 rounded-4 border border-4 shadow-sm mb-3">
+                            <div class="text-dark p-4 rounded-4 mb-3">
                                 <h2 style="color: 6537AE;">Diagnosis</h2>
                                 <?php
                                 if (isset($_GET['id'])) {
@@ -342,7 +372,7 @@ $userData = $_SESSION['zep_acc'];
                             </div>
                         </div>
                         </div>
-                        <div id="appointmentContainer" style="display: none;" class="border p-3">
+                        <div id="appointmentContainer" style="display: none;" class="border p-3 mx-3 bg-white">
                             <form method="post">
                                 <input type="hidden" name="id" value="<?php echo $id; ?>">
                                 <div>
@@ -371,7 +401,7 @@ $userData = $_SESSION['zep_acc'];
                                     <input type="submit" name="add_appointment" class="btn btn-purple bg-purple text-white" value="Add Appointment">
                                 </div>
                             </form>
-                            <div style="width: 70%;" class="d-flex justify-content-center">
+                            <div class="d-flex justify-content-center">
                                 <div id="calendar"></div>
                             </div>
                         </div>

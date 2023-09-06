@@ -65,12 +65,11 @@ function generateAppointmentID() {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js">
-      </script>
-    <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js">
-      </script>
-    <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/additional-methods.min.js">
-      </script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/additional-methods.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
       <script>
         $().ready(function () {
  
@@ -112,14 +111,34 @@ function generateAppointmentID() {
             });
         });
     </script>
+    <style>
+        #pageloader
+{
+  background: rgba( 255, 255, 255, 0.8 );
+  display: none;
+  height: 100%;
+  position: fixed;
+  width: 100%;
+  z-index: 9999;
+}
+
+#pageloader img
+{
+  left: 50%;
+  margin-left: -32px;
+  margin-top: -32px;
+  position: absolute;
+  top: 50%;
+}
+    </style>
     <script src="../js/appointment.js"></script>
     <title>Document</title>
     <style>
-        #formContainer {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+        .container {
+            display: flex;
+            justify-content: center; /* Center horizontally */
+            align-items: center; /* Center vertically */
+            min-height: 100vh; /* Make the container at least the full viewport height */
         }
         option:disabled {
             color: red;
@@ -129,41 +148,51 @@ function generateAppointmentID() {
         }
         .error {
         color: #F00;
+        font-size: 10px;
         }
     </style>
 </head>
 <body style="background-color: #6537AE;">
+
+<div id="pageloader">
+   <img src="http://cdnjs.cloudflare.com/ajax/libs/semantic-ui/0.16.1/images/loader-large.gif" alt="processing..." />
+</div>
 <main>
-<div class="container" id="formContainer">
-    <div class="row">
-        <div class="col-md-6 offset-md-3 border p-4 shadow bg-light">
-            <div class="col-12">
-                <h3 class="fs-4 text-uppercase mb-4" style="color: #6537AE;">Appointment form</h3>
-            </div>
-            <form action="" method="post" id="signUpForm">
+<section class="h-100 gradient-form">
+  <div class="container py-5 h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col-xl-10">
+        <div class="card rounded-3 text-black">
+          <div class="row g-0">
+            <div class="col-lg-6 d-flex align-items-center gradient-custom-2">
+              <div class=" px-3 py-4 p-md-5 mx-md-4">
+              <form action="" method="post" id="signUpForm">
                 <div class="row g-3">
+                    <div class="col-12">
+                        <h3 class="fs-4 text-uppercase mb-4" style="color: #6537AE;">Appointment form</h3>
+                    </div>
                     <div class="col-md-6">
-                        <label for="">First Name (Required)</label>
+                        <label for="">First Name <span class="text-warning">*</span></label>
                         <input type="text" class="form-control" placeholder="First Name" name="firstname">
                     </div>
                     <div class="col-md-6">
-                        <label for="">Last Name (Required)</label>
+                        <label for="">Last Name <span class="text-warning">*</span></label>
                         <input type="text" class="form-control" placeholder="Last Name" name="lastname" required>
                     </div>
                     <div class="col-md-6">
-                        <label for="">Phone Number (Required)</label>
+                        <label for="">Phone Number <span class="text-warning">*</span></label>
                         <input type="tel" class="form-control" id="number" placeholder="Phone Number"  name="number">
                     </div>
                     <div class="col-md-6">
-                        <label for="">Email (Required)</label>
+                        <label for="">Email <span class="text-warning">*</span></label>
                         <input type="email" class="form-control" placeholder="Enter Email" name="email" id="e">
                     </div>
                     <div class="col-md-6">
-                        <label for="">Schedule Date (Required)</label>
+                        <label for="">Schedule Date <span class="text-warning">*</span></label>
                         <input type="date" class="form-control" placeholder="Enter Schedule Date" id="d" name="date" onchange="updateTime()" required>
                     </div>
                     <div class="col-md-6">
-                        <label>Select Time Appointment (Required)</label>
+                        <label>Schedule Time <span class="text-warning">*</span></label>
                         <select class="form-control" name="time" id="time" placeholder="Enter Time Appointment" required></select>
                     </div>
                     <div class="col-12" required>
@@ -183,14 +212,58 @@ function generateAppointmentID() {
                         <button type="submit" class="btn btn-primary float-end" name="submit" style="background-color: #6537AE;">Book Appointment</button>
                         <a href="home.php"><button type="button" class="btn btn-outline-secondary float-end me-2">Cancel</button></a>
                     </div>
-                   
                 </div>
             </form>
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="card-body p-md-5 mx-md-4">            
+                <div id="map" style="height: 400px; width: 400px;"></div>
+                <div class="text-center mt-3">
+                    <h3>Z-Skin Opening Hours:</h3>
+                    <label for="">Monday, Wenesday, Friday, and Saturday</label>
+                    <p>1:00 PM - 5:00 PM</p>
+                </div>
+
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
+</section>
 </div>
+
 </main>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" async></script>
 <script>
+        // Customize map options
+        var mapOptions = {
+            center: [14.648295, 120.983827],
+            zoom: 24
+        };
+
+        // Initialize the map with custom options
+        var map = L.map('map', mapOptions);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Add a custom marker at the specified location
+        L.marker([14.648295, 120.983827]).addTo(map)
+            .bindPopup("Zephyris Skin Care Center<br>One Kalayaan Place Building<br>Samson Rd, Caloocan, 1400 Metro Manila")
+            .openPopup();
+    </script>
+<script>
+    $(document).ready(function(){
+  $("#signUpForm").on("submit", function(){
+    $("#pageloader").fadeIn();
+  });//submit
+});//document ready
 function updateTime() {
     var d = document.getElementById("d").value;
     var time = document.getElementById("time");

@@ -62,8 +62,8 @@ if (isset($_POST["submit"])) {
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="bootstrap/dist/css/bootstrap.min.css">
-    <script src="bootstrap/dist/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
     <title>Document</title>
     <style>
         .gradient-custom-2 {
@@ -125,15 +125,11 @@ border-bottom-right-radius: .3rem;
                     <?php
                     }
                     ?>
-                  <a class="text-muted" href="#!">Forgot password?</a>
+                  <a class="text-muted" href="forgot_password.php">Forgot password?</a>
                   <div class="text-center pt-1 mb-5 pb-1">
-                    <button type="submit" name="submit" value="Submit" class="btn btn-primary btn-block fa-lg gradient-custom-2 mb-3">Log
-                      in</button>
-                    
+                    <button type="submit" name="submit" value="Submit" class="btn btn-primary btn-block fa-lg gradient-custom-2 mb-3">Log in</button>
                   </div>
-
                 </form>
-
               </div>
             </div>
           </div>

@@ -95,16 +95,16 @@
             }
         </style>
         <body> 
+            
         <div class="container-fluid">
         <div class="row flex-nowrap">
             <?php include "../sidebar.php"; ?>
             <div class="col main-content custom-navbar bg-light">
-            <?php include "../navbar.php"?>
             <div class="container">
-                <div class="row ">
-                    <div class="d-flex justify-content-center fade-in">
+                <div class="row g-5">
+                    <div class="d-flex justify-content-center fade-in mb-3">
                         <!-- Purple Box -->
-                        <div class="bg-purple col-xl-7 p-3 rounded mb-3 shadow mx-2">
+                        <div class="bg-purple col-xl-7 p-3 rounded shadow mx-3">
                             <!-- Container for Text and Picture  -->
                             <div class="d-flex justify-content-between">
                                 <div>
@@ -124,11 +124,11 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="card" style="width: 15rem;">
-                            <img src="..." class="card-img-top" alt="...">
+                        <div class="card col-md-3 mx-3" style="width: 15rem;">
+                            <img src="https://preview.redd.it/meme-of-the-day-shocked-miles-morales-v0-9ydzqmbx5t5b1.jpg?auto=webp&s=5f16cda57122d3555e7af4755dd32af55d4a79a6" class="mx-auto mt-3" alt="..." style="border-radius: 50%;" height="100px" width="100px">
                             <div class="card-body">
-                                <h3><?php echo $userData['clinic_firstname'] . " " . $userData['clinic_lastname']; ?></h3>
-                                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                                <h4><?php echo $userData['clinic_firstname'] . " " . $userData['clinic_lastname']; ?></h4>
+                                <p class="card-text text-center"><?php echo $userData['clinic_role'];?></p>
                             </div>
                         </div>
                     </div>

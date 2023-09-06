@@ -40,7 +40,7 @@ if (isset($_POST['edit_submit'])) {
         $edit_password = password_hash($_POST['edit_password'], PASSWORD_DEFAULT);
     }
 
-    $sql = "UPDATE zp_accounts SET clinic_firstname=?, clinic_lastname=?, clinic_email=?, clinic_role=?";
+    $sql = "UPDATE zp_accounts SET clinic_firstname=?, clinic_lastname=?, clinic_password=?, clinic_email=?, clinic_role=?";
     if (!empty($edit_password)) {
         $sql .= ", clinic_password=?";
     }

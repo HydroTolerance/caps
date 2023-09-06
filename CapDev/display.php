@@ -56,42 +56,13 @@ $mail->Password = $smtpPassword;
 $mail->setFrom($smtpUsername, 'Zephyris Skin Care');
 $mail->addAddress($to);
 $mail->Subject = $subject;
-$mail->isHTML(true); // Set the email body as HTML
+$mail->isHTML(true);
 $mail->Body = $body;
 
 // Add image attachment
-$imagePath = 'img/dermalogo.png'; // Replace with the path to your image file
-// Embed image in email
+$imagePath = 'img/dermalogo.png';
 $mail->addEmbeddedImage($imagePath, 'dermalogo.png', 'dermalogo.png'); // Attach the image and assign it a content ID (CID)
 
-// Create a new PDF object
-require 'fpdf/fpdf.php';
-$pdf = new FPDF();
-$pdf->AddPage();
-
-// Add content to the PDF
-$pdf->SetFont('Arial', 'B', 16);
-$pdf->Cell(0, 10, 'Appointment Summary', 0, 1, 'C');
-$pdf->Ln(10);
-$pdf->SetFont('Arial', '', 12);
-$pdf->Cell(0, 10, 'Name: ' . $firstname . ' ' . $lastname, 0, 1);
-$pdf->Cell(0, 10, 'Phone number: ' . $num, 0, 1);
-$pdf->Cell(0, 10, 'Email: ' . $email, 0, 1);
-$pdf->Cell(0, 10, 'Message: ' . $message, 0, 1);
-$pdf->Cell(0, 10, 'Option: ' . $option, 0, 1);
-$pdf->Cell(0, 10, 'Date: ' . date("F j, Y", strtotime($d)), 0, 1);
-$pdf->Cell(0, 10, 'Time: ' . $time, 0, 1);
-$pdf->Cell(0, 10, 'Reference Code: ' . $reference, 0, 1);
-$pdf->Ln(10);
-$pdf->Cell(0, 10, 'Thank you for your transaction!', 0, 1);
-
-// Save the PDF to a variable
-$pdfData = $pdf->Output('appointment_summary.pdf', 'S');
-
-// Attach the PDF to the email
-$mail->addStringAttachment($pdfData, 'appointment_summary.pdf');
-
-// Send the email
 $mailSent = $mail->send();
 ?>
 

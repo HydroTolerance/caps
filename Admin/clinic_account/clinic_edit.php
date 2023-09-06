@@ -1,5 +1,5 @@
-<?php
 
+<?php
 include "../../db_connect/config.php";
 
 if (isset($_POST['zep_acc'])) {
@@ -18,19 +18,24 @@ if (isset($_POST['zep_acc'])) {
         <input type="hidden" name="edit_id" value="<?php echo $rows['zep_acc']; ?>">
         <div class="mb-3">
             <label for="edit_fname" class="form-label">First Name</label>
-            <input type="text" class="form-control" id="edit_fname" name="edit_fname" value="<?php echo $rows['clinic_firstname']; ?>">
+            <input type="text" class="form-control" id="edit_fname" name="edit_fname" value="<?php echo $rows['clinic_firstname']; ?>" required>
         </div>
         <div class="mb-3">
             <label for="edit_fname" class="form-label">Last Name</label>
-            <input type="text" class="form-control" id="edit_fname" name="edit_lname" value="<?php echo $rows['clinic_lastname']; ?>">
+            <input type="text" class="form-control" id="edit_fname" name="edit_lname" value="<?php echo $rows['clinic_lastname']; ?>"  required>
         </div>
         <div class="mb-3">
             <label for="edit_email" class="form-label">Email</label>
-            <input type="email" class="form-control" id="edit_email" name="edit_email" value="<?php echo $rows['clinic_email']; ?>">
+            <input type="email" class="form-control" id="edit_email" name="edit_email" value="<?php echo $rows['clinic_email']; ?>"  required>
         </div>
         <div class="mb-3">
             <label for="edit_role" class="form-label">Role</label>
-            <input type="text" class="form-control" id="edit_role" name="edit_role" value="<?php echo $rows['clinic_role']; ?>">
+                <select name="edit_role" id="" class="form-control" required>
+                    <option selected="true" disabled>-- Select Role --</option>
+                    <option value="Admin" <?php echo ($rows ['clinic_role'] === 'Admin') ? 'selected' : ''; ?>>Admin</option>
+                    <option value="Derma" <?php echo ($rows ['clinic_role'] === 'Derma')  ? 'selected' : ''; ?>>Derma</option>
+                    <option value="Staff" <?php echo ($rows ['clinic_role'] === 'Staff') ? 'selected' : ''; ?>>Staff</option>
+                </select>
         </div>
         <button type="submit" name="edit_submit" class="btn btn-primary">Save Changes</button>
     </form>
