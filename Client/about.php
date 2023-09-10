@@ -10,14 +10,14 @@
   <style>
 
 .bgcolornavbar {
-      background-color: #6537AE;
+      background-color: #F2B85A;
     }
     .navbar-nav .nav-link{
-      color: white;
+      color: black;
       padding: 10px;
     }
     .navbar-brand {
-      color: white;
+      color: black;
       font-weight: bold;
       text-decoration: none;
       margin-left: 30px;
@@ -51,8 +51,8 @@ p {
 
 
     .custom-button {
-      background-color: #FFFFFF;
-      color: #6537AE;
+      background-color: white;
+      color: black;
       border-radius: 20px;
       padding: 0.365rem 1rem;
     }
@@ -61,20 +61,20 @@ p {
          /* Set the container height to 100% of the viewport height */
          /* Add padding if needed */
         padding-bottom: 50px; /* Add padding if needed */
-        background-image: url(./img/web_img/picabout.png);
+        background-image: url(picabout.png);
         background-size: cover;
         background-position: center;
         height: 60vh;
     }
 
      .item-container1 {
-    background-color: #6537AE;
+    background-color: #F2B85A;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     height: 33vh;
-    color: white;
+    color: black;
   }
 
   .item-container1 p:first-child {
@@ -98,8 +98,8 @@ p {
 
   .container3 {
     
-    color: #ffffff;
-    background-color: #6537AE;
+    color: black;
+    background-color: #F2B85A;
     display: flex;
     align-items: flex-start;
     flex-direction: row;
@@ -129,6 +129,7 @@ p {
     align-items: flex-start;
     flex-direction: row;
     justify-content: center;
+    
 
   }
 
@@ -171,12 +172,35 @@ justify-content: center;
 
 
 
- footer{
-      background-color: #6537AE;
-      color: #ffffff;
-      
-      height: 250px;
-    }
+ 
+
+    .about{
+    background: url(ZLogo.svg) no-repeat left;
+    background-size: 35%;
+    background-color: #684717;
+    overflow: hidden;
+    padding: 100px 0;
+}
+.inner-section{
+    width: 55%;
+    float: right;
+    background-color: white;
+    padding: 140px;
+    box-shadow: 13px 12px 8px rgba(0,0,0,0.3);
+}
+.inner-section h1{
+    margin-bottom: 30px;
+    font-size: 30px;
+    font-weight: 900;
+}
+.text{
+    font-size: 15px;
+    color: #545454;
+    line-height: 30px;
+    text-align: justify;
+    margin-bottom: 40px;
+}
+
 
 
     </style>
@@ -194,9 +218,10 @@ justify-content: center;
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <!-- Add navbar-nav-center class to center the ul element -->
         <ul class="navbar-nav navbar-nav-center mb-2 mb-lg-0">
           <li class="nav-item">
-            <a class="nav-link" href="index.php" style="margin-right: 30px; font-size:20px;">Home</a>
+            <a class="nav-link" href="home.php" style="margin-right: 30px; font-size:20px;">Home</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="about.php" style="margin-right: 30px; margin-left:30px; font-size:20px;">About Us</a>
@@ -215,10 +240,10 @@ justify-content: center;
         </ul>
         <div class="d-flex ms-auto">
           <a class="btn btn1 me-2" href="#">
-            <img src="./img/web_img/FB icon.svg" alt="Facebook" style="width: 35px; height: 35px;">
+            <img src="FB icon.svg" alt="Facebook" style="width: 35px; height: 35px;">
           </a>
           <a class="btn btn2" href="#">
-            <img src="./img/web_img/IG icon.svg" alt="Instagram" style="width: 35px; height: 35px;">
+            <img src="IG icon.svg" alt="Instagram" style="width: 35px; height: 35px;">
           </a>
         </div>
       </div>
@@ -229,7 +254,7 @@ justify-content: center;
   
 </div>
 
-<div class="item-container1 " style=" font-family: 'Fira Sans', sans-serif;">
+<div class="item-container1 " style=" font-family: 'Fira Sans', sans-serif; color: white;">
     <p>OUR STORY</p>
     <p>Get to Know Our Story</p>
   </div>
@@ -244,11 +269,12 @@ Our experienced team offers personalized medical and cosmetic dermatology servic
 
 <div class="container3 d-flex justify-content-center align-items-center">
   <div class="image" style="margin-left: 200px;">
-    <img src="./img/doc.png" alt="Image">
+    <img src="doc.png" alt="Image">
   </div>
-  <div class="container" style="margin-left:-10px;">
-    <p><span style="font-weight: bold; font-size: 20px;">Dr. Zharlah Gulmatico-Flores MD, MMPHA, FPDS, FPADSFI </span> <br><br><br>
-    Dr. Zharlah A. Gulmatico-Flores, MD, FPDS. FPADSFI obtained
+  <div class="container" style="margin-left:-10px; ">
+    <p><span style="font-weight: bold; font-size: 20px; color: white;">Dr. Zharlah Gulmatico-Flores MD, MMPHA, FPDS, FPADSFI </span> <br><br><br>
+    
+    <p style="color: black;"> Dr. Zharlah A. Gulmatico-Flores, MD, FPDS. FPADSFI obtained
      her Doctor of Medicine degree at Our Lady of Fatima University. 
      She completed her residency training in Dermatology at the Jose R. Reyes 
      Memorial Medical Center and went on to pursue further training on Mohs Micrographic
@@ -269,12 +295,12 @@ Our experienced team offers personalized medical and cosmetic dermatology servic
 
 <div class="container4">
   <div class="image2">
-    <img src="./img/web_img/zephy.png" alt="Image">
+    <img src="zephy.png" alt="Image">
   </div>
   <div class="paragraph2">
-    <p style= "margin: 100px 0 25px 100px; font-size: 40px; font-weight: bold; color: #6537AE; ">VISION</p>
+    <p style= "margin: 100px 0 25px 100px; font-size: 40px; font-weight: bold; color:  #F2B85A; ">VISION</p>
 
-    <p style= "font-size: 20px;  ">Our vision for the clinic is to be a leading provider of <br>
+    <p style= "font-size: 20px; color:  #F2B85A;  ">Our vision for the clinic is to be a leading provider of <br>
     dermatology services in your community, known for <br>
      exceptional patient care and innovative treatment <br>
       options. We aim to provide you with personalized and <br>
@@ -291,9 +317,9 @@ Our experienced team offers personalized medical and cosmetic dermatology servic
 
 <div class="container5">
   <div class="paragraph3">
-    <p style= "margin: 150px 0 25px 100px; font-size: 40px; font-weight: bold; color: #6537AE; ">MISSION</p>
+    <p style= "margin: 150px 0 25px 100px; font-size: 40px; font-weight: bold;  color:  #F2B85A; ">MISSION</p>
 
-    <p style= "font-size: 20px;">Our mission is to provide you with the highest quality of <br>
+    <p style= "font-size: 20px; color:  #F2B85A;">Our mission is to provide you with the highest quality of <br>
      care and help you achieve optimal skin health. We are  <br>
       committed to providing you with comprehensive, <br>
        personalized care, staying up-to-date with the latest <br>
@@ -301,45 +327,32 @@ Our experienced team offers personalized medical and cosmetic dermatology servic
          compassion, respect, and individualized attention. <br><br><br> </p>
   </div>
   <div class="image3">
-    <img src="./img/web_img/clinic.png" alt="Image">
+    <img src="clinic.png" alt="Image">
   </div>
 </div>
 
 
-<footer class="footer">
-  <div class="container">
-    <div class="row">
-      <div class="col-md-4">
-        <div class="footer-container d-flex align-items-center">
-          <h3  style = "margin: 50px 0 0 0px;">ZephyDerm</h3>
-         
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="footer-container d-flex align-items-center">
-          
-          <p  style = "margin: 50px 0 0 0px;">
+<div class="about">
+        <div class="inner-section">
+            <h1>You Can Find Us At:</h1>
+            <p class="text">
             Unit 4 One Kalayaan Place Building 284 <br>
             Samson Road Victory Liner Compound <br>
             1440 Caloocan, Philippines
-            <br>
-            <br>zskincarecenter@gmail.com</p>
+            <br><br>
+            <span style=" font-weight: bold;">Email Us: </span> zskincarecenter@gmail.com  <br>
+            <span style=" font-weight: bold;">Call or Text:</span> 0915 759 2213 <br>
+            <span style=" font-weight: bold;">Clinic Hours: </span> 1:00pm - 5:00pm <br>
+            Monday, Wednesday, Friday & Saturday
+            </p>
+            <p class="text">
+            
+
+            
         </div>
-        <div class="iconcontainer" style="margin: 10px 0 0 30px;">
-            <img src="./img/web_img/FB icon.svg" alt="FaceBook">
-            <img src="./img/web_img/IG icon.svg" alt="Instagram">
     </div>
-      </div>
-      <div class="col-md-4">
-        <div class="footer-container d-flex align-items-center" >
-          <p style= "margin:50px 0 0 0px;">Call or Text: 0915 759 2213 <Br>
-            Clinic Hours: 1:00pm - 4:30pm <br>
-            Monday, Wednesday, Friday & Saturday</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</footer>
+
+
 
 
 
