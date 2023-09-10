@@ -6,6 +6,7 @@
   <title>service</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-rD27HZnRnF+2ovqZ0uKkDjKc8zLl2vIfC2s8yRTAl5SGneMqqc3fBnF7HjKgGhArINpSyyxV6y0Woj+fjL/oMQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400&display=swap" rel="stylesheet">
   <style>
 
 
@@ -13,11 +14,11 @@
       background-color: #F2B85A;
     }
     .navbar-nav .nav-link{
-      color: white;
+      color: black;
       padding: 10px;
     }
     .navbar-brand {
-      color: white;
+      color: black;
       font-weight: bold;
       text-decoration: none;
       margin-left: 30px;
@@ -173,13 +174,13 @@
     opacity: 1;
 }
 
-.navbar-nav a.nav-link {
+.service-container .navbar-nav a.nav-link {
   color: black;
   font-size: 20px;
   transition: color 0.3s;
 }
 
-.navbar-nav a.nav-link:hover {
+.service-container .navbar-nav a.nav-link:hover {
   color: #F2B85A; 
 }
 
@@ -187,12 +188,13 @@
 
 
 
+
 </head>
 <body>
   
-  <nav class="navbar navbar-expand-lg bgcolornavbar">
+<nav class="navbar navbar-expand-lg bgcolornavbar">
     <div class="container-fluid">
-      <a class="navbar-brand" href="#">ZephyDerm</a>
+      <a class="navbar-brand"  style="font-size: 30px; font-family: 'Fira Sans', sans-serif;">ZephyDerm</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -200,21 +202,21 @@
         <!-- Add navbar-nav-center class to center the ul element -->
         <ul class="navbar-nav navbar-nav-center mb-2 mb-lg-0">
           <li class="nav-item">
-            <a class="nav-link" href="home.php">Home</a>
+            <a class="nav-link" href="home.php" style="margin-right: 30px; font-size:20px;">Home</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="about.php">About Us</a>
+            <a class="nav-link" href="about.php" style="margin-right: 30px; margin-left:30px; font-size:20px;">About Us</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="service.php">Services</a>
+            <a class="nav-link" href="service.php" style="margin-right: 30px; margin-left:30px; font-size:20px;">Services</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="faq.php">FAQ</a>
+            <a class="nav-link" href="faq.php" style="margin-right: 30px; margin-left:30px; font-size:20px;">FAQs</a>
           </li>
         </ul>
         <ul class="navbutton ms-auto">
            <div class="nav-item">
-            <button class="btn btn-primary btn-sm rounded-pill custom-button" type="button">Login</button>
+            <button class="btn btn-primary btn-sm rounded-pill custom-button" type="button" style="font-size:20px;">Login</button>
             </div>
         </ul>
         <div class="d-flex ms-auto">
@@ -234,7 +236,7 @@
 </div>
 
 
-<div class="item-container1 ">
+<div class="item-container1 " style=" font-family: 'Fira Sans', sans-serif;">
     <p>OUR SERVICES</p>
     <p>Consult a Board Certified Dermatologist</p>
   </div>
@@ -394,6 +396,30 @@ Our experienced team offers personalized medical and cosmetic dermatology servic
 <br><br><br>
 
 <hr>
+
+
+
+
+
+<br><br><br>
+
+
+<!-- <div>
+<div class="container1" style="margin-left: 50px; margin-bottom: 30px; margin-top: -40px;">
+  <?php
+  include "../db_connect/config.php";
+  $result = mysqli_query($conn, "SELECT * FROM service");
+  while ($row = mysqli_fetch_array($result)) {
+      ?>
+      <div class="faq-item">
+          <h1 style="color:#6537AE; font-weight:bolder"><?php echo $row['services']; ?></h1>
+      </div>
+      <?php
+  }
+  ?>
+</div>
+</div> -->
+
 
 <footer class="footer">
   <div class="container">
