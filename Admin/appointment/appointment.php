@@ -68,24 +68,18 @@ $userData = $_SESSION['zep_acc'];
 .status-rescheduled {
     color: blue;
 }
-.content {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width:100%;
-  height:100%;
-}
+
+
 
     </style>
 </head>
 
 <body>
-<div class="container-fluid">
-    <div class="row flex-nowrap">
-        <?php include "../sidebar.php"; ?>
-        <div class="col main-content custom-navbar bg-light">
-        <?php include "../navbar.php"?>
-        <div class="mx-3">
+<div id="wrapper">
+    <?php include "../sidebar.php"; ?>
+        <section id="content-wrapper">
+            <div class="row">
+                <div class="col-lg-12">
                 <h1 class="text-purple">Appointment</h1>
                 <div class="bg-white p-3 rounded-3 border w-100 mb-3">
                 <table id="patientTable" class="display nowrap responsive" style="width:100%">
@@ -105,7 +99,7 @@ $userData = $_SESSION['zep_acc'];
             <tbody>
                 <?php
                 include "../../db_connect/config.php";
-                $stmt = mysqli_prepare($conn, "SELECT * FROM book1");
+                $stmt = mysqli_prepare($conn, "SELECT * FROM zp_appointment");
                 mysqli_stmt_execute($stmt);
                 $result = mysqli_stmt_get_result($stmt);
                 while ($row = mysqli_fetch_array($result)) {
@@ -179,7 +173,9 @@ $userData = $_SESSION['zep_acc'];
         </div>
     </div>
 </div>
-
+            </div>
+        </section>
+    </div>
 </div>
                 
         
@@ -191,10 +187,6 @@ $userData = $_SESSION['zep_acc'];
           $(".loader-wrapper").fadeOut("slow");
         });
     </script>
-        </div>
-    </div>
-</div>
-        
 
 </body>
 </html>

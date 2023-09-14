@@ -33,11 +33,13 @@ $userData = $_SESSION['zep_acc'];
             $row = mysqli_fetch_assoc($result);
             $recordId = $row['clinic_number'];
             $fname = $row['client_firstname'];
+            $mname = $row['client_middle'];
             $lname = $row['client_lastname'];
+            $sname = $row['client_suffix'];
             $dob = $row['client_birthday'];
             $gender = $row['client_gender'];
             $contact = $row['client_number'];
-            $email = $row['client_email'];
+            $email = $row['clinic_email'];
             $econtact = $row['client_emergency_person'];
             $relation = $row['client_relation'];
             $econtactno = $row['client_emergency_contact_number'];
@@ -93,20 +95,17 @@ $userData = $_SESSION['zep_acc'];
             });";
         }
         
-
-        // Close the prepared statement and database connection
         mysqli_stmt_close($info_stmt);
         mysqli_close($conn);
     }
     if (isset($_POST['add_appointment'])) {
-        include "../../db_connect/config.php"; // Include your database configuration
+        include "../../db_connect/config.php";
 
         $id = $_POST['id'];
         $date = $_POST['date_appointment'];
         $time = $_POST['time_appointment'];
         $services = $_POST['services_appointment'];
         
-        // Fetch client's first name from zp_client_record
         $name_sql = "SELECT client_firstname, client_lastname FROM zp_client_record WHERE id=?";
         $name_stmt = mysqli_prepare($conn, $name_sql);
         mysqli_stmt_bind_param($name_stmt, "i", $id);
@@ -144,16 +143,12 @@ $userData = $_SESSION['zep_acc'];
             echo "Client not found";
             exit;
         }
-                // Close the prepared statement and database connection
     mysqli_stmt_close($info_stmt);
     mysqli_close($conn);
     }
         
-
-
-
     if (isset($_POST['update_client'])) {
-        include "../../db_connect/config.php"; // Include your database configuration
+        include "../../db_connect/config.php";
 
         $id = $_POST['id'];
         $fname = $_POST['client_firstname'];
@@ -161,13 +156,13 @@ $userData = $_SESSION['zep_acc'];
         $dob = $_POST['client_birthday'];
         $gender = $_POST['client_gender'];
         $contact = $_POST['client_number'];
-        $email = $_POST['client_email'];
+        $email = $_POST['clinic_email'];
         $econtact = $_POST['client_emergency_person'];
         $relation = $_POST['client_relation'];
         $econtactno = $_POST['client_emergency_contact_number'];
 
         // Update patient record in zp_client_record table
-        $sql_update_client = "UPDATE zp_client_record SET client_firstname=?, client_lastname=?, client_birthday=?, client_gender=?, client_number=?, client_email=?, client_emergency_person=?, client_relation=?, client_emergency_contact_number=? WHERE id=?";
+        $sql_update_client = "UPDATE zp_client_record SET client_firstname=?, client_lastname=?, client_birthday=?, client_gender=?, client_number=?, clinic_email=?, client_emergency_person=?, client_relation=?, client_emergency_contact_number=? WHERE id=?";
         $stmt_update_client = mysqli_prepare($conn, $sql_update_client);
         mysqli_stmt_bind_param($stmt_update_client, "sssssssssi", $fname, $lname, $dob, $gender, $contact, $email, $econtact, $relation, $econtactno, $id);
 
@@ -192,15 +187,15 @@ $userData = $_SESSION['zep_acc'];
     }
     
     ?>
-    <div class="container-fluid">
-        <div class="row flex-nowrap">
+        <div id="wrapper">
             <?php include "../sidebar.php"; ?>
-            <div class="col main-content custom-navbar bg-light">
-                <?php include "../navbar.php";?>
+            <section id="content-wrapper">
+                <div class="row">
+                    <div class="col-lg-12">
                     <div class="mx-3">
                         <a class="btn btn-warning" href="client_record.php">Cancel</a>
                         <h2 style="color:6537AE;" class="text-center">Client Record (Edit)</h2>
-                        <form method="post" style="margin-right: 20px;">
+                        <form method="post" >
                             <div class="row mb-3">
                                 <input class="form-label" type="hidden" name="id" value="<?php echo $id; ?>">
                             </div>
@@ -213,8 +208,8 @@ $userData = $_SESSION['zep_acc'];
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-8">
-                                    <div class="bg-white p-5 border">
+                                <div class="col-md-8 mb-4">
+                                    <div class="bg-white p-5 border rounded">
                                         <div class="row">
                                             <div class="col-md-4">
                                                 <label class="mb-3">First Name:</label>
@@ -222,7 +217,7 @@ $userData = $_SESSION['zep_acc'];
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="mb-3">Middle Name:</label>
-                                                <input class="form-control" type="text">
+                                                <input class="form-control" type="text" name="client_middle" value="<?php echo $mname; ?>" required>
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="mb-3">Last Name:</label>
@@ -230,7 +225,7 @@ $userData = $_SESSION['zep_acc'];
                                             </div>
                                             <div class="col-md-2">
                                                 <label for="" class="mb-3">Suffix</label>
-                                                <input type="text" class="form-control">
+                                                <input type="text" class="form-control" name="client_suffix" value="<?php echo $sname; ?>" required>
                                             </div>
                                         </div>
                                         <div class="row mb-3">
@@ -248,8 +243,7 @@ $userData = $_SESSION['zep_acc'];
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="bg-white p-5 border mx-5">
+                                <div class="col-md-11 bg-white p-5 border rounded mb-3">
                                 <div class="row mb-3">
                                     <label class="mb-2">EMERGENCY PERSON:</label>
                                     <hr>
@@ -259,7 +253,7 @@ $userData = $_SESSION['zep_acc'];
                                     </div>
                                     <div class="col-md-6">
                                         <label class="mb-3">Email:</label>
-                                        <input class="form-control" type="email" name="client_email" value="<?php echo $email; ?>" required>
+                                        <input class="form-control" type="email" name="clinic_email" value="<?php echo $email; ?>" required>
                                     </div>
                                 </div>
                                 <div class="row mb-3">
@@ -280,8 +274,12 @@ $userData = $_SESSION['zep_acc'];
                                     <input class="btn btn-purple bg-purple text-white" type="submit" name="update_client" value="Update">
                                 </div>
                             </div>
+                            </div>
+                           
                         </form>
-                        <ul class="nav nav-tabs mx-3" >
+
+                    <div class="bg-white p-3 rounded-3 border">
+                        <ul class="nav nav-tabs" >
                                 <li class="nav-item">
                                     <a class="nav-link active" id="diagnosisTab" href="#">Diagnosis</a>
                                 </li>
@@ -289,9 +287,9 @@ $userData = $_SESSION['zep_acc'];
                                     <a class="nav-link" id="appointmentTab" href="#">Appointment</a>
                                 </li>
                             </ul>
-
-                        <div id="diagnosisContainer" class="border p-3 mx-3 bg-white">
-                        <form method="post">
+                        <!-- Container for the Diagnosis -->
+                        <div id="diagnosisContainer" class="bg-white p-3 rounded-3">
+                            <form method="post">
                                 <input type="hidden" name="id" value="<?php echo $id; ?>">
 
                                 <div class="mb-3">
@@ -304,7 +302,7 @@ $userData = $_SESSION['zep_acc'];
                                         <option value="management">Management</option>
                                     </select>
                                 </div>
-                                <div class="mb-3" id="date_diagnosis_div"  style="display: none;">
+                                <div class="mb-3" id="date_diagnosis_div"  style="display: none; width: 100%;">
                                     <label class="mb-3">Date of Diagnosis:</label>
                                     <input class="form-control" name="date_diagnosis" type="date" required>
                                 </div>
@@ -327,52 +325,46 @@ $userData = $_SESSION['zep_acc'];
                             <div>
                             <div class="text-dark p-4 rounded-4 mb-3">
                                 <h2 style="color: 6537AE;">Diagnosis</h2>
-                                <?php
-                                if (isset($_GET['id'])) {
-                                    include "../../db_connect/config.php";
-                                    $id = $_GET['id'];
-                                    $info_sql = "SELECT * FROM zp_derma_record WHERE patient_id=?";
-                                    $info_stmt = mysqli_prepare($conn, $info_sql);
-                                    mysqli_stmt_bind_param($info_stmt, "i", $id);
-                                    mysqli_stmt_execute($info_stmt);
-                                    $info_result = mysqli_stmt_get_result($info_stmt);
-                                    if (mysqli_num_rows($info_result) > 0) {
-                                        echo '<table class="table table-bordered table-striped" id="clientTable">';
-                                        echo '  <thead>
+                                    <table class="table table-striped nowrap" id="clientTable" style="width:100%;">
+                                        <thead>
                                                     <tr>
                                                         <th>Date:</th>
                                                         <th>History:</th>
                                                         <th>Diagnosis:</th>
                                                         <th>Management:</th>
                                                     </tr>
-                                                </thead>';
-                                        echo '<tbody>';
-                                        while ($info_row = mysqli_fetch_assoc($info_result)) {
-                                            $date_diagnosis = $info_row['date_diagnosis'];
-                                            $history = $info_row['history'];
-                                            $diagnosis = $info_row['diagnosis'];
-                                            $management = $info_row['management'];
-                                            echo '
-                                            <tr>
-                                                <td>' . date("F jS Y ", strtotime(strval($date_diagnosis))) . '</td>
-                                                <td>' . $history . '</td>
-                                                <td>' . $diagnosis . '</td>
-                                                <td>' . $management . '</td>
-                                            </tr>';
-                                        }
-                                        echo '</tbody></table>';
-                                    } else {
-                                        echo '<p>No diagnosis information available for this patient.</p>';
-                                    }
+                                                </thead>
+                                        <tbody>
+                                        <?php
+                                            if (isset($_GET['id'])) {
+                                                include "../../db_connect/config.php";
+                                                $id = $_GET['id'];
+                                                $stmt = mysqli_prepare($conn, "SELECT * FROM zp_derma_record WHERE patient_id=?");
+                                                mysqli_stmt_bind_param($stmt, "i", $id);
+                                                mysqli_stmt_execute($stmt);
+                                                $info_result = mysqli_stmt_get_result($stmt);
+                                                while ($info_row = mysqli_fetch_assoc($info_result)) {
+                                                ?>
+                                                        <tr>
+                                                            <td><?php echo date('M d, Y', strtotime($info_row['date_diagnosis']))?></td>
+                                                            <td><?php echo $info_row['history']?></td>
+                                                            <td><?php echo $info_row['diagnosis']?></td>
+                                                            <td><?php echo $info_row['management']?></td>
+                                                        </tr>
+                                                        <?php
+                                            }           mysqli_stmt_close($stmt);
+                                                mysqli_close($conn);
+                                            }
+                                            ?>
+                                    </tbody>
+                                </table>
+                            </div>     
+                        </div>
+                        </div>
 
-                                    mysqli_stmt_close($info_stmt);
-                                    mysqli_close($conn);
-                                }
-                                ?>
-                            </div>
-                        </div>
-                        </div>
-                        <div id="appointmentContainer" style="display: none;" class="border p-3 mx-3 bg-white">
+                        <!-- Container for Appointment -->
+
+                        <div id="appointmentContainer" style="display: none;" class="bg-white p-3 rounded-3">
                             <form method="post">
                                 <input type="hidden" name="id" value="<?php echo $id; ?>">
                                 <div>
@@ -405,6 +397,8 @@ $userData = $_SESSION['zep_acc'];
                                 <div id="calendar"></div>
                             </div>
                         </div>
+                    </div>
+                        
                 </div>
             </div>
         </div>
@@ -426,6 +420,12 @@ $userData = $_SESSION['zep_acc'];
                 alert('Event clicked: ' + event.title);
             }
         });
+            $('#clientTable').DataTable({
+                responsive: true,
+                rowReorder: {
+                    selector: 'td:nth-child(2)'
+                }
+            });
     });
 </script>
 

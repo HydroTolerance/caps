@@ -15,18 +15,18 @@ $userData = $_SESSION['zep_acc'];
     <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400&display=swap" rel="stylesheet">
 </head>
 <body>
-<div class="container-fluid">
-    <div class="row flex-nowrap">
-        <?php include "../sidebar.php"; ?>
-        <div class="col main-content custom-navbar bg-light">
-            <?php include "../navbar.php"?>
+<div id="wrapper">
+            <?php include "../sidebar.php"; ?>
+            <section id="content-wrapper">
+                <div class="row">
+                    <div class="col-lg-12">
             <div class="container">
                 <div class="row">
                     <div class="col-12">
                         <h1 class="fs-3 mt-3 mb-4">Clinic Account</h1>
                     </div>
                 </div>
-                <button type="button" class="btn btn-primary" onclick="showInsertModal()">Insert</button>
+                <button type="button" class="btn btn-primary" onclick="showInsertModal()">Create Account</button>
             <div class="container">
                 <div class="row">
                     <div class="bg-white p-3 rounded-3 border w-100">

@@ -1,6 +1,7 @@
-<?php 
+<?php
 include "../function.php";
 checklogin();
+$userData = $_SESSION['zep_acc'];
 ?>
 
 <!DOCTYPE html>
@@ -17,32 +18,82 @@ checklogin();
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js">
+      </script>
+    <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js">
+      </script>
+    <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/additional-methods.min.js">
+      </script>
+      <style>
+        .error {
+        color: #F00;
+        }
+      </style>
+      <script>
+        $().ready(function () {
+            $("#signUpForm").validate({
+                rules: {
+                    client_firstname: "required",
+                    lastname: "required",
+                    username: {
+                        required: true,
+                        minlength: 2
+                    },
+                    client_emergency_person: {
+                        required: true,
+                        minlength: 11,
+                        number: true,
+                    },
+                    email: {
+                        required: true,
+                        email: true
+                    },
+                    agree: "required"
+                },
+                messages: {
+                    client_firstname: " Please enter your firstname",
+                    lastname: " Please enter your lastname",
+                    username: {
+                        required: " Please enter a username",
+                        minlength:
+                      " Your username must consist of at least 2 characters"
+                    },
+                    client_emergency_person: {
+                        required: " Please enter a number",
+                        minlength:
+                      " Your number must be consist of at least 11 numbers",
+                      client_emergency_person : "Please enter only number"
+                    },
+                    agree: "Please accept our policy"
+                }
+            });
+        });
+    </script>
     </head>
-    
     <body>
     <?php
 if (isset($_POST['submit'])) {
     require_once "../../db_connect/config.php";
-
-    // Fetch data from the form
     $fname = $_POST['client_firstname'];
     $lname = $_POST['client_lastname'];
+    $mname = $_POST['client_middle'];
+    $sname = $_POST['client_suffix'];
     $birthday = $_POST['client_birthday'];
     $contact = $_POST['client_number'];
     $gender = $_POST['client_gender'];
-    $email = $_POST['client_email'];
+    $email = $_POST['clinic_email'];
+    $password = $_POST['clinic_password'];
     $econtact = $_POST['client_emergency_person'];
     $relation = $_POST['client_relation'];
     $econtactno = $_POST['client_emergency_contact_number'];
-    $avatarFileName = ''; // Initialize with an empty value
+    $avatarFileName = ''; 
 
     if ($gender === 'Male') {
-        $avatarFileName = 'maleAvatar.png'; // Set the male avatar filename
+        $avatarFileName = 'maleAvatar.png';
     } elseif ($gender === 'Female') {
-        $avatarFileName = 'femaleAvatar.png'; // Set the female avatar filename
+        $avatarFileName = 'femaleAvatar.png';
     }
 
-    // Check if the data already exists
     $checkSql = "SELECT COUNT(*) FROM zp_client_record WHERE client_firstname = ? AND client_lastname = ?";
     $checkStmt = mysqli_prepare($conn, $checkSql);
     if ($checkStmt) {
@@ -61,12 +112,11 @@ if (isset($_POST['submit'])) {
                 });
             </script>";
         } else {
-            // Data doesn't exist, proceed with insertion
             $record_id = generateRecordID();
-            $insertSql = "INSERT INTO zp_client_record (clinic_number, client_firstname, client_lastname, client_birthday, client_number, client_gender, client_email, client_emergency_person, client_relation, client_emergency_contact_number, client_avatar) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            $insertSql = "INSERT INTO zp_client_record (clinic_number, client_firstname, client_lastname, client_middle, client_suffix, client_birthday, client_number, client_gender, clinic_email, clinic_password, client_emergency_person, client_relation, client_emergency_contact_number, client_avatar) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $insertStmt = mysqli_prepare($conn, $insertSql);
             if ($insertStmt) {
-                mysqli_stmt_bind_param($insertStmt, "sssssssssss", $record_id, $fname, $lname, $birthday, $contact, $gender, $email, $econtact, $relation, $econtactno, $avatarFileName);
+                mysqli_stmt_bind_param($insertStmt, "ssssssssssssss", $record_id, $fname, $lname, $mname, $sname, $birthday, $contact, $gender, $email, $password, $econtact, $relation, $econtactno, $avatarFileName);
 
                 if (mysqli_stmt_execute($insertStmt)) {
                     echo "<script>
@@ -111,27 +161,35 @@ function generateRecordID() {
     return $recordID;
 }
 ?>
-    <div class="container-fluid">
-        <div class="row flex-nowrap">
+        <div id="wrapper">
             <?php include "../sidebar.php"; ?>
-            <div class="col main-content custom-navbar bg-light">
-                <?php include "../navbar.php"?>
+            <section id="content-wrapper">
+                <div class="row">
+                    <div class="col-lg-12">
                 <div class="ms-3">
             </div>
                     <div class="m-2 bg-white text-dark p-4 rounded-4 border border-4 shadow-sm">
                             <h2 style="color:6537AE;">Client Record (Edit)</h2>
-                                <form method="post">
+                                <form method="post" id="signUpForm">
                                     <div class="row">
                                         <div class="mb-3">
                                             <input class="form-label" type="hidden" name="id">
                                         </div>
-                                        <div class="mb-3 col-md-6">
+                                        <div class="mb-3 col-md-4">
                                             <label class="mb-2">First Name:</label>
-                                            <input class="form-control" type="text" name="client_firstname" required>
+                                            <input class="form-control" type="text" name="client_firstname">
                                         </div>
-                                        <div class="mb-3 col-md-6">
+                                        <div class="mb-3 col-md-3">
                                             <label class="mb-2">Last Name:</label>
-                                            <input class="form-control" type="text" name="client_lastname" required>
+                                            <input class="form-control" type="text" name="client_lastname">
+                                        </div>
+                                        <div class="mb-3 col-md-3">
+                                            <label class="mb-2">Middle Name:</label>
+                                            <input class="form-control" type="text" name="client_middle" required>
+                                        </div>
+                                        <div class="mb-3 col-md-2">
+                                            <label class="mb-2">Suffix:</label>
+                                            <input class="form-control" type="text" name="client_suffix" required>
                                         </div>
                                     </div>
                                     <div class="row">
@@ -149,21 +207,29 @@ function generateRecordID() {
                                         </div>
                                     </div>
                                     <div class="row">
+                                        <label class="mb-2 mt-4">Account User:</label>
+                                        <hr>
+                                        <div class="mb-3 col-md-6">
+                                            <label class="mb-3">Email:</label>
+                                            <input class="form-control" type="email" name="clinic_email" required>
+                                        </div>
+                                        <div class="mb-3 col-md-6">
+                                            <label class="mb-3">Password:</label>
+                                            <input class="form-control" type="password" name="clinic_password" required>
+                                        </div>
+                                    </div>
+                                    <div class="row">
                                         <label class="mb-2 mt-4">EMERGENCY PERSON:</label>
                                         <hr>
                                         <div class="mb-3 col-md-6">
                                             <label class="mb-3">Contact Number:</label>
                                             <input class="form-control" type="text" name="client_number" required>
                                         </div>
-                                        <div class="mb-3 col-md-6">
-                                            <label class="mb-3">Email:</label>
-                                            <input class="form-control" type="email" name="client_email" required>
-                                        </div>
                                     </div>
                                     <div class="row">
                                         <div class="mb-3 col-md-4">
                                             <label class="mb-3">Contact Person:</label>
-                                            <input class="form-control" type="text" name="client_emergency_person" required>
+                                            <input class="form-control" type="tel" name="client_emergency_person">
                                         </div>
                                         <div class="mb-3 col-md-3">
                                             <label class="mb-3">Relation:</label>
@@ -176,7 +242,7 @@ function generateRecordID() {
                                     </div>
                                     
                                     <div class="mb-3">
-                                        <input class="btn btn-purple bg-purple text-white" type="submit" name="submit" value="Update">
+                                        <input class="btn btn-purple bg-purple text-white" type="submit" name="submit" value="Create Record">
                                         <a class="btn btn-warning" href="client_record.php">Cancel</a>
                                     </div>
                                 </form>

@@ -68,11 +68,11 @@ $userData = $_SESSION['zep_acc'];
         mysqli_close($conn);
     }
     ?>
-    <div class="container-fluid">
-        <div class="row flex-nowrap">
+        <div id="wrapper">
             <?php include "../sidebar.php"; ?>
-            <div class="col main-content custom-navbar bg-light">
-                <?php include "../navbar.php";?>
+                <section id="content-wrapper">
+                    <div class="row">
+                        <div class="col-lg-12">
                 <div class="ms-3">
                     <div class="m-2 bg-white text-dark rounded-4 border  shadow-sm">
                         <h2 style="color:6537AE;" class="text-center mb-5">Client Record (View)</h2>
@@ -112,50 +112,43 @@ $userData = $_SESSION['zep_acc'];
 
                         <div id="diagnosisContainer" class="">
                             <div>
+                            <div class="bg-white p-3 rounded-3 border w-100 mb-3">
                             <div class="bg-white text-dark p-4  shadow-sm mb-3">
                                 <h2 style="color: 6537AE;">Diagnosis</h2>
-                                <?php
-                                if (isset($_GET['id'])) {
-                                    include "../../db_connect/config.php";
-                                    $id = $_GET['id'];
-                                    $info_sql = "SELECT * FROM zp_derma_record WHERE patient_id=?";
-                                    $info_stmt = mysqli_prepare($conn, $info_sql);
-                                    mysqli_stmt_bind_param($info_stmt, "i", $id);
-                                    mysqli_stmt_execute($info_stmt);
-                                    $info_result = mysqli_stmt_get_result($info_stmt);
-                                    if (mysqli_num_rows($info_result) > 0) {
-                                        echo '';
-                                        echo '<table class="table table-striped nowrap" id="clientTable">';
-                                        echo '  <thead>
+                                    <table class="table table-striped" id="clientTable" style="width:100%;">
+                                        <thead>
                                                     <tr>
                                                         <th>Date:</th>
                                                         <th>History:</th>
                                                         <th>Diagnosis:</th>
                                                         <th>Management:</th>
                                                     </tr>
-                                                </thead>';
-                                        echo '<tbody>';
-                                        while ($info_row = mysqli_fetch_assoc($info_result)) {
-                                            $date_diagnosis = $info_row['date_diagnosis'];
-                                            $history = $info_row['history'];
-                                            $diagnosis = $info_row['diagnosis'];
-                                            $management = $info_row['management'];
-                                            echo '
-                                            <tr>
-                                                <td>' . date("F jS Y ", strtotime(strval($date_diagnosis))) . '</td>
-                                                <td>' . $history . '</td>
-                                                <td>' . $diagnosis . '</td>
-                                                <td>' . $management . '</td>
-                                            </tr>';
-                                        }
-                                        echo '</tbody></table>';
-                                    } else {
-                                        echo '<p>No diagnosis information available for this patient.</p>';
-                                    }
-                                    mysqli_stmt_close($info_stmt);
-                                    mysqli_close($conn);
-                                }
-                                ?>
+                                                </thead>
+                                        <tbody>
+                                        <?php
+                                            if (isset($_GET['id'])) {
+                                                include "../../db_connect/config.php";
+                                                $id = $_GET['id'];
+                                                $stmt = mysqli_prepare($conn, "SELECT * FROM zp_derma_record WHERE patient_id=?");
+                                                mysqli_stmt_bind_param($stmt, "i", $id);
+                                                mysqli_stmt_execute($stmt);
+                                                $info_result = mysqli_stmt_get_result($stmt);
+                                                while ($info_row = mysqli_fetch_assoc($info_result)) {
+                                                ?>
+                                                        <tr>
+                                                            <td><?php echo date('M d, Y', strtotime($info_row['date_diagnosis']))?></td>
+                                                            <td><?php echo $info_row['history']?></td>
+                                                            <td><?php echo $info_row['diagnosis']?></td>
+                                                            <td><?php echo $info_row['management']?></td>
+                                                        </tr>
+                                                        <?php
+                                            }           mysqli_stmt_close($stmt);
+                                                mysqli_close($conn);
+                                            }
+                                            ?>
+                                    </tbody>
+                                </table>
+                            </div>
                             </div>
                         </div>
                         </div>

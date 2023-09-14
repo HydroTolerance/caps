@@ -1,34 +1,44 @@
 <?php
 include "../../db_connect/config.php";
 $d = $_GET['d'];
-$query = "SELECT appointment_slots.slots, 
-                 COUNT(book1.time) AS num_bookings_book1,
-                 COUNT(zp_derma_appointment.time_appointment) AS num_bookings
-          FROM appointment_slots
-          LEFT JOIN book1 ON appointment_slots.slots = book1.time AND book1.date = '$d'
-          LEFT JOIN zp_derma_appointment ON appointment_slots.slots = zp_derma_appointment.time_appointment AND zp_derma_appointment.date_appointment = '$d'
-          GROUP BY appointment_slots.slots";
-
-$result = mysqli_query($conn, $query);
-$slots = array();
-while ($row = mysqli_fetch_array($result)) {
-    $slot = $row['slots'];
-    $num_bookings = $row['num_bookings'];
-    $slots[$slot] = $num_bookings;
-}
-
-// Fetch the slots_left value from the slots table
-$slots_query = "SELECT `slots_left` FROM `slots` WHERE id = 1";
+$slots_query = "SELECT slots_left FROM slots WHERE id = 1";
 $slots_result = mysqli_query($conn, $slots_query);
 $slots_row = mysqli_fetch_assoc($slots_result);
 $slots_left_value = $slots_row['slots_left'];
+$query = "SELECT appointment_slots.slots,
+            ($slots_left_value - 
+             IFNULL(bookings_and_appointments.num_bookings, 0)) AS available_slots
+          FROM appointment_slots
+          LEFT JOIN (
+            SELECT time,
+                   COUNT(*) AS num_bookings
+            FROM (
+              SELECT time
+              FROM zp_appointment
+              WHERE date = '$d'
+              UNION ALL
+              SELECT time_appointment
+              FROM zp_derma_appointment
+              WHERE date_appointment = '$d'
+            ) AS all_bookings_and_appointments
+            GROUP BY time
+          ) AS bookings_and_appointments
+          ON appointment_slots.slots = bookings_and_appointments.time";
 
-// Add the slots_left value to the response array
-$response = array(
+$result = mysqli_query($conn, $query);
+while ($row = mysqli_fetch_assoc($result)) {
+    $slot = $row['slots'];
+    $total_num_bookings = $row['available_slots'];
+
+    $available_slots_for_slot = $slots_left_value - $total_num_bookings;
+    if ($available_slots_for_slot < 0) {
+        $available_slots_for_slot = 0;
+    }
+    $slots[$slot] = $available_slots_for_slot;
+}
+$response = [
     'slots' => $slots,
     'slots_left' => $slots_left_value
-);
-
-// Return the response as a JSON-encoded string
+];
 echo json_encode($response);
 ?>

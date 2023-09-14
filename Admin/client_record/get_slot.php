@@ -14,7 +14,7 @@ $query = "SELECT appointment_slots.slots,
                    COUNT(*) AS num_bookings
             FROM (
               SELECT time
-              FROM book1
+              FROM zp_appointment
               WHERE date = '$d'
               UNION ALL
               SELECT time_appointment

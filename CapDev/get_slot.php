@@ -3,7 +3,7 @@ include "../db_connect/config.php";
 $d = $_GET['d'];
 $query = "SELECT appointment_slots.slots, COUNT(total_bookings.time) AS total_bookings FROM appointment_slots
           LEFT JOIN (
-              SELECT time FROM book1 WHERE date = '$d'
+              SELECT time FROM zp_appointment WHERE date = '$d'
               UNION ALL
               SELECT time_appointment AS time FROM zp_derma_appointment WHERE date_appointment = '$d'
           ) AS total_bookings ON appointment_slots.slots = total_bookings.time

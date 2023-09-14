@@ -41,11 +41,11 @@ if (isset($_POST['submit'])) {
     
 </head>
 <body>
-<div class="container-fluid">
-    <div class="row flex-nowrap">
-        <?php include "../sidebar.php"; ?>
-        <div class="col main-content custom-navbar bg-light">
-            <?php include "../navbar.php"?>
+<div id="wrapper">
+            <?php include "../sidebar.php"; ?>
+            <section id="content-wrapper">
+                <div class="row">
+                    <div class="col-lg-12">
             <button type="button" class="btn btn-primary" onclick="addFaqModal()">Insert</button>
             <div class="bg-white p-3 rounded-3 border mx-5">
                 <table id="faqTable">

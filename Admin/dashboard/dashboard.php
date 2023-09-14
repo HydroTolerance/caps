@@ -1,23 +1,24 @@
-    <?php
+<?php
     include "../function.php";
     checklogin();
     $userData = $_SESSION['zep_acc'];
     ?>
     <?php
         include "../../db_connect/config.php";
+        date_default_timezone_set('Asia/Manila');
         $currentYear = date("Y");
 
-        $queryApproved = "SELECT COUNT(*) as total_approved FROM book1 WHERE appointment_status = 'approved' AND YEAR(created) = $currentYear";
+        $queryApproved = "SELECT COUNT(*) as total_approved FROM zp_appointment WHERE appointment_status = 'approved' AND YEAR(created) = $currentYear";
         $resultApproved = mysqli_query($conn, $queryApproved);
         $rowApproved = mysqli_fetch_assoc($resultApproved);
         $totalApproved = $rowApproved['total_approved'];
 
-        $queryPending = "SELECT COUNT(*) as total_pending FROM book1 WHERE appointment_status = 'pending' AND YEAR(created) = $currentYear";
+        $queryPending = "SELECT COUNT(*) as total_pending FROM zp_appointment WHERE appointment_status = 'pending' AND YEAR(created) = $currentYear";
         $resultPending = mysqli_query($conn, $queryPending);
         $rowPending = mysqli_fetch_assoc($resultPending);
         $totalPending = $rowPending['total_pending'];
 
-        $queryReschedule = "SELECT COUNT(*) as total_reschedule FROM book1 WHERE appointment_status = 'rescheduled' AND YEAR(created) = $currentYear";
+        $queryReschedule = "SELECT COUNT(*) as total_reschedule FROM zp_appointment WHERE appointment_status = 'rescheduled' AND YEAR(created) = $currentYear";
         $resultReschedule = mysqli_query($conn, $queryReschedule);
         $rowReschedule = mysqli_fetch_assoc($resultReschedule);
         $totalReschedule = $rowReschedule['total_reschedule'];
@@ -32,22 +33,25 @@
         $rowFemale = mysqli_fetch_assoc($resultFemale);
         $totalFemale = $rowFemale['total_female'];
 
+        date_default_timezone_set('Asia/Manila');
         $today = date("Y-m-d");
-        $stmt = mysqli_query($conn, " SELECT COUNT(*) as total_appointment FROM (SELECT date FROM book1 UNION ALL SELECT date_appointment FROM zp_derma_appointment) AS combined_dates WHERE DATE(date) = '$today'");
+        $stmt = mysqli_query($conn, " SELECT COUNT(*) as total_appointment FROM (SELECT date FROM zp_appointment UNION ALL SELECT date_appointment FROM zp_derma_appointment) AS combined_dates WHERE DATE(date) = '$today'");
         $appointment_count = mysqli_fetch_assoc($stmt);
         $totalAppointments = $appointment_count['total_appointment'];
 
         $queryTotalPatients = "SELECT COUNT(*) as total_patient FROM zp_client_record";
         $resultTotalPatients = mysqli_query($conn, $queryTotalPatients);
-        
-        $queryServices = "SELECT services, COUNT(*) as service_count FROM  book1 WHERE YEAR(created) = $currentYear GROUP BY services";
-                $resultServices = mysqli_query($conn, $queryServices);
-                $serviceLabels = [];
-                $serviceCounts = [];
-                while ($rowService = mysqli_fetch_assoc($resultServices)) {
-                    $serviceLabels[] = $rowService['services'];
-                    $serviceCounts[] = $rowService['service_count'];
-                }
+
+        $queryServices = "(SELECT services AS services_label, COUNT(*) as service_count FROM zp_appointment WHERE YEAR(created) = $currentYear)
+        UNION ALL
+        (SELECT services_appointment AS services_label, COUNT(*) as service_count FROM zp_derma_appointment WHERE YEAR(created) = $currentYear)";
+    $resultServices = mysqli_query($conn, $queryServices);
+    $serviceLabels = [];
+    $serviceCounts = [];
+    while ($rowService = mysqli_fetch_assoc($resultServices)) {
+        $serviceLabels[] = $rowService['services_label'];
+        $serviceCounts[] = $rowService['service_count'];
+    }
         if ($resultTotalPatients) {
             $rowTotalPatients = mysqli_fetch_assoc($resultTotalPatients);
             $totalPatient = $rowTotalPatients['total_patient'];
@@ -68,7 +72,6 @@
             <script src="https://cdn.datatables.net/1.11.2/js/dataTables.bootstrap5.min.js"></script>
             <script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css">
-            
         </head>
         <style>
             .dropdown-menu {
@@ -95,99 +98,106 @@
             }
         </style>
         <body> 
-            
-        <div class="container-fluid">
-        <div class="row flex-nowrap">
+        <div id="wrapper">
             <?php include "../sidebar.php"; ?>
-            <div class="col main-content custom-navbar bg-light">
-            <div class="container">
-                <div class="row g-5">
-                    <div class="d-flex justify-content-center fade-in mb-3">
-                        <!-- Purple Box -->
-                        <div class="bg-purple col-xl-7 p-3 rounded shadow mx-3">
-                            <!-- Container for Text and Picture  -->
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <h2 class="text-white">Hello Arola</h2>
-                                    <div>
-                                        <div>
-                                            <span class="text-white">Total of appointment Today Are!</span>
-                                        </div>
-                                        <br>
-                                        <div>
-                                            <h1 class="text-white counter" ><?php echo $totalAppointments; ?></h1>
+            <section id="content-wrapper">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="container">
+                            <div class="row ">
+                                <div class="d-flex justify-content-center fade-in">
+                                    <!-- Purple Box -->
+                                    <div class="bg-purple col-xl-7 p-3 rounded mb-3 shadow mx-2">
+                                        <!-- Container for Text and Picture  -->
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <h2 class="text-white">Hello Arola</h2>
+                                                <div>
+                                                    <div>
+                                                        <span class="text-white">Total of appointment Today Are!</span>
+                                                    </div>
+                                                    <br>
+                                                    <div>
+                                                        <h1 class="text-white counter" ><?php echo $totalAppointments; ?></h1>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-auto">
+                                                <img src="../image/dashboard.png" alt="" height="160px" class="w-100">
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="col-auto">
-                                    <img src="../image/dashboard.png" alt="" height="160px" class="w-100">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card col-md-3 mx-3" style="width: 15rem;">
-                            <img src="https://preview.redd.it/meme-of-the-day-shocked-miles-morales-v0-9ydzqmbx5t5b1.jpg?auto=webp&s=5f16cda57122d3555e7af4755dd32af55d4a79a6" class="mx-auto mt-3" alt="..." style="border-radius: 50%;" height="100px" width="100px">
-                            <div class="card-body">
-                                <h4><?php echo $userData['clinic_firstname'] . " " . $userData['clinic_lastname']; ?></h4>
-                                <p class="card-text text-center"><?php echo $userData['clinic_role'];?></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-                <div class="container-fluid">
-                    <div class="row justify-content-center">
-                        <div class="col-md-10 mt-2 fade-in">
-                            <div class="border bg-body rounded pt-3 pb-3 d-flex justify-content-center align-items-center">
-                                <div class="mx-2 text-center">
-                                    <h5>Services</h5>
-                                    <div>
-                                        <canvas id="serviceChart" width="1000" height="200"></canvas>
+                                    <div class="card" style="width: 15rem;">
+                                        <div class="card-body">
+                                            <div style="text-align: center;"> <!-- Center align the content -->
+                                                <img src="https://i.kym-cdn.com/photos/images/newsfeed/002/601/167/c81" class="rounded-circle" height="80px" width="80px" class="card-img-top" alt="...">
+                                            </div>
+                                            
+                                            <h4><?php echo $userData['clinic_firstname'] . " " . $userData['clinic_lastname']; ?></h4>
+                                            <p class="card-text text-center"><?php echo $userData['clinic_role'];?></p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-                <div class="container-fluid">
-                <div class="row justify-content-center">
-                    <div class="col-md-5 mt-2 fade-in">
-                        <div class="border bg-body rounded pt-3 justify-content-center pb-3 d-flex  h-100">
-                        <div class="mx-2 text-center">
-                                <h5>Total Appointments: <?php echo $totalApproved + $totalPending + $totalReschedule; ?></h5>
-                                <div style="margin: -50px;">
-                                <canvas id="appointmentChart" width="300" height="300"></canvas>
+                            <div class="container-fluid">
+                                <div class="row justify-content-center">
+                                    <div class="col-md-10 mt-2 fade-in">
+                                        <div class="border bg-body rounded pt-3 pb-3 d-flex justify-content-center align-items-center">
+                                            <div class="mx-2 text-center">
+                                                <h5>Services</h5>
+                                                <div>
+                                                    <canvas id="serviceChart" width="1000" height="200"></canvas>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                    <!-- Total Patients Chart -->
-                    <div class="col-md-5 mt-2 fade-in">
-                            <div class="border bg-body rounded pt-3 pb-3 d-flex justify-content-center align-items-center flex-shrink-0 h-100">
-                            <div class="mx-2 text-center">
-                                    <h5>Total Patients: <?php echo $totalPatient; ?></h5>
-                                    <div style="margin: -50px;">
-                                        <canvas id="patientChart" width="300" height="300"></canvas>
+                            <div class="container-fluid">
+                            <div class="row justify-content-center">
+                                <div class="col-md-5 mt-2 fade-in">
+                                    <div class="border bg-body rounded pt-3 justify-content-center pb-3 d-flex  h-100">
+                                    <div class="mx-2 text-center">
+                                            <h5>Total Appointments: <?php echo $totalApproved + $totalPending + $totalReschedule; ?></h5>
+                                            <div style="margin: -50px;">
+                                            <canvas id="appointmentChart" width="300" height="300"></canvas>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Total Patients Chart -->
+                                <div class="col-md-5 mt-2 fade-in">
+                                        <div class="border bg-body rounded pt-3 pb-3 d-flex justify-content-center align-items-center flex-shrink-0 h-100">
+                                        <div class="mx-2 text-center">
+                                                <h5>Total Patients: <?php echo $totalPatient; ?></h5>
+                                                <div style="margin: -50px;">
+                                                    <canvas id="patientChart" width="300" height="300"></canvas>
+                                                </div>
+                                                
+                                            </div>
+                                        </div>
                                     </div>
                                     
                                 </div>
                             </div>
-                        </div>
-                        
-                    </div>
-                </div>
-                
-            
-                            <div>
-                            <div class="text-center mt-4 mb-5 bg-white p-4 border rounded mx-4 fade-in"  id="calendar"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
                             
-                    
-                </ul>
+                        
+                                        <div>
+                                        <div class="text-center mt-4 mb-5 bg-white p-4 border rounded mx-4 fade-in"  id="calendar"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                                        
+                                
+                            </ul>
+                        </div>
+                    </div>
+                    </div>
+                
+            </section>
             </div>
-        </div>
         <script src="js/dashboard.js"></script>
             <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js"></script>
             <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

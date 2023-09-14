@@ -1,7 +1,7 @@
 <?php 
 include "../function.php";
 checklogin();
-
+$userData = $_SESSION['zep_acc'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -68,24 +68,18 @@ checklogin();
 .status-rescheduled {
     color: blue;
 }
-.content {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width:100%;
-  height:100%;
-}
+
+
 
     </style>
 </head>
 
 <body>
-<div class="container-fluid">
-    <div class="row flex-nowrap">
-        <?php include "../sidebar.php"; ?>
-        <div class="col main-content custom-navbar bg-light">
-        <?php include "../navbar.php"?>
-        <div class="mx-3">
+<div id="wrapper">
+    <?php include "../sidebar.php"; ?>
+        <section id="content-wrapper">
+            <div class="row">
+                <div class="col-lg-12">
                 <h1 class="text-purple">Appointment</h1>
                 <div class="bg-white p-3 rounded-3 border w-100 mb-3">
                 <table id="patientTable" class="display nowrap responsive" style="width:100%">
@@ -120,6 +114,7 @@ checklogin();
                             <?php echo $row['appointment_status']; ?>
                         </td>
                         <td><button class="btn btn-link" onclick="showData('<?php echo $row['id']; ?>')"> <i class="bi bi-eye-fill text-center dark text-dark fs-4"></i></button></td>
+                        
                     </tr>
                     <?php
                 }
@@ -143,7 +138,36 @@ checklogin();
     </div>
 </div>
 
+<div class="modal fade" id="rescheduleModal" tabindex="-1" aria-labelledby="rescheduleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="rescheduleModalLabel">Reschedule Appointment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Reschedule form will be dynamically inserted here -->
+            </div>
+        </div>
+    </div>
+</div>
 
+<div class="modal fade" id="cancelledModal" tabindex="-1" aria-labelledby="cancelledLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cancelledLabel">Cancelled Appointment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Cancelled appointment details will be dynamically inserted here -->
+            </div>
+        </div>
+    </div>
+</div>
+            </div>
+        </section>
+    </div>
 </div>
                 
         
@@ -155,10 +179,6 @@ checklogin();
           $(".loader-wrapper").fadeOut("slow");
         });
     </script>
-        </div>
-    </div>
-</div>
-        
 
 </body>
 </html>

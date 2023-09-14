@@ -5,22 +5,19 @@ function renderEventDetails(event, element) {
 
   var details = '<div class="event-details">' +
       '<strong>Name:</strong> ' + event.name + '<br>' +
-      '<strong>Number:</strong> ' + event.number + '<br>' +
       '<strong>Email:</strong> ' + event.email + '<br>' +
-      '<strong>Health Concern:</strong> ' + event.healthConcern + '<br>' +
       '<strong>Services:</strong> ' + event.services + '<br>' +
       '<strong>Date:</strong> ' + event.date + '<br>' +
       '<strong>Time:</strong> ' + event.time +
       '</div>';
 
   tippy(element[0], {
-    zIndex: 99,
-    placement: 'left', // Set the placement to top
+    zIndex: 10000,
+    placement: 'right',
       interactive: true,
       content: details,
       allowHTML: true,
       appendTo: document.body,
-      flip: false,
   });
 
   element.css({

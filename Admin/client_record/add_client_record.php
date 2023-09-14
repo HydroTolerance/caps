@@ -44,6 +44,16 @@ $userData = $_SESSION['zep_acc'];
                         minlength: 11,
                         number: true,
                     },
+                    client_emergency_person: {
+                        required: true,
+                        minlength: 11,
+                        number: true,
+                    },
+                    client_emergency_contact_number: {
+                        required: true,
+                        minlength: 11,
+                        number: true,
+                    },
                     email: {
                         required: true,
                         email: true
@@ -58,11 +68,11 @@ $userData = $_SESSION['zep_acc'];
                         minlength:
                       " Your username must consist of at least 2 characters"
                     },
-                    client_emergency_person: {
+                    client_emergency_contact_number: {
                         required: " Please enter a number",
                         minlength:
                       " Your number must be consist of at least 11 numbers",
-                      client_emergency_person : "Please enter only number"
+                      client_emergency_contact_number: "Please enter only number"
                     },
                     agree: "Please accept our policy"
                 }
@@ -76,12 +86,13 @@ if (isset($_POST['submit'])) {
     require_once "../../db_connect/config.php";
     $fname = $_POST['client_firstname'];
     $lname = $_POST['client_lastname'];
-    $lname = $_POST['client_middle'];
-    $lname = $_POST['client_suffix'];
+    $mname = $_POST['client_middle'];
+    $sname = $_POST['client_suffix'];
     $birthday = $_POST['client_birthday'];
     $contact = $_POST['client_number'];
     $gender = $_POST['client_gender'];
-    $email = $_POST['client_email'];
+    $email = $_POST['clinic_email'];
+    $password = $_POST['clinic_password'];
     $econtact = $_POST['client_emergency_person'];
     $relation = $_POST['client_relation'];
     $econtactno = $_POST['client_emergency_contact_number'];
@@ -111,12 +122,11 @@ if (isset($_POST['submit'])) {
                 });
             </script>";
         } else {
-            // Data doesn't exist, proceed with insertion
             $record_id = generateRecordID();
-            $insertSql = "INSERT INTO zp_client_record (clinic_number, client_firstname, client_lastname, client_birthday, client_number, client_gender, client_email, client_emergency_person, client_relation, client_emergency_contact_number, client_avatar) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            $insertSql = "INSERT INTO zp_client_record (clinic_number, client_firstname, client_lastname, client_middle, client_suffix, client_birthday, client_number, client_gender, clinic_email, clinic_password, client_emergency_person, client_relation, client_emergency_contact_number, client_avatar) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $insertStmt = mysqli_prepare($conn, $insertSql);
             if ($insertStmt) {
-                mysqli_stmt_bind_param($insertStmt, "sssssssssss", $record_id, $fname, $lname, $birthday, $contact, $gender, $email, $econtact, $relation, $econtactno, $avatarFileName);
+                mysqli_stmt_bind_param($insertStmt, "ssssssssssssss", $record_id, $fname, $lname, $mname, $sname, $birthday, $contact, $gender, $email, $password, $econtact, $relation, $econtactno, $avatarFileName);
 
                 if (mysqli_stmt_execute($insertStmt)) {
                     echo "<script>
@@ -161,11 +171,11 @@ function generateRecordID() {
     return $recordID;
 }
 ?>
-    <div class="container-fluid">
-        <div class="row flex-nowrap">
+        <div id="wrapper">
             <?php include "../sidebar.php"; ?>
-            <div class="col main-content custom-navbar bg-light">
-                <?php include "../navbar.php"?>
+            <section id="content-wrapper">
+                <div class="row">
+                    <div class="col-lg-12">
                 <div class="ms-3">
             </div>
                     <div class="m-2 bg-white text-dark p-4 rounded-4 border border-4 shadow-sm">
@@ -207,15 +217,23 @@ function generateRecordID() {
                                         </div>
                                     </div>
                                     <div class="row">
+                                        <label class="mb-2 mt-4">Account User:</label>
+                                        <hr>
+                                        <div class="mb-3 col-md-6">
+                                            <label class="mb-3">Email:</label>
+                                            <input class="form-control" type="email" name="clinic_email" required>
+                                        </div>
+                                        <div class="mb-3 col-md-6">
+                                            <label class="mb-3">Password:</label>
+                                            <input class="form-control" type="password" name="clinic_password" required>
+                                        </div>
+                                    </div>
+                                    <div class="row">
                                         <label class="mb-2 mt-4">EMERGENCY PERSON:</label>
                                         <hr>
                                         <div class="mb-3 col-md-6">
                                             <label class="mb-3">Contact Number:</label>
                                             <input class="form-control" type="text" name="client_number" required>
-                                        </div>
-                                        <div class="mb-3 col-md-6">
-                                            <label class="mb-3">Email:</label>
-                                            <input class="form-control" type="email" name="client_email" required>
                                         </div>
                                     </div>
                                     <div class="row">

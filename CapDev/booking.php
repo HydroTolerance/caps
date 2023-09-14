@@ -14,7 +14,7 @@ if(isset($_POST['submit'])){
     $appointment_id = generateAppointmentID();
     $currentTimestamp = date("Y-m-d H:i:s");
 
-    $sql = "INSERT INTO book1 (appointment_id, reference_code, firstname, lastname, number, email, health_concern, services, date, time, appointment_status, created ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending', ?)";
+    $sql = "INSERT INTO zp_appointment (appointment_id, reference_code, firstname, lastname, number, email, health_concern, services, date, time, appointment_status, created ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending', ?)";
     $stmt = mysqli_prepare($conn, $sql);
     mysqli_stmt_bind_param($stmt, "sssssssssss", $appointment_id, $reference, $firstname, $lastname, $number, $email, $health, $services, $date, $time, $currentTimestamp);
 
@@ -111,26 +111,6 @@ function generateAppointmentID() {
             });
         });
     </script>
-    <style>
-        #pageloader
-{
-  background: rgba( 255, 255, 255, 0.8 );
-  display: none;
-  height: 100%;
-  position: fixed;
-  width: 100%;
-  z-index: 9999;
-}
-
-#pageloader img
-{
-  left: 50%;
-  margin-left: -32px;
-  margin-top: -32px;
-  position: absolute;
-  top: 50%;
-}
-    </style>
     <script src="../js/appointment.js"></script>
     <title>Document</title>
     <style>
@@ -150,13 +130,45 @@ function generateAppointmentID() {
         color: #F00;
         font-size: 10px;
         }
+
+        .header {
+        background-color: #684717;
+        color: white;
+        padding: 10px;
+        text-align: center;
+        }
+        #pageloader
+{
+  background: rgba( 255, 255, 255, 0.8 );
+  display: none;
+  height: 100%;
+  position: fixed;
+  width: 100%;
+  z-index: 9999;
+}
+
+#pageloader img
+{
+  left: 50%;
+  margin-left: -32px;
+  margin-top: -32px;
+  position: absolute;
+  top: 50%;
+}
+
     </style>
 </head>
-<body style="background-color: #6537AE;">
-
+<body style="background-color:  #F2B85A;">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 <div id="pageloader">
    <img src="http://cdnjs.cloudflare.com/ajax/libs/semantic-ui/0.16.1/images/loader-large.gif" alt="processing..." />
 </div>
+<div class="header">
+<img src="ZLogo.svg" alt="Image Description" height="180px" width="180px">
+</div>
+
+
+
 <main>
 <section class="h-100 gradient-form">
   <div class="container py-5 h-100">
@@ -169,7 +181,7 @@ function generateAppointmentID() {
               <form action="" method="post" id="signUpForm">
                 <div class="row g-3">
                     <div class="col-12">
-                        <h3 class="fs-4 text-uppercase mb-4" style="color: #6537AE;">Appointment form</h3>
+                        <h3 class="fs-4 text-uppercase mb-4"style="color:#684717;">Appointment form</h3>
                     </div>
                     <div class="col-md-6">
                         <label for="">First Name <span class="text-warning">*</span></label>
@@ -198,10 +210,18 @@ function generateAppointmentID() {
                     <div class="col-12" required>
                         <select class="form-select" name="services">
                             <option value="Consultation">Consultation</option>
-                            <option value="Nail">Nail</option>
-                            <option value="Hair">Hair</option>
-                            <option value="Skin">Skin</option>
-                            <option value="Face">Face</option>
+                            <option value="Nail">Nail Consultation</option>
+                            <option value="Hair">Hair Consultation</option>
+                            <option value="Skin">Skin Consultation</option>
+                            <option value="Face">Eye Consultation</option>
+                            <option value="Face">Skin Biopsy</option>
+                            <option value="Face">HIFU</option>
+                            <option value="Face">Cryolipolysis</option>
+                            <option value="Face">Carbon Laser Peel</option>
+                            <option value="Face">Mohs Microhaphic Surgery</option>
+                            <option value="Face">Platelet Rich Plasma</option>
+                            <option value="Face">Warts, Milia Removal</option>
+                            <option value="Face">Chemical Peel</option>
                         </select>
                     </div>
                     <div class="col-12">
@@ -209,7 +229,7 @@ function generateAppointmentID() {
                         <textarea class="form-control" placeholder="Health Complaint" name="health_concern" required></textarea>
                     </div>
                     <div class="col-12 mt-5">                        
-                        <button type="submit" class="btn btn-primary float-end" name="submit" style="background-color: #6537AE;">Book Appointment</button>
+                        <button type="submit" class="btn btn-primary float-end" name="submit" style="Background-color:#684717;">Book Appointment</button>
                         <a href="home.php"><button type="button" class="btn btn-outline-secondary float-end me-2">Cancel</button></a>
                     </div>
                 </div>
@@ -218,7 +238,7 @@ function generateAppointmentID() {
             </div>
             <div class="col-lg-6">
               <div class="card-body p-md-5 mx-md-4">            
-                <div id="map" style="height: 400px; width: 400px;"></div>
+                <div id="map" style="height: 400px;"></div>
                 <div class="text-center mt-3">
                     <h3>Z-Skin Opening Hours:</h3>
                     <label for="">Monday, Wenesday, Friday, and Saturday</label>
@@ -236,7 +256,13 @@ function generateAppointmentID() {
 </div>
 
 </main>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+<footer style="background-color: #684717; color: white; text-align: center; padding: 10px; margin-top: 30px; font-size: 23px; font-family: DM-Sans;" >
+    ZephyDerm
+</footer>
+
+
+
 
 <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" async></script>
 <script>
@@ -258,12 +284,14 @@ function generateAppointmentID() {
             .bindPopup("Zephyris Skin Care Center<br>One Kalayaan Place Building<br>Samson Rd, Caloocan, 1400 Metro Manila")
             .openPopup();
     </script>
-<script>
-    $(document).ready(function(){
+    <script>
+        $(document).ready(function(){
   $("#signUpForm").on("submit", function(){
     $("#pageloader").fadeIn();
   });//submit
 });//document ready
+    </script>
+<script>
 function updateTime() {
     var d = document.getElementById("d").value;
     var time = document.getElementById("time");

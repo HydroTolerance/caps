@@ -1,7 +1,7 @@
 <?php 
 include "../function.php";
 checklogin();
-
+$userData = $_SESSION['zep_acc'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -20,17 +20,12 @@ checklogin();
 </head>
 
 <body>
-<div class="container-fluid">
-        <div class="row flex-nowrap">
+        <div id="wrapper">
             <?php include "../sidebar.php"; ?>
-            <div class="col main-content custom-navbar bg-light">
-                <?php include "../navbar.php"?>
+                <section id="content-wrapper">
+                    <div class="row">
+                        <div class="col-lg-12">
                 <div class="ms-3 mx-3">
-                <div>
-                    <a href="add_client_record.php">
-                        <button class="create_patients btn btn-purple bg-purple text-white ms-3 mb-3 mt-2 col-xl-2">CREATE CLIENT</button>
-                    </a>
-                </div>
                 <div>
                     <div>
                     <div class="bg-white p-3 rounded-3 border w-100">
@@ -58,7 +53,7 @@ checklogin();
                                         <td><?php echo $row['client_lastname']?></td>
                                         <td><?php echo $row['client_birthday']?></td>
                                         <td><?php echo $row['client_number']?></td>
-                                        <td><?php echo $row['client_email']?></td>
+                                        <td><?php echo $row['clinic_email']?></td>
                                         <td class="action-buttons">
                                             <a href="view.php?id=<?php echo $row['id']?>" class="btn btn-primary text-white"> View Data</a>
                                             <a href="edit_client_record.php?id=<?php echo $row['id']?>" class="btn btn-warning">Edit Data</a>

@@ -1,18 +1,48 @@
 
-    const diagnosisContainer = document.getElementById('diagnosisContainer');
-const appointmentContainer = document.getElementById('appointmentContainer');
+    var select = document.getElementById("diagnosisSelect");
+    var dateDiv = document.getElementById("date_diagnosis_div");
+    var historyDiv = document.getElementById("history_div");
+    var diagnosisDiv = document.getElementById("diagnosis_div");
+    var managementDiv = document.getElementById("management_div");
 
-function showDiagnosis() {
-    diagnosisContainer.style.display = 'block';
-    appointmentContainer.style.display = 'none';
-}   
+    select.addEventListener("change", function () {
 
-function showAppointment() {
-    diagnosisContainer.style.display = 'none';
-    appointmentContainer.style.display = 'block';
-}
+        dateDiv.style.display = "none";
+        historyDiv.style.display = "none";
+        diagnosisDiv.style.display = "none";
+        managementDiv.style.display = "none";
+
+
+        var selectedOption = select.value;
+        if (selectedOption === "date") {
+            dateDiv.style.display = "block";
+        } else if (selectedOption === "history") {
+            historyDiv.style.display = "block";
+        } else if (selectedOption === "diagnosis") {
+            diagnosisDiv.style.display = "block";
+        } else if (selectedOption === "management") {
+            managementDiv.style.display = "block";
+        }
+    });
+
+        function showDiagnosisSection() {
+        document.getElementById('diagnosisContainer').style.display = 'block';
+        document.getElementById('appointmentContainer').style.display = 'none';
+        document.getElementById('diagnosisTab').classList.add('active');
+        document.getElementById('appointmentTab').classList.remove('active');
+    }
+    function showAppointmentSection() {
+        document.getElementById('diagnosisContainer').style.display = 'none';
+        document.getElementById('appointmentContainer').style.display = 'block';
+        document.getElementById('appointmentTab').classList.add('active');
+        document.getElementById('diagnosisTab').classList.remove('active');
+    }
+    document.getElementById('diagnosisTab').addEventListener('click', showDiagnosisSection);
+    document.getElementById('appointmentTab').addEventListener('click', showAppointmentSection);
+
 var configuration = {
     dateFormat: "Y-m-d",
+    allowInput:true,
     minDate: new Date().fp_incr(1),
     maxDate: new Date().fp_incr(60),
     disable: [
@@ -23,15 +53,12 @@ var configuration = {
 };
 
 flatpickr("#d", configuration);
-var d = document.getElementById("d");
-var time = document.getElementById("time");
 
 d.addEventListener("change", updateTime);
-
 function updateTime() {
-    var selectedDate = d.value;
+    var d = document.getElementById("d").value;
+    var time = document.getElementById("time");
     time.innerHTML = "";
-
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
@@ -54,11 +81,31 @@ function updateTime() {
                 option.text = slotText;
             }
 
-
             var num_slots = Object.keys(slots).length;
             document.getElementById("num_slots").innerHTML = " (" + num_slots + " slots available)";
         }
     };
-    xmlhttp.open("GET", "get_slot.php?d=" + encodeURIComponent(selectedDate), true);
+    xmlhttp.open("GET", "get_slot.php?d=" + encodeURIComponent(d), true);
     xmlhttp.send();
+}
+
+function showSuccessMessage(message, redirectUrl = null) {
+    Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: message,
+    }).then(function(result) {
+        if (result.isConfirmed && redirectUrl) {
+            window.location.href = redirectUrl;
+        }
+    });
+}
+
+// Function to show error message
+function showErrorMessage(message) {
+    Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: message,
+    });
 }

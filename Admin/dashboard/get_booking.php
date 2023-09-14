@@ -13,7 +13,7 @@ $query = "
         time, 
         appointment_status 
     FROM 
-        book1
+        zp_appointment
     UNION ALL
     SELECT 
         name_appointment AS firstname, 

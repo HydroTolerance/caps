@@ -16,7 +16,7 @@ if (isset($_POST['update'])) {
     $date = mysqli_real_escape_string($conn, $_POST['date']);
     $time = mysqli_real_escape_string($conn, $_POST['time']);
     $reason = mysqli_real_escape_string($conn, $_POST['apt_reason']);
-    $query = "UPDATE book1 SET email = ?, date = ?, `time` = ?, apt_reason = ?, appointment_status = 'Rescheduled' WHERE id = ?";
+    $query = "UPDATE zp_appointment SET email = ?, date = ?, `time` = ?, apt_reason = ?, appointment_status = 'Rescheduled' WHERE id = ?";
     $stmt = mysqli_prepare($conn, $query);
     mysqli_stmt_bind_param($stmt, 'ssssi', $email, $date, $time, $reason, $id);
     $result = mysqli_stmt_execute($stmt);
@@ -52,7 +52,7 @@ if (isset($_POST['update'])) {
 }
 if (isset($_POST['id'])) {
     $id = $_POST['id'];
-    $query = "SELECT * FROM book1 WHERE id = $id";
+    $query = "SELECT * FROM zp_appointment WHERE id = $id";
     $result = mysqli_query($conn, $query);
 
     if ($result && mysqli_num_rows($result) > 0) {
@@ -150,8 +150,6 @@ if (!isset($_POST['secret_key']) || $_POST['secret_key'] !== $secret_key) {
                     var slotText = option.text + " (" + slotsLeftForOption + " slot(s) left)";
                     option.text = slotText;
                 }
-
-
                 var num_slots = Object.keys(slots).length;
                 document.getElementById("num_slots").innerHTML = " (" + num_slots + " slots available)";
             }

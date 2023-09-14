@@ -19,7 +19,49 @@ if (isset($_POST["verify_otp"])) {
     }
 }
 ?>
+<style>
 
+.container {
+background-color: #FFFF;
+padding: 20px;
+border-radius: 10px;
+}
+
+body {
+display: flex;
+justify-content: center;
+align-items: center;
+height: 100vh;
+margin: 0;
+background-color: #F2B85A;
+}
+
+.form-outline {
+    text-align: center;
+    padding: 50px;
+}
+.form-outline label {
+    display: block;
+    margin-top: 5px;
+}
+
+.text-center {
+    justify-content: center;
+    margin-left: 95px;
+    margin-top: 5px;
+   
+}
+
+.header-text {
+
+text-align: center;
+margin-bottom: 20px;
+color: #F2B85A;
+font-size: 30px;
+
+}
+
+</style>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -28,6 +70,10 @@ if (isset($_POST["verify_otp"])) {
     <title>Verify OTP</title>
 </head>
 <body>
+<div class="container">
+
+<p class="header-text">OTP Verification</p>
+
     <form method="post">
         <div class="form-outline mb-2">
             <input type="text" id="otp" class="form-control" name="otp" required />
@@ -41,5 +87,6 @@ if (isset($_POST["verify_otp"])) {
             <p><?php echo $error_message; ?></p>
         <?php endif; ?>
     </form>
+    </div>
 </body>
 </html>

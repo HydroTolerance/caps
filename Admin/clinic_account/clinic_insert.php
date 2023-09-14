@@ -22,19 +22,39 @@
                         <label for="email" class="form-label">Email</label>
                         <input type="email" class="form-control" id="email" name="email" required>
                     </div>
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Password</label>
-                        <input type="password" class="form-control" id="password" name="password" required>
+                    <div class="form-group mb-3">
+                        <label>Password</label>
+                        <div class="input-group" id="show_hide_password">
+                        <input class="form-control" type="password" name="password">
+                        <div class="input-group-text">
+                            <a href=""><i class="bi bi-eye-slash text-black" aria-hidden="true"></i></a>
+                        </div>
+                        </div>
                     </div>
                     <div class="mb-3">
                     <select name="role" id="" class="form-control" required>
                       <option selected="true" disabled>-- Select Role --</option>
-                      <option value="Admin">Admin</option>
                       <option value="Derma">Derma</option>
                       <option value="Staff">Staff</option>
                     </select>
                     </div>
                     <button type="submit" name="submit" class="btn btn-primary">Insert</button>
                 </form>
+                <script>
+$(document).ready(function() {
+    $("#show_hide_password a").on('click', function(event) {
+        event.preventDefault();
+        if($('#show_hide_password input').attr("type") == "text"){
+            $('#show_hide_password input').attr('type', 'password');
+            $('#show_hide_password i').addClass( "bi bi-eye-slash" );
+            $('#show_hide_password i').removeClass( "bi bi-eye" );
+        }else if($('#show_hide_password input').attr("type") == "password"){
+            $('#show_hide_password input').attr('type', 'text');
+            $('#show_hide_password i').removeClass( "bi bi-eye-slash" );
+            $('#show_hide_password i').addClass( "bi bi-eye" );
+        }
+    });
+});
+    </script>
     </body>
 </html>

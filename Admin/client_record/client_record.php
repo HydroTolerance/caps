@@ -20,11 +20,11 @@ $userData = $_SESSION['zep_acc'];
 </head>
 
 <body>
-<div class="container-fluid">
-        <div class="row flex-nowrap">
+        <div id="wrapper">
             <?php include "../sidebar.php"; ?>
-            <div class="col main-content custom-navbar bg-light">
-                <?php include "../navbar.php"?>
+                <section id="content-wrapper">
+                    <div class="row">
+                        <div class="col-lg-12">
                 <div class="ms-3 mx-3">
                 <div>
                     <a href="add_client_record.php">
@@ -58,7 +58,7 @@ $userData = $_SESSION['zep_acc'];
                                         <td><?php echo $row['client_lastname']?></td>
                                         <td><?php echo $row['client_birthday']?></td>
                                         <td><?php echo $row['client_number']?></td>
-                                        <td><?php echo $row['client_email']?></td>
+                                        <td><?php echo $row['clinic_email']?></td>
                                         <td class="action-buttons">
                                             <a href="view.php?id=<?php echo $row['id']?>" class="btn btn-primary text-white"> View Data</a>
                                             <a href="edit_client_record.php?id=<?php echo $row['id']?>" class="btn btn-warning">Edit Data</a>
