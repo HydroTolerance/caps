@@ -8,9 +8,13 @@
     </head>
     
     <body>
-            <form method="post" action="insert_update_acc.php">
+            <form method="post" action="insert_update_acc.php" enctype="multipart/form-data">
                     <!-- Add your input fields for the new account data here -->
                     <div class="mb-3">
+                        <label for="image">Upload Image (Max 5MB):</label>
+                        <input type="file" name="image" accept="image/*" id="image">
+                    </div>
+                    <div class="mb-3"> 
                         <label for="fname" class="form-label">Firstname</label>
                         <input type="text" class="form-control" id="fname" name="fname" required>
                     </div>
@@ -38,7 +42,7 @@
                       <option value="Staff">Staff</option>
                     </select>
                     </div>
-                    <button type="submit" name="submit" class="btn btn-primary">Insert</button>
+                    <button type="submit" name="submit" class="btn bg-purple text-white">Save</button>
                 </form>
                 <script>
 $(document).ready(function() {

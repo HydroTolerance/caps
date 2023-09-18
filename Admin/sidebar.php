@@ -316,10 +316,6 @@ background-color: #6537AE;
         <a href="../report/report.php" >
             <i class="fs-4 bi-people"></i> <span class="ms-3">Generate Report </span> </a>
     </li>
-    <li>
-        <a href="#" >
-            <i class="fs-4 bi-people"></i> <span class="ms-3">Backup and Recovery</span> </a>
-    </li>
   </ul>
 </aside>
 

@@ -7,15 +7,36 @@ if (isset($_POST['submit'])) {
     $email = $_POST['email'];
     $password = $_POST['password'];
     $role = $_POST['role'];
+    if (isset($_FILES['image'])) {
+        $image = $_FILES['image'];
+        $maxFileSize = 5 * 1024 * 1024;
+        if ($image['size'] > $maxFileSize) {
+            echo "Error: The uploaded image file exceeds the maximum allowed size of 5MB.";
+            exit();
+        }
 
-    // Hash the password before storing it in the database
+        $allowedTypes = ['jpeg', 'jpg', 'png'];
+        $fileExtension = strtolower(pathinfo($image['name'], PATHINFO_EXTENSION));
+        if (!in_array($fileExtension, $allowedTypes)) {
+            echo "Error: Invalid image format. Supported formats: JPEG, JPG, PNG, GIF.";
+            exit();
+        }
+        $imageFileName = time() . '_' . uniqid() . '.' . $fileExtension;
+        $uploadDir = './img';
+        $imagePath = $uploadDir . $imageFileName;
+        if (move_uploaded_file($image['tmp_name'], $imagePath)) {
+        } else {
+            echo "Error: There was an error uploading the image.";
+            exit();
+        }
+    }
     $password = password_hash($password, PASSWORD_DEFAULT);
 
     $account_id = generateAccountID();
 
-    $sql = "INSERT INTO zp_accounts (zep_acc, clinic_firstname, clinic_lastname, clinic_email, clinic_password, clinic_role, account_status) VALUES (?, ?, ?, ?, ?, ?, 'active')";
+    $sql = "INSERT INTO zp_accounts (zep_acc, clinic_firstname, clinic_lastname, clinic_email, image, clinic_password, clinic_role, account_status) VALUES (?, ?, ?, ?, ?, ?, ?, 'active')";
     $stmt = mysqli_prepare($conn, $sql);
-    mysqli_stmt_bind_param($stmt, "ssssss", $account_id, $fname, $lname, $email, $password, $role);
+    mysqli_stmt_bind_param($stmt, "sssssss", $account_id, $fname,  $lname, $email, $imageFileName, $password, $role);
     if (mysqli_stmt_execute($stmt)) {
         mysqli_stmt_close($stmt);
         mysqli_close($conn);

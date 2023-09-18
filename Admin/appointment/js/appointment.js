@@ -3,60 +3,66 @@ $(document).ready(function() {
         responsive: true,
         rowReorder: {
             selector: 'td:nth-child(2)'
-        }
+        },
+        "buttons": [
+          'searchBuilder',
+          'copy',
+          'csv',
+          'excel',
+          'pdf',
+          'print'
+      ],
     });
 });
 
 function updateStatus(id, status) {
-if (status === 'Approved') {
-// Show confirmation dialog before approving
+if (status === 'Completed') {
 Swal.fire({
   title: 'Confirmation',
-  text: 'Are you sure you want to approve this appointment?',
+  text: 'Are you sure you want to complete this appointment?',
   icon: 'warning',
   showCancelButton: true,
   cancelButtonText: 'No',
   confirmButtonText: 'Yes',
+  confirmButtonColor: '#3085d6',
+  cancelButtonColor: '#d33',
 }).then((result) => {
   if (result.isConfirmed) {
-    // User confirmed, update the status
     performStatusUpdate(id, status);
   }
 });
 } else if (status === 'Rescheduled') {
-// Display the reschedule modal
 showRescheduleModal(id);
 } else if (status === 'Cancelled') {
-// Display the reschedule modal
 showCancelledModal(id);
 } 
 else {
-// Update status directly for other cases
 performStatusUpdate(id, status);
 }
 }
 
+
 function performStatusUpdate(id, status) {
-$.ajax({
-url: 'update_status.php',
-type: 'POST',
-data: {
-  id: id,
-  status: status
-},
-success: function(response) {
-  var statusCell = $('#status_' + id);
-  statusCell.text(response);
-  statusCell.removeClass().addClass('status-' + status.toLowerCase().replace(' ', '-'));
-  var toastrMessage = 'Appointment status is now ' + status + '!';
-  toastr.success(toastrMessage, '', {
-    progressBar: true,
-    timeOut: 3000,
-    positionClass: 'toast-top-right'
+  $.ajax({
+  url: 'update_status.php',
+  type: 'POST',
+  data: {
+    id: id,
+    status: status
+  },
+  success: function(response) {
+    var statusCell = $('#status_' + id);
+    statusCell.text(response);
+    statusCell.removeClass().addClass('status-' + status.toLowerCase().replace(' ', '-'));
+    var toastrMessage = 'Appointment status is now ' + status + '!';
+    toastr.success(toastrMessage, '', {
+      progressBar: true,
+      timeOut: 3000,
+      positionClass: 'toast-top-right'
+    });
+  }
   });
-}
-});
-}
+  }
 function showRescheduleModal(id) {
 $.ajax({
     url: 'get_reschedule.php',

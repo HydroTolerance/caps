@@ -68,7 +68,9 @@ $userData = $_SESSION['zep_acc'];
 .status-rescheduled {
     color: blue;
 }
-
+.status-completed {
+    color: green;
+}
 
 
     </style>
@@ -78,22 +80,22 @@ $userData = $_SESSION['zep_acc'];
 <div id="wrapper">
     <?php include "../sidebar.php"; ?>
         <section id="content-wrapper">
-            <div class="row">
+            <div class="row mx-1">
                 <div class="col-lg-12">
-                <h1 class="text-purple">Appointment</h1>
-                <div class="bg-white p-3 rounded-3 border w-100 mb-3">
-                <table id="patientTable" class="display nowrap responsive" style="width:100%">
+                <h1 class="text-purple" style="color:6537AE;">Appointment</h1>
+                <div class="bg-white p-3 rounded-3 border w-100 mb-1" style="width: 00%;">
+                <table id="patientTable" class="display nowrap" >
             <thead>
                 <tr>
-                    <th>Appointment ID</th>
+                    <th>#</th>
                     <th>Full Name</th>
                     <th>Services</th>
                     <th>Date</th>
                     <th>Time</th>
                     <th>Reference Code</th>
                     <th>Status</th>
-                    <th>View All</th>
-                    <th>Action</th>
+                    <th>All Info</th>
+                    <th>Transaction</th>
                 </tr>
             </thead>
             <tbody>
@@ -114,16 +116,19 @@ $userData = $_SESSION['zep_acc'];
                         <td id="status_<?php echo $row['id']; ?>" class="status-<?php echo strtolower(str_replace(' ', '-', $row['appointment_status'])); ?>">
                             <?php echo $row['appointment_status']; ?>
                         </td>
-                        <td><button class="btn btn-link" onclick="showData('<?php echo $row['id']; ?>')"> <i class="bi bi-eye-fill text-center dark text-dark fs-4"></i></button></td>
+                        <td><button class="btn btn-primary" onclick="showData('<?php echo $row['id']; ?>')">View Data</button></td>
                         <td>
                             <select class="form-select" name="status" onchange="updateStatus(<?php echo $row['id']; ?>, this.value)">
                                 <option <?php if ($row['appointment_status'] === 'Pending') echo 'selected'; ?>>Pending</option>
-                                <option value="Approved" <?php if ($row['appointment_status'] === 'Approved') echo 'selected'; ?>>Approved</option>
+                                <option value="Completed" <?php if ($row['appointment_status'] === 'Completed') echo 'selected'; ?>>Completed</option>
+                                <option value="Acknowledged" <?php if ($row['appointment_status'] === 'Acknowledged') echo 'selected'; ?>>Acknowledged</option>
                                 <option value="Rescheduled" <?php if ($row['appointment_status'] === 'Rescheduled') echo 'selected'; ?>>Rescheduled</option>
                                 <option value="Cancelled" <?php if ($row['appointment_status'] === 'Cancelled') echo 'selected'; ?>>Cancelled</option>
+                                <option value="Did not show" <?php if ($row['appointment_status'] === 'Did not show') echo 'selected'; ?>>Did not Show</option>
                             </select>
                         </td>
                     </tr>
+
                     <?php
                 }
                 mysqli_close($conn);
@@ -173,6 +178,7 @@ $userData = $_SESSION['zep_acc'];
         </div>
     </div>
 </div>
+
             </div>
         </section>
     </div>

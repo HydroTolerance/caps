@@ -39,9 +39,7 @@
     function checklogin() {
         session_start();
     
-        // Store the original URL only if user is not logged in
         if (!isset($_SESSION['clinic_email']) || !isset($_SESSION['clinic_role'])) {
-        
             header("Location: ../../login.php");
             exit();
         }

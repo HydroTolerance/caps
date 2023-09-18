@@ -39,6 +39,8 @@ $userData = $_SESSION['zep_acc'];
             $recordId = $row['clinic_number'];
             $fname = $row['client_firstname'];
             $lname = $row['client_lastname'];
+            $mname = $row['client_middle'];
+            $sname = $row['client_suffix'];
             $dob = $row['client_birthday'];
             $gender = $row['client_gender'];
             $contact = $row['client_number'];
@@ -70,52 +72,94 @@ $userData = $_SESSION['zep_acc'];
     ?>
         <div id="wrapper">
             <?php include "../sidebar.php"; ?>
-                <section id="content-wrapper">
-                    <div class="row">
-                        <div class="col-lg-12">
-                <div class="ms-3">
-                    <div class="m-2 bg-white text-dark rounded-4 border  shadow-sm">
-                        <h2 style="color:6537AE;" class="text-center mb-5">Client Record (View)</h2>
-                        <div cl>
-                            <div class="row mb-3 justify-content-center">
-                                <input type="hidden" name="id" value="<?php echo $id; ?>">
-                                <div class="col-md-2">
-                                    <img class="justify content-center" src="<?php echo $avatar; ?>" alt="Avatar" style="width: 150px; height: 150px; border-radius: 50%;"><br>
-                                    <label class="text-center mt-3"><b><?php echo $recordId; ?></b></label>
+            <section id="content-wrapper">
+                <div class="row">
+                    <div class="col-lg-12">
+                    <div class="mx-3">
+                        <a class="btn btn-warning" href="client_record.php">Cancel</a>
+                        <h2 style="color:6537AE;" class="text-center">View Client Record</h2>
+                        <form method="post" >
+                            <div class="container">
+                                <div class="row mb-3">
+                                    <input class="form-label" type="hidden" name="id" value="<?php echo $id; ?>">
                                 </div>
-                                <div class="col-md-4 col-sm-4">
-                                    <p class="fw-normal fs-1" style="margin-bottom: -20px;"><?php echo $fname . " " . $lname; ; ?></p><br>
-                                    <label><b>Details:</b></label>
-                                    <hr>
-                                    <label class="mb-3"><b>Gender:</b> <?php echo $gender; ?></label><br>
-                                    <label class="mb-3"><b>Day of Birth:</b> <?php echo $dob; ?></label><br>
-                                    <label class="mb-3"><b>Contact Number:</b> <?php echo $contact; ?></label><br>
-                                    <label class="mb-3"><b>Email:</b> <?php echo $email; ?></label><br>
+                                <div class="row justify-content-center">
+                                    <div class=" col-xl-3 col-lg-12">
+                                        <div class="bg-white pt-5 text-center rounded border mb-3">
+                                            <img src="<?php echo $avatar; ?>" alt="Avatar" style="width: 155px; height: 155px; border-radius: 50%; display: block; margin: 0 auto;"><br>
+                                            <div class="bg-purple p-2 rounded-bottom">
+                                                <label class="text-center text-light"><b><?php echo $recordId; ?></b></label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-9 col-lg-12 mb-4">
+                                        <div class="bg-white px-5 py-3 border rounded">
+                                            <div class="row mb-3">
+                                                <div class="row">
+                                                    <strong><label class="mb-2">CLIENT INFORMATION:</label></strong>
+                                                    <hr>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <strong><p>Full Name: </p></strong>
+                                                    <p><?php echo ($fname. ", " .$lname. " " .$mname. " " .$sname); ?></p>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <strong><label class="mb-3">Email:</label></strong>
+                                                    <p><?php echo $email ?></p>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <strong><label class="mb-3">Contact Number:</label></strong>
+                                                    <p><?php echo $contact ?></p>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <strong><p>Gender: </p></strong>
+                                                    <p><?php echo $gender; ?></p>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <strong><p>Date of Birth: </p></strong>
+                                                    <p><?php echo ($fname. ", " .$lname. " " .$mname. " " .$sname); ?></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="col-md-5 col-sm-4">
-                                    <label class="mb-2 mt-4"><b>EMERGENCY PERSON:</b></label>
+                                <div class="col-md-12 bg-white p-5 border rounded mb-3" style="padding: 20px;">
+                                <div class="row mb-3">
+                                    <strong><label class="mb-2">EMERGENCY CONTACT PERSON:</label></strong>
                                     <hr>
-                                    <label class="mb-3"><b>Contact Person:</b> <?php echo $econtact; ?></label><br>
-                                    <label class="mb-3"><b>Contact Number Person:</b> <?php echo $econtactno; ?></label><br>
-                                    <label class="mb-3"><b>Relation:</b> <?php echo $relation; ?></label><br>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        <strong><label class="mb-3">Contact Person:</label></strong>
+                                        <p><?php echo $econtact ?></p>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <strong><label class="mb-3">Relation:</label></strong>
+                                        <p><?php echo $relation ?></p>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <strong><label class="mb-3">Relation:</label></strong>
+                                        <p><?php echo $econtactno ?></p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <ul class="nav nav-tabs">
-                            <li class="nav-item">
-                                <a class="nav-link active" id="diagnosisTab" href="#">Diagnosis</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="appointmentTab" href="#">Appointment</a>
-                            </li>
-                        </ul>
-
-                        <div id="diagnosisContainer" class="">
-                            <div>
-                            <div class="bg-white p-3 rounded-3 border w-100 mb-3">
-                            <div class="bg-white text-dark p-4  shadow-sm mb-3">
+                        </form>
+                    <div class="bg-white p-3 rounded-3 border">
+                        <ul class="nav nav-tabs" >
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="diagnosisTab" href="#">Diagnosis</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="appointmentTab" href="#">Appointment</a>
+                                </li>
+                            </ul>
+                        <!-- Container for the Diagnosis -->
+                        <div id="diagnosisContainer" class="bg-white p-3 rounded-3">
+                            <div class="text-dark rounded-4 mb-3">
                                 <h2 style="color: 6537AE;">Diagnosis</h2>
-                                    <table class="table table-striped" id="clientTable" style="width:100%;">
+                                    <table class="table table-striped nowrap" id="clientTable" style="width:100%;">
                                         <thead>
                                                     <tr>
                                                         <th>Date:</th>
@@ -148,16 +192,18 @@ $userData = $_SESSION['zep_acc'];
                                             ?>
                                     </tbody>
                                 </table>
-                            </div>
-                            </div>
-                        </div>
+                            </div>     
                         </div>
                         <div id="appointmentContainer" style="display: none;">
-                            <div>
-                                <div id="calendar" class="p-3"></div>
+                            <div class="d-flex justify-content-center m-3">
+                                <div id="calendar"></div>
                             </div>
                         </div>
-                    </div>
+                        </div>
+
+                        <!-- Container for Appointment -->
+
+
                 </div>
             </div>
         </div>

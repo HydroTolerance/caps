@@ -33,10 +33,10 @@ $userData = $_SESSION['zep_acc'];
                         <table id="table_clinic" class="table table-striped nowra" style="width:100%">
                             <thead>
                                 <tr>
-                                    <th>#</th>
                                     <th>Full Name</th>
                                     <th>Email</th>
                                     <th>Role</th>
+                                    <th>Profile Image</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -47,10 +47,12 @@ $userData = $_SESSION['zep_acc'];
                                 while ($row = mysqli_fetch_array($result)) {
                                     ?>
                                     <tr>
-                                        <td><?php echo $row['zep_acc'] ?></td>
                                         <td><?php echo $row['clinic_firstname'] ?></td>
                                         <td><?php echo $row['clinic_email'] ?></td>
                                         <td><?php echo $row['clinic_role'] ?></td>
+                                        <td>
+                                            <img src="./img<?php echo $row['image']; ?>" alt="User Image" width="100">
+                                        </td>
                                         <td class="action-buttons">
                                             <div class="add-btn">
                                                 <?php
@@ -92,8 +94,10 @@ $userData = $_SESSION['zep_acc'];
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="insertModalLabel">Insert New Account</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title" style="color:6537AE" id="insertModalLabel">Create New Account</h5>
+                <div class="modal-footer">
+                <button type="button" class="btn-close float-end" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
             </div>
             <div class="modal-body">
                 

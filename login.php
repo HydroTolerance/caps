@@ -1,66 +1,65 @@
 <?php
 include "db_connect/config.php";
 session_start();
-
-$error_message = '';
-
+if (isset($_SESSION['clinic_email'])) {
+    $role = $_SESSION['clinic_role'];
+    switch ($role) {
+        case 'Admin':
+            header("Location: Admin/dashboard/dashboard.php");
+            exit();
+        case 'Derma':
+            header("Location: Derma/dashboard/dashboard.php");
+            exit();
+        case 'Staff':
+            header("Location: Staff/dashboard/dashboard.php");
+            exit();
+        default:
+            break;
+    }
+}
 if (isset($_POST["submit"])) {
-    $email = mysqli_real_escape_string($conn, trim($_POST['clinic_email']));
-    $password = trim($_POST['clinic_password']);
-    $sql = mysqli_query($conn, "SELECT * FROM zp_accounts WHERE clinic_email = '$email'");
-    $count = mysqli_num_rows($sql);
-    
-    if ($count > 0) {
-        $fetch = mysqli_fetch_assoc($sql);
-        $hashpassword = $fetch["clinic_password"];
-        $accountStatus = $fetch["account_status"];
-        
-        if (password_verify($password, $hashpassword)) {
-            if ($accountStatus === 'active') {
-                $role = $fetch["clinic_role"];
-                
-                $_SESSION['clinic_email'] = $email;
-                $_SESSION['clinic_role'] = $role;
-                $_SESSION['zep_acc'] = $fetch;
-                
-                switch ($role) {
-                    case 'Admin':
-                        header("Location: Admin/dashboard/dashboard.php");
-                        exit();
-                    case 'Derma':
-                        header("Location: Derma/dashboard/dashboard.php");
-                        exit();
-                    case 'Staff':
-                        header("Location: Staff/dashboard/dashboard.php");
-                        exit();
-                      default:
-                      $error_message = "Invalid role.";
-                      break;
-                }
-            } else {
-                $error_message = "Deactivated account. Please contact the administrator.";
+  $email = mysqli_real_escape_string($conn, trim($_POST['clinic_email']));
+  $password = trim($_POST['clinic_password']);
+
+  $sql = mysqli_query($conn, "SELECT * FROM zp_accounts WHERE clinic_email = '$email'");
+  $count = mysqli_num_rows($sql);
+
+  if ($count > 0) {
+    $fetch = mysqli_fetch_assoc($sql);
+    $hashpassword = $fetch["clinic_password"];
+    $accountStatus = $fetch["account_status"];
+
+    if (password_verify($password, $hashpassword)) {
+        if ($accountStatus === 'active') {
+            $role = $fetch["clinic_role"];
+
+            $_SESSION['clinic_email'] = $email;
+            $_SESSION['clinic_role'] = $role;
+            $_SESSION['zep_acc'] = $fetch;
+
+            switch ($role) {
+                case 'Admin':
+                    header("Location: Admin/dashboard/dashboard.php");
+                    exit();
+                case 'Derma':
+                    header("Location: Derma/dashboard/dashboard.php");
+                    exit();
+                case 'Staff':
+                    header("Location: Staff/dashboard/dashboard.php");
+                    exit();
+                default:
+                    $error_message = "Invalid role.";
+                    break;
             }
         } else {
-            $error_message = "Invalid email or password, please try again.";
+            $error_message = "Deactivated account. Please contact the administrator.";
         }
     } else {
-      $email = mysqli_real_escape_string($conn, $_POST['clinic_email']);
-      $password = mysqli_real_escape_string($conn, $_POST['clinic_password']);
-      
-      $clientSql = mysqli_query($conn, "SELECT * FROM zp_client_record WHERE clinic_email = '$email' AND clinic_password = '$password'");
-      $clientCount = mysqli_num_rows($clientSql);
-        if ($clientCount > 0) {
-          $row = mysqli_fetch_assoc($clientSql);
-    $_SESSION['clinic_email'] = $email;
-    $_SESSION['clinic_password'] = $password;
-    $_SESSION['clinic_number'] = $row;
-
-            header("Location: Client/dashboard/dashboard.php");
-            exit();
-        } else {
-            $error_message = "Invalid email or password, please try again.";
-        }
+        $error_message = "Invalid email or password, please try again.";
     }
+} else {
+    $error_message = "Invalid email or password, please try again.";
+}
 }
 ?>
 

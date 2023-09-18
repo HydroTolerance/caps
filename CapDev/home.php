@@ -9,14 +9,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400&display=swap" rel="stylesheet">
   <style>
     .bgcolornavbar {
-      background-color: #6537AE;
+      background-color: #E5DFAF;
     }
     .navbar-nav .nav-link{
-      color: white;
+      color: black;
       padding: 10px;
     }
     .navbar-brand {
-      color: white;
+      color: black;
       font-weight: bold;
       text-decoration: none;
       margin-left: 30px;
@@ -31,23 +31,23 @@
     }
 
     .custom-button {
-      background-color: #FFFFFF;
-      color: #6537AE;
+      background-color: black;
+      color: #E5DFAF;
       border-radius: 20px;
       padding: 0.365rem 1rem;
     }
 
     .custom-button2 {
-      background-color: #6537AE;
-      color: #FFFFFF;
+      background-color: #E5DFAF;
+      color: black;
       border-radius: 20px;
       padding: 0.500rem 2rem;
       font-size: 25px;
     }
 
     .custom-button3 {
-      background-color: #ffffff;
-      color: #6537AE;
+      background-color: black;
+      color: #E5DFAF;
       border-radius: 20px;
       padding: 0.500rem 2rem;
       font-size: 25px;
@@ -90,27 +90,30 @@
     }
 
     .secondcontainer{
-      background-color: #6537AE;
+      background-color: #E5DFAF;
       height: 80vh;
 
     }
 
     .aboutpara {
-      color: #ffffff;
+      color: black;
       
 
     }
 
     .container-service {
-      color: #6537AE
+      color: black;
+      
     }
 
     footer{
-      background-color: #6537AE;
-      color: #ffffff;
+      background-color: #E5DFAF;
+      color: black;
       
       height: 250px;
     }
+
+    
 
     
    
@@ -216,16 +219,28 @@
           <div class="col">
             <div class="card" style="margin-bottom: 30px; margin-top:30px">
               <img src="img/1.svg" class="card-img-top" alt="pic1" >
+              <div class="card-body">
+                <h5 class="card-title">First Service label</h5>
+                <p class="card-text">Service Description Paragraph.</p>
+              </div>
             </div>
           </div>
           <div class="col">
             <div class="card" style="margin-bottom: 30px; margin-top:30px">
               <img src="img/2.svg" class="card-img-top" alt="pic2" >
+              <div class="card-body">
+                <h5 class="card-title">First Service label</h5>
+                <p class="card-text">Service Description Paragraph.</p>
+              </div>
             </div>
           </div>
           <div class="col">
             <div class="card" style="margin-bottom: 30px; margin-top:30px">
               <img src="img/3.svg" class="card-img-top" alt="pic3" >
+              <div class="card-body">
+                <h5 class="card-title">First Service label</h5>
+                <p class="card-text">Service Description Paragraph.</p>
+              </div>
             </div>
           </div>
         </div>
@@ -235,16 +250,28 @@
           <div class="col">
             <div class="card" style="margin-bottom: 30px; margin-top:30px">
               <img src="img/4.svg" class="card-img-top" alt="pic4" >
+              <div class="card-body">
+                <h5 class="card-title">First Service label</h5>
+                <p class="card-text">Service Description Paragraph.</p>
+              </div>
             </div>
           </div>
           <div class="col">
             <div class="card" style="margin-bottom: 30px; margin-top:30px">
               <img src="img/5.svg" class="card-img-top" alt="pic5" >
+              <div class="card-body">
+                <h5 class="card-title">First Service label</h5>
+                <p class="card-text">Service Description Paragraph.</p>
+              </div>
             </div>
           </div>
           <div class="col">
             <div class="card" style="margin-bottom: 30px; margin-top:30px">
               <img src="img/6.svg" class="card-img-top" alt="pic6" >
+              <div class="card-body">
+                <h5 class="card-title">First Service label</h5>
+                <p class="card-text">Service Description Paragraph.</p>
+              </div>
             </div>
           </div>
         </div>
@@ -254,16 +281,28 @@
           <div class="col">
             <div class="card" style="margin-bottom: 30px; margin-top:30px">
               <img src="img/7.svg" class="card-img-top" alt="pic7" >
+              <div class="card-body">
+                <h5 class="card-title">First Service label</h5>
+                <p class="card-text">Service Description Paragraph.</p>
+              </div>
             </div>
           </div>
           <div class="col">
             <div class="card" style="margin-bottom: 30px; margin-top:30px">
               <img src="img/8.svg" class="card-img-top" alt="pic8" >
+              <div class="card-body">
+                <h5 class="card-title">First Service label</h5>
+                <p class="card-text">Service Description Paragraph.</p>
+              </div>
             </div>
           </div>
           <div class="col">
             <div class="card" style="margin-bottom: 30px; margin-top:30px">
               <img src="img/9.svg" class="card-img-top" alt="pic9" >
+              <div class="card-body">
+                <h5 class="card-title">First Service label</h5>
+                <p class="card-text">Service Description Paragraph.</p>
+              </div>
             </div>
           </div>
         </div>

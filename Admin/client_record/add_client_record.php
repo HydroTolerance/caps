@@ -179,7 +179,7 @@ function generateRecordID() {
                 <div class="ms-3">
             </div>
                     <div class="m-2 bg-white text-dark p-4 rounded-4 border border-4 shadow-sm">
-                            <h2 style="color:6537AE;">Client Record (Edit)</h2>
+                            <h2 style="color:6537AE;" class="text-center">Create Client Record</h2>
                                 <form method="post" id="signUpForm">
                                     <div class="row">
                                         <div class="mb-3">
@@ -203,7 +203,7 @@ function generateRecordID() {
                                         </div>
                                     </div>
                                     <div class="row">
-                                    <div class="mb-3 col-md-6">
+                                    <div class="mb-3 col-md-4">
                                         <label class="mb-3">Gender:</label>
                                         <select class="form-control" name="client_gender" id="client_gender" required>
                                             <option selected="true" disabled></option>
@@ -211,13 +211,17 @@ function generateRecordID() {
                                             <option value="Female">Female</option>
                                         </select>
                                     </div>
-                                        <div class="mb-3 col-md-6">
+                                    <div class="mb-3 col-md-4">
+                                            <label class="mb-3">Contact Number:</label>
+                                            <input class="form-control" type="text" name="client_number" required>
+                                    </div>
+                                        <div class="mb-3 col-md-4">
                                             <label class="mb-3">Date of Birth:</label>
                                             <input class="form-control" type="date" name="client_birthday" id="d" required>
                                         </div>
                                     </div>
                                     <div class="row">
-                                        <label class="mb-2 mt-4">Account User:</label>
+                                        <label class="mb-2 mt-4">Client Account:</label>
                                         <hr>
                                         <div class="mb-3 col-md-6">
                                             <label class="mb-3">Email:</label>
@@ -229,12 +233,8 @@ function generateRecordID() {
                                         </div>
                                     </div>
                                     <div class="row">
-                                        <label class="mb-2 mt-4">EMERGENCY PERSON:</label>
+                                        <label class="mb-2 mt-4">Emergency Person:</label>
                                         <hr>
-                                        <div class="mb-3 col-md-6">
-                                            <label class="mb-3">Contact Number:</label>
-                                            <input class="form-control" type="text" name="client_number" required>
-                                        </div>
                                     </div>
                                     <div class="row">
                                         <div class="mb-3 col-md-4">
@@ -251,9 +251,9 @@ function generateRecordID() {
                                         </div>
                                     </div>
                                     
-                                    <div class="mb-3">
+                                    <div class="mb-3 text-end">
                                         <input class="btn btn-purple bg-purple text-white" type="submit" name="submit" value="Create Record">
-                                        <a class="btn btn-warning" href="client_record.php">Cancel</a>
+                                        <a class="btn" style="background-color: #adb5bd;" href="client_record.php">Cancel</a>
                                     </div>
                                 </form>
                             </div>

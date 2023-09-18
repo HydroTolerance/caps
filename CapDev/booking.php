@@ -31,7 +31,7 @@ if(isset($_POST['submit'])){
 function generateReferenceCode() {
     $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     $reference = '';
-    $length = 15;
+    $length = 6;
 
     for ($i = 0; $i < $length; $i++) {
         $randomIndex = rand(0, strlen($characters) - 1);
@@ -70,6 +70,8 @@ function generateAppointmentID() {
     <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/additional-methods.min.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/@loadingio/loading-bar@0.1.1/dist/loading-bar.min.css" rel="stylesheet">
       <script>
         $().ready(function () {
  
@@ -137,7 +139,7 @@ function generateAppointmentID() {
         padding: 10px;
         text-align: center;
         }
-        #pageloader
+#pageloader
 {
   background: rgba( 255, 255, 255, 0.8 );
   display: none;
@@ -146,29 +148,32 @@ function generateAppointmentID() {
   width: 100%;
   z-index: 9999;
 }
-
-#pageloader img
-{
-  left: 50%;
-  margin-left: -32px;
-  margin-top: -32px;
-  position: absolute;
-  top: 50%;
+.custom-loader {
+  border: 5px solid #684717;
+  border-top: 5px solid transparent;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto;
+  margin-top: 50vh;
 }
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 
     </style>
 </head>
 <body style="background-color:  #F2B85A;">
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 <div id="pageloader">
-   <img src="http://cdnjs.cloudflare.com/ajax/libs/semantic-ui/0.16.1/images/loader-large.gif" alt="processing..." />
+    <div class="custom-loader"></div>
 </div>
 <div class="header">
 <img src="ZLogo.svg" alt="Image Description" height="180px" width="180px">
 </div>
-
-
-
 <main>
 <section class="h-100 gradient-form">
   <div class="container py-5 h-100">
@@ -208,6 +213,7 @@ function generateAppointmentID() {
                         <select class="form-control" name="time" id="time" placeholder="Enter Time Appointment" required></select>
                     </div>
                     <div class="col-12" required>
+                        <label for="">Services</label>
                         <select class="form-select" name="services">
                             <option value="Consultation">Consultation</option>
                             <option value="Nail">Nail Consultation</option>
@@ -260,9 +266,7 @@ function generateAppointmentID() {
 <footer style="background-color: #684717; color: white; text-align: center; padding: 10px; margin-top: 30px; font-size: 23px; font-family: DM-Sans;" >
     ZephyDerm
 </footer>
-
-
-
+<script src="https://cdn.jsdelivr.net/npm/@loadingio/loading-bar@0.1.1/dist/loading-bar.min.js"></script>
 
 <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" async></script>
 <script>
@@ -271,8 +275,6 @@ function generateAppointmentID() {
             center: [14.648295, 120.983827],
             zoom: 24
         };
-
-        // Initialize the map with custom options
         var map = L.map('map', mapOptions);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {

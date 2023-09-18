@@ -1,7 +1,7 @@
 <?php
 include "../../db_connect/config.php";
 $id = $_GET['id'];
-$query = "SELECT date_appointment, time_appointment FROM zp_derma_appointment WHERE patient_id = ?";
+$query = "SELECT date, time FROM zp_appointment WHERE client_id = ?";
 $stmt = mysqli_prepare($conn, $query);
 if (!$stmt) {
     die('Query Error: ' . mysqli_error($conn));
@@ -13,9 +13,9 @@ $result = mysqli_stmt_get_result($stmt);
 $events = array();
 while ($row = mysqli_fetch_assoc($result)) {
     $event = array(
-        'title' => $row['time_appointment'],
-        'start' => $row['date_appointment'],
-        'time' => $row['time_appointment'],
+        'title' => $row['time'],
+        'start' => $row['date'],
+        'time' => $row['time'],
     );
     $events[] = $event;
 }

@@ -11,14 +11,14 @@
 
 
 .bgcolornavbar {
-      background-color: #6537AE;
+      background-color: #E5DFAF;
     }
     .navbar-nav .nav-link{
-      color: white;
+      color: black;
       padding: 10px;
     }
     .navbar-brand {
-      color: white;
+      color: black;
       font-weight: bold;
       text-decoration: none;
       margin-left: 30px;
@@ -41,8 +41,8 @@
 
 
     .custom-button {
-      background-color: #FFFFFF;
-      color: #6537AE;
+      background-color: black;
+      color: #E5DFAF;
       border-radius: 20px;
       padding: 0.365rem 1rem;
     }
@@ -58,13 +58,13 @@
     }
 
      .item-container1 {
-    background-color: #6537AE;
+    background-color: #E5DFAF;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     height: 33vh;
-    color: white;
+    color: black;
   }
 
   .item-container1 p:first-child {
@@ -89,7 +89,7 @@
 }
 
 .container1 .faq-item h1 {
-  color: #6537AE;
+  color: #E5DFAF;
   
 }
 
@@ -104,8 +104,8 @@
   }
 
   footer{
-      background-color: #6537AE;
-      color: #ffffff;
+      background-color: #E5DFAF;
+      color: black;
       
       height: 250px;
     }

@@ -1,31 +1,44 @@
-<?php
-include "../../db_connect/config.php";
-
-if (isset($_POST['year'])) {
-    $selectedYear = $_POST['year'];
-
-    // Modify your SQL queries to fetch data based on the selected year
-    $queryApproved = "SELECT COUNT(*) as total_approved FROM book1 WHERE appointment_status = 'approved' AND YEAR(created) = $selectedYear";
-    $queryPending = "SELECT COUNT(*) as total_pending FROM book1 WHERE appointment_status = 'pending' AND YEAR(created) = $selectedYear";
-    $queryReschedule = "SELECT COUNT(*) as total_reschedule FROM book1 WHERE appointment_status = 'rescheduled' AND YEAR(created) = $selectedYear";
-
-    $resultApproved = mysqli_query($conn, $queryApproved);
-    $resultPending = mysqli_query($conn, $queryPending);
-    $resultReschedule = mysqli_query($conn, $queryReschedule);
-
-    $rowApproved = mysqli_fetch_assoc($resultApproved);
-    $rowPending = mysqli_fetch_assoc($resultPending);
-    $rowReschedule = mysqli_fetch_assoc($resultReschedule);
-
-    $filteredData = array(
-        'totalApproved' => $rowApproved['total_approved'],
-        'totalPending' => $rowPending['total_pending'],
-        'totalReschedule' => $rowReschedule['total_reschedule']
-    );
-    
-
-    echo json_encode($filteredData);
-} else {
-    echo json_encode(array()); // Empty response if year is not provided
+<?php  
+include "config.php";
+$output = '';
+if(isset($_POST["export"]))
+{
+ $query = "SELECT * FROM medicines";
+ $result = mysqli_query($variable, $query);
+ if(mysqli_num_rows($result) > 0)
+ {
+  $output .= '
+   <table class="table" bordered="1">  
+        <tr>
+            <td scope="col">MEDICINE</td>
+            <td scope="col">QUANTITY</td>
+            <td scope="col">TYPE</td>
+            <td scope="col">PRICE</td>
+            <td scope="col">TOTAL</td>
+            <td scope="col">ITEMS SOLD</td>
+            <td scope="col">ALL PRICES</td>
+            <td scope="col">EXPIRATION</td>
+        </tr>
+  ';
+  while($row = mysqli_fetch_array($result))
+  {
+   $output .= '
+    <tr>  
+        <td>'.$row["medicine"].'</td>  
+        <td>'.$row["quantity"].'</td>  
+        <td>'.$row["type"].'</td>  
+        <td>'.$row["price"].'</td> 
+        <td>'.$row['quantity']*$row['price'].'</td>
+        <td>'.$row['sales_quantity'].'</td>  
+        <td>'.$row['quantity']-$row['sales_quantity'].'</td>
+        <td>'.$row['expirydate'].'</td>
+    </tr>
+   ';
+  }
+  $output .= '</table>';
+  header('Content-Type: application/xls');
+  header('Content-Disposition: attachment; filename=download.xls');
+  echo $output;
+ }
 }
 ?>

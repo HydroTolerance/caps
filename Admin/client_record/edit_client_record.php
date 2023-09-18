@@ -39,7 +39,7 @@ $userData = $_SESSION['zep_acc'];
             $dob = $row['client_birthday'];
             $gender = $row['client_gender'];
             $contact = $row['client_number'];
-            $email = $row['clinic_email'];
+            $email = $row['client_email'];
             $econtact = $row['client_emergency_person'];
             $relation = $row['client_relation'];
             $econtactno = $row['client_emergency_contact_number'];
@@ -102,22 +102,28 @@ $userData = $_SESSION['zep_acc'];
         include "../../db_connect/config.php";
 
         $id = $_POST['id'];
-        $date = $_POST['date_appointment'];
-        $time = $_POST['time_appointment'];
-        $services = $_POST['services_appointment'];
-        
-        $name_sql = "SELECT client_firstname, client_lastname FROM zp_client_record WHERE id=?";
+        $date = $_POST['date'];
+        $time = $_POST['time'];
+        $services = $_POST['services'];
+
+        $reference = generateReferenceCode();
+        $appointment_id = generateAppointmentID();
+        $currentTimestamp = date("Y-m-d H:i:s");
+
+        $name_sql = "SELECT client_firstname, client_lastname, client_email FROM zp_client_record WHERE id=?";
         $name_stmt = mysqli_prepare($conn, $name_sql);
         mysqli_stmt_bind_param($name_stmt, "i", $id);
         mysqli_stmt_execute($name_stmt);
         $name_result = mysqli_stmt_get_result($name_stmt);
     
         if ($name_row = mysqli_fetch_assoc($name_result)) {
-            $fname = $name_row['client_firstname'] ." ". $name_row['client_lastname'];
+            $fname = $name_row['client_firstname'];
+            $lname = $name_row['client_lastname'];
+            $email = $name_row['client_email'];
 
-            $info_sql = "INSERT INTO zp_derma_appointment (patient_id, name_appointment, date_appointment, time_appointment, services_appointment) VALUES (?, ?, ?, ?, ?)";
+            $info_sql = "INSERT INTO zp_appointment (client_id, firstname, appointment_id, reference_code, lastname, email, date, time, services, appointment_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,'Pending')";
             $info_stmt = mysqli_prepare($conn, $info_sql);
-            mysqli_stmt_bind_param($info_stmt, "issss", $id, $fname, $date, $time, $services);
+            mysqli_stmt_bind_param($info_stmt, "issssssss", $id, $fname, $appointment_id, $reference, $lname, $email, $date, $time, $services);
     
             if (mysqli_stmt_execute($info_stmt)) {
                 echo "<script>
@@ -156,13 +162,11 @@ $userData = $_SESSION['zep_acc'];
         $dob = $_POST['client_birthday'];
         $gender = $_POST['client_gender'];
         $contact = $_POST['client_number'];
-        $email = $_POST['clinic_email'];
+        $email = $_POST['client_email'];
         $econtact = $_POST['client_emergency_person'];
         $relation = $_POST['client_relation'];
         $econtactno = $_POST['client_emergency_contact_number'];
-
-        // Update patient record in zp_client_record table
-        $sql_update_client = "UPDATE zp_client_record SET client_firstname=?, client_lastname=?, client_birthday=?, client_gender=?, client_number=?, clinic_email=?, client_emergency_person=?, client_relation=?, client_emergency_contact_number=? WHERE id=?";
+        $sql_update_client = "UPDATE zp_client_record SET client_firstname=?, client_lastname=?, client_birthday=?, client_gender=?, client_number=?, client_email=?, client_emergency_person=?, client_relation=?, client_emergency_contact_number=? WHERE id=?";
         $stmt_update_client = mysqli_prepare($conn, $sql_update_client);
         mysqli_stmt_bind_param($stmt_update_client, "sssssssssi", $fname, $lname, $dob, $gender, $contact, $email, $econtact, $relation, $econtactno, $id);
 
@@ -185,7 +189,28 @@ $userData = $_SESSION['zep_acc'];
         });";
     }
     }
+    function generateReferenceCode() {
+        $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        $reference = '';
+        $length = 6;
     
+        for ($i = 0; $i < $length; $i++) {
+            $randomIndex = rand(0, strlen($characters) - 1);
+            $reference .= $characters[$randomIndex];
+        }
+    
+        return $reference;
+    }
+    
+    function generateAppointmentID() {
+        $counterFile = '../../CapDev/appointment_counter.txt';
+        $counter = file_get_contents($counterFile);
+        $counter++;
+        $appointmentID = 'apt#' . str_pad($counter, 3, '0', STR_PAD_LEFT);
+        file_put_contents($counterFile, $counter);
+    
+        return $appointmentID;
+    }
     ?>
         <div id="wrapper">
             <?php include "../sidebar.php"; ?>
@@ -194,56 +219,58 @@ $userData = $_SESSION['zep_acc'];
                     <div class="col-lg-12">
                     <div class="mx-3">
                         <a class="btn btn-warning" href="client_record.php">Cancel</a>
-                        <h2 style="color:6537AE;" class="text-center">Client Record (Edit)</h2>
+                        <h2 style="color:6537AE;" class="text-center">Edit Client Record</h2>
                         <form method="post" >
-                            <div class="row mb-3">
-                                <input class="form-label" type="hidden" name="id" value="<?php echo $id; ?>">
-                            </div>
-                            <div class="row mb-3 justify-content-center">
-                                <div class=" col-md-3">
-                                    <div class="bg-white pt-5 text-center rounded border">
-                                        <img src="<?php echo $avatar; ?>" alt="Avatar" style="width: 150px; height: 150px; border-radius: 50%; display: block; margin: 0 auto;"><br>
-                                        <div class="bg-purple py-2 rounded-bottom">
-                                            <label class="text-center text-light"><b><?php echo $recordId; ?></b></label>
-                                        </div>
-                                    </div>
+                            <div class="container">
+                                <div class="row mb-3">
+                                    <input class="form-label" type="hidden" name="id" value="<?php echo $id; ?>">
                                 </div>
-                                <div class="col-md-8 mb-4">
-                                    <div class="bg-white p-5 border rounded">
-                                        <div class="row">
-                                            <div class="col-md-4">
-                                                <label class="mb-3">First Name:</label>
-                                                <input class="form-control" type="text" name="client_firstname" value="<?php echo $fname; ?>" required>
-                                            </div>
-                                            <div class="col-md-3">
-                                                <label class="mb-3">Middle Name:</label>
-                                                <input class="form-control" type="text" name="client_middle" value="<?php echo $mname; ?>" required>
-                                            </div>
-                                            <div class="col-md-3">
-                                                <label class="mb-3">Last Name:</label>
-                                                <input class="form-control" type="text" name="client_lastname" value="<?php echo $lname; ?>" required>
-                                            </div>
-                                            <div class="col-md-2">
-                                                <label for="" class="mb-3">Suffix</label>
-                                                <input type="text" class="form-control" name="client_suffix" value="<?php echo $sname; ?>" required>
-                                            </div>
-                                        </div>
-                                        <div class="row mb-3">
-                                            <div class="col-md-6">
-                                                <label class="mb-3">Gender:</label>
-                                                <select class="form-control" name="client_gender" required>
-                                                    <option value="Male" <?php echo ($gender === 'Male') ? 'selected' : ''; ?>>Male</option>
-                                                    <option value="Female" <?php echo ($gender === 'Female') ? 'selected' : ''; ?>>Female</option>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="mb-3">Date of Birth:</label>
-                                                <input class="form-control" type="date" name="client_birthday" value="<?php echo $dob; ?>" required>
+                                <div class="row justify-content-center">
+                                    <div class=" col-xl-3 col-lg-12">
+                                        <div class="bg-white pt-5 text-center rounded border mb-3">
+                                            <img src="<?php echo $avatar; ?>" alt="Avatar" style="width: 155px; height: 155px; border-radius: 50%; display: block; margin: 0 auto;"><br>
+                                            <div class="bg-purple p-2 rounded-bottom">
+                                                <label class="text-center text-light"><b><?php echo $recordId; ?></b></label>
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="col-xl-9 col-lg-12 mb-4">
+                                        <div class="bg-white p-5 border rounded">
+                                            <div class="row mb-3">
+                                                <div class="col-md-4">
+                                                    <label class="mb-3">First Name:</label>
+                                                    <input class="form-control" type="text" name="client_firstname" value="<?php echo $fname; ?>" required>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label class="mb-3">Middle Name:</label>
+                                                    <input class="form-control" type="text" name="client_middle" value="<?php echo $mname; ?>" required>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label class="mb-3">Last Name:</label>
+                                                    <input class="form-control" type="text" name="client_lastname" value="<?php echo $lname; ?>" required>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <label for="" class="mb-3">Suffix</label>
+                                                    <input type="text" class="form-control" name="client_suffix" value="<?php echo $sname; ?>" required>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <label class="mb-3">Gender:</label>
+                                                    <select class="form-control" name="client_gender" required>
+                                                        <option value="Male" <?php echo ($gender === 'Male') ? 'selected' : ''; ?>>Male</option>
+                                                        <option value="Female" <?php echo ($gender === 'Female') ? 'selected' : ''; ?>>Female</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="mb-3">Date of Birth:</label>
+                                                    <input class="form-control" type="date" name="client_birthday" value="<?php echo $dob; ?>" required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="col-md-11 bg-white p-5 border rounded mb-3">
+                                <div class="col-md-12 bg-white p-5 border rounded mb-3" style="padding: 20px;">
                                 <div class="row mb-3">
                                     <label class="mb-2">EMERGENCY PERSON:</label>
                                     <hr>
@@ -253,7 +280,7 @@ $userData = $_SESSION['zep_acc'];
                                     </div>
                                     <div class="col-md-6">
                                         <label class="mb-3">Email:</label>
-                                        <input class="form-control" type="email" name="clinic_email" value="<?php echo $email; ?>" required>
+                                        <input class="form-control" type="email" name="client_email" value="<?php echo $email; ?>" required>
                                     </div>
                                 </div>
                                 <div class="row mb-3">
@@ -274,10 +301,7 @@ $userData = $_SESSION['zep_acc'];
                                     <input class="btn btn-purple bg-purple text-white" type="submit" name="update_client" value="Update">
                                 </div>
                             </div>
-                            </div>
-                           
                         </form>
-
                     <div class="bg-white p-3 rounded-3 border">
                         <ul class="nav nav-tabs" >
                                 <li class="nav-item">
@@ -323,7 +347,7 @@ $userData = $_SESSION['zep_acc'];
                                 </div>
                             </form>
                             <div>
-                            <div class="text-dark p-4 rounded-4 mb-3">
+                            <div class="text-dark p-5 rounded-4 mb-3">
                                 <h2 style="color: 6537AE;">Diagnosis</h2>
                                     <table class="table table-striped nowrap" id="clientTable" style="width:100%;">
                                         <thead>
@@ -369,11 +393,11 @@ $userData = $_SESSION['zep_acc'];
                                 <input type="hidden" name="id" value="<?php echo $id; ?>">
                                 <div>
                                     <label for="">Schedule Date <span class="text-danger">*</span></label>
-                                    <input type="da" class="form-control" placeholder="Enter Schedule Date" id="d" name="date_appointment" value="<?php echo isset($date) ? $date : ''; ?>" required>
+                                    <input type="da" class="form-control" placeholder="Enter Schedule Date" id="d" name="date" value="<?php echo isset($date) ? $date : ''; ?>" required>
                                 </div>
                                 <div>
                                 <label>Select Time Appointment <span class="text-danger">*</span></label>
-                                    <select class="form-control" name="time_appointment" id="time" required> <!-- Add required attribute here -->
+                                    <select class="form-control" name="time" id="time" required> <!-- Add required attribute here -->
                                         <option value="" disabled selected>-- Select Time --</option>
                                         <?php if (isset($time)): ?>
                                             <option value="<?php echo $time; ?>"><?php echo $time; ?></option>
@@ -381,7 +405,7 @@ $userData = $_SESSION['zep_acc'];
                                     </select>
                                     <div>
                                         <label>Services <span class="text-danger">*</span></label>
-                                        <select class="form-select" name="services_appointment" required>
+                                        <select class="form-select" name="services" required>
                                             <option value="">-- Select Service --</option>
                                             <option value="Nail">Nail</option>
                                             <option value="Hair">Hair</option>
@@ -397,8 +421,6 @@ $userData = $_SESSION['zep_acc'];
                                 <div id="calendar"></div>
                             </div>
                         </div>
-                    </div>
-                        
                 </div>
             </div>
         </div>
@@ -415,7 +437,7 @@ $userData = $_SESSION['zep_acc'];
                 center: 'title',
                 right: 'month,agendaWeek,agendaDay'
             },
-            events: './get_schedule.php?id=<?php echo $id; ?>',
+            events: 'get_schedule.php?id=<?php echo $id; ?>',
             eventClick: function(event) {
                 alert('Event clicked: ' + event.title);
             }
