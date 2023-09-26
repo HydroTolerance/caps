@@ -1,4 +1,15 @@
 <?php
+ini_set('session.cookie_lifetime', 5); // 5 minutes (300 seconds) session cookie lifetime
+ini_set('session.gc_maxlifetime', 5);   // 5 minutes (300 seconds) session garbage collection lifetime
+
+session_start();
+
+if (!isset($_SESSION['agreed']) || !$_SESSION['agreed']) {
+    header("Location: terms_and_condition.php");
+    exit;
+}
+?>
+<?php
 if(isset($_POST['submit'])){
     include "../db_connect/config.php";
     $firstname = $_POST['firstname'];
@@ -72,6 +83,10 @@ function generateAppointmentID() {
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0/css/select2.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/@loadingio/loading-bar@0.1.1/dist/loading-bar.min.css" rel="stylesheet">
+    <!-- Include SweetAlert2 CSS and JavaScript -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.5.6/dist/sweetalert2.min.css">
+
+
       <script>
         $().ready(function () {
  
@@ -85,7 +100,7 @@ function generateAppointmentID() {
                     },
                     number: {
                         required: true,
-                        minlength: 11,
+                        minlength: 10,
                         number: true,
                     },
                     email: {
@@ -120,7 +135,7 @@ function generateAppointmentID() {
             display: flex;
             justify-content: center; /* Center horizontally */
             align-items: center; /* Center vertically */
-            min-height: 100vh; /* Make the container at least the full viewport height */
+            min-height: 100vh;
         }
         option:disabled {
             color: red;
@@ -262,12 +277,29 @@ function generateAppointmentID() {
 </div>
 
 </main>
+<script>
+    // Wait for the page to load
+    $(document).ready(function () {
+        // Set a timeout to display the SweetAlert2 popup after 5 seconds
+        setTimeout(function () {
+            Swal.fire({
+                icon: 'error',
+                title: 'Session Expired',
+                text: 'Your session has expired. Please refresh the page.',
+                showConfirmButton: false,
+                timer: 3000, // Auto close the popup after 3 seconds
+            }).then(function () {
+                window.location.href = "terms_and_conditions.php"; // Redirect to terms and conditions page
+            });
+        }, 5000); // 5000 milliseconds (5 seconds)
+    });
+</script>
 
 <footer style="background-color: #684717; color: white; text-align: center; padding: 10px; margin-top: 30px; font-size: 23px; font-family: DM-Sans;" >
     ZephyDerm
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/@loadingio/loading-bar@0.1.1/dist/loading-bar.min.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.5.6/dist/sweetalert2.all.min.js"></script>
 <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" async></script>
 <script>
         // Customize map options
@@ -280,8 +312,7 @@ function generateAppointmentID() {
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
-
-        // Add a custom marker at the specified location
+        
         L.marker([14.648295, 120.983827]).addTo(map)
             .bindPopup("Zephyris Skin Care Center<br>One Kalayaan Place Building<br>Samson Rd, Caloocan, 1400 Metro Manila")
             .openPopup();
@@ -329,12 +360,6 @@ function updateTime() {
 }
 
 </script>
-
-</script>
-
-
-
-
     <script>
         configuration = {
           dateFormat: "Y-m-d",
@@ -351,5 +376,23 @@ function updateTime() {
         }
         flatpickr("#d", configuration);
       </script>
+      <script>
+    // Wait for the page to load
+    $(document).ready(function () {
+        setTimeout(function () {
+        Swal.fire({
+            icon: 'error',
+            title: 'Session Expired',
+            text: 'Your session has expired. Please refresh the page.',
+            showConfirmButton: false,
+            timer: 300000, // Auto close the popup after 300 seconds (5 minutes)
+        }).then(function () {
+            window.location.href = "terms_and_conditions.php"; // Redirect to terms and conditions page
+        });
+    }, 300000); // 300000 milliseconds (300 seconds or 5 minutes)
+
+    });
+</script>
+
 </body>
 </html>

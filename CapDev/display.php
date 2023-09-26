@@ -64,7 +64,9 @@ $imagePath = 'img/dermalogo.png';
 $mail->addEmbeddedImage($imagePath, 'dermalogo.png', 'dermalogo.png'); // Attach the image and assign it a content ID (CID)
 
 $mailSent = $mail->send();
+
 ?>
+
 
 <!DOCTYPE html>
 <html>
@@ -73,6 +75,7 @@ $mailSent = $mail->send();
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.3.2/html2canvas.min.js"></script>
+  <link rel="stylesheet" href="./../">
 
   <style>
     /* Add your custom CSS styles here */
@@ -115,9 +118,9 @@ $mailSent = $mail->send();
               <p><strong>Email:</strong> <?php echo $email; ?></p>
               <p><strong>Message:</strong> <?php echo $message; ?></p>
               <p><strong>Services:</strong> <?php echo $option; ?></p>
-              <p class="fs-5"><strong>Date:</strong> <?php echo date("F j, Y", strtotime($d)); ?></p>
-              <p class="fs-5"><strong>Time:</strong> <?php echo $time; ?></p>
-              <p class="fs-4"><strong>Reference Code:</strong> <?php echo $reference; ?></p>
+              <p><strong>Date:</strong> <?php echo date("F j, Y", strtotime($d)); ?></p>
+              <p><strong>Time:</strong> <?php echo $time; ?></p>
+              <p><strong>Reference Code:</strong> <?php echo $reference; ?></p>
               <p>Thank you for your transaction!</p>
               <p>Check your email (<strong><?php echo $email; ?></strong>) </p>
               <p>for your Appointment Summary</p>

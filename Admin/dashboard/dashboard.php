@@ -6,19 +6,19 @@
     <?php
         include "../../db_connect/config.php";
         date_default_timezone_set('Asia/Manila');
-        $currentYear = date("Y");
+        $currentYear = date("m");
 
-        $queryApproved = "SELECT COUNT(*) as total_approved FROM zp_appointment WHERE appointment_status = 'Completed' AND YEAR(created) = $currentYear";
+        $queryApproved = "SELECT COUNT(*) as total_approved FROM zp_appointment WHERE appointment_status = 'Completed' AND MONTH(created) = $currentYear";
         $resultApproved = mysqli_query($conn, $queryApproved);
         $rowApproved = mysqli_fetch_assoc($resultApproved);
         $totalApproved = $rowApproved['total_approved'];
 
-        $queryPending = "SELECT COUNT(*) as total_pending FROM zp_appointment WHERE appointment_status = 'Pending' AND YEAR(created) = $currentYear";
+        $queryPending = "SELECT COUNT(*) as total_pending FROM zp_appointment WHERE appointment_status = 'Pending' AND MONTH(created) = $currentYear";
         $resultPending = mysqli_query($conn, $queryPending);
         $rowPending = mysqli_fetch_assoc($resultPending);
         $totalPending = $rowPending['total_pending'];
 
-        $queryReschedule = "SELECT COUNT(*) as total_reschedule FROM zp_appointment WHERE appointment_status = 'Rescheduled' AND YEAR(created) = $currentYear";
+        $queryReschedule = "SELECT COUNT(*) as total_reschedule FROM zp_appointment WHERE appointment_status = 'Rescheduled' AND MONTH(created) = $currentYear";
         $resultReschedule = mysqli_query($conn, $queryReschedule);
         $rowReschedule = mysqli_fetch_assoc($resultReschedule);
         $totalReschedule = $rowReschedule['total_reschedule'];
@@ -35,7 +35,7 @@
 
         date_default_timezone_set('Asia/Manila');
         $today = date("Y-m-d");
-        $stmt = mysqli_query($conn, " SELECT COUNT(*) as total_appointment FROM (SELECT date FROM zp_appointment UNION ALL SELECT date_appointment FROM zp_derma_appointment) AS combined_dates WHERE DATE(date) = '$today'");
+        $stmt = mysqli_query($conn, " SELECT COUNT(*) as total_appointment FROM (SELECT date FROM zp_appointment) AS combined_dates WHERE DATE(date) = '$today'");
         $appointment_count = mysqli_fetch_assoc($stmt);
         $totalAppointments = $appointment_count['total_appointment'];
 
@@ -44,9 +44,7 @@
 
         $queryServices = "SELECT services, COUNT(*) as service_count 
         FROM (
-            SELECT services FROM zp_appointment WHERE YEAR(created) = $currentYear
-            UNION ALL
-            SELECT services_appointment FROM zp_derma_appointment WHERE YEAR(created) = $currentYear
+            SELECT services FROM zp_appointment WHERE MONTH(created) = $currentYear
         ) AS combined_services
         GROUP BY services";
 $resultServices = mysqli_query($conn, $queryServices);
@@ -86,6 +84,10 @@ $serviceCounts[] = $rowService['service_count'];
             .dropdown-menu {
                 margin-left: -4rem;
             }
+        }
+        #serviceChartContainer {
+            max-width: 100%;
+            height: auto;
         }
         .fade-in {
                 animation: fadeIn 1s ease-in-out;
@@ -150,13 +152,13 @@ $serviceCounts[] = $rowService['service_count'];
                         <div class="container">
                             <div class="row">
                                 <div class="col-lg-6">
-                                    <div class="bg-white p-4 fade-in text-center">
-                                        Total of Appointment: <span class="bg-purple p-3 m-3 rounded text-white"><?php echo $totalApproved + $totalPending + $totalReschedule; ?></span>
+                                    <div class="bg-white p-4 fade-in text-center rounded">
+                                        Total of Appointment for this Month: <span class="bg-purple p-3 m-3 rounded text-white"><?php echo $totalApproved + $totalPending + $totalReschedule; ?></span>
                                     </div>
                                 </div>
                                 <div class="col-lg-6">
-                                    <div class="bg-white p-4 fade-in text-center">
-                                        Total of Completed Appointment: <span class="bg-purple p-3 m-3 rounded text-white"><?php echo $totalApproved?></span>
+                                    <div class="bg-white p-4 fade-in text-center rounded">
+                                        Total of Completed Appointment for this Month: <span class="bg-purple p-3 m-3 rounded text-white"><?php echo $totalApproved?></span>
                                     </div>
                                 </div>
                             </div>
@@ -168,7 +170,7 @@ $serviceCounts[] = $rowService['service_count'];
                                         <div class="border bg-body rounded pt-3 pb-3 d-flex justify-content-center align-items-center">
                                             <div class="mx-2 text-center">
                                                 <h5>Services</h5>
-                                                <div>
+                                                <div class="chart-container" style="position: relative; height:40vh; width:80vw">
                                                     <canvas id="serviceChart"  width="1000" height="200"></canvas>
                                                 </div>
                                             </div>
@@ -293,19 +295,30 @@ $serviceCounts[] = $rowService['service_count'];
                 }]
             };
             var serviceChart = new Chart(document.getElementById('serviceChart'), {
-                type: 'bar',
-                data: serviceChartData,
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
+            type: 'bar',
+            data: serviceChartData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true
                     },
+                    y: {
+                        beginAtZero: true
+                    }
                 }
-            });
+            }
+        });
 
                     });
+                    chart.canvas.parentNode.style.height = '128px';
+                    chart.canvas.parentNode.style.width = '128px';
         </script>
         </body>
     </html>

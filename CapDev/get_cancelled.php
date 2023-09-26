@@ -8,7 +8,7 @@
 </head>
 <body>
 <?php
-include "../../db_connect/config.php";
+include "../db_connect/config.php";
 if (isset($_POST['update'])) {
     $id = $_POST['id'];
     $email = $_POST['email'];
@@ -39,7 +39,7 @@ if (isset($_POST['update'])) {
             $mail->Body = "Your appointment has been cancelled:<br><br>Reason: $reason";
 
             $mail->send();
-            header("Location: appointment.php");
+            header("Location: home.php");
             exit();
         } catch (Exception $e) {
             echo "Email could not be sent. Mailer Error: {$mail->ErrorInfo}";
@@ -69,10 +69,7 @@ if (isset($_POST['id'])) {
     </div>
     <?php if (isset($_POST['id'])) : ?>
         <input type="hidden" name="id" value="<?php echo $_POST['id']; ?>">
-        <div class="modal-footer">
-        <button class="btn bg-purple text-white ml-auto" type="submit" name="update">Cancel Appointment</button>
-        </div>
-        
+        <button type="submit" name="update">Cancel Appointment</button>
     <?php endif; ?>
 </form>
 

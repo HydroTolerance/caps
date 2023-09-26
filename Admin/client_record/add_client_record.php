@@ -39,21 +39,6 @@ $userData = $_SESSION['zep_acc'];
                         required: true,
                         minlength: 2
                     },
-                    client_emergency_person: {
-                        required: true,
-                        minlength: 11,
-                        number: true,
-                    },
-                    client_emergency_person: {
-                        required: true,
-                        minlength: 11,
-                        number: true,
-                    },
-                    client_emergency_contact_number: {
-                        required: true,
-                        minlength: 11,
-                        number: true,
-                    },
                     email: {
                         required: true,
                         email: true
@@ -67,12 +52,6 @@ $userData = $_SESSION['zep_acc'];
                         required: " Please enter a username",
                         minlength:
                       " Your username must consist of at least 2 characters"
-                    },
-                    client_emergency_contact_number: {
-                        required: " Please enter a number",
-                        minlength:
-                      " Your number must be consist of at least 11 numbers",
-                      client_emergency_contact_number: "Please enter only number"
                     },
                     agree: "Please accept our policy"
                 }
@@ -91,17 +70,17 @@ if (isset($_POST['submit'])) {
     $birthday = $_POST['client_birthday'];
     $contact = $_POST['client_number'];
     $gender = $_POST['client_gender'];
-    $email = $_POST['clinic_email'];
-    $password = $_POST['clinic_password'];
+    $email = $_POST['client_email'];
+    $password = $_POST['client_password'];
     $econtact = $_POST['client_emergency_person'];
     $relation = $_POST['client_relation'];
     $econtactno = $_POST['client_emergency_contact_number'];
     $avatarFileName = ''; 
 
     if ($gender === 'Male') {
-        $avatarFileName = 'maleAvatar.png';
+        $avatarFileName = 'avatar/maleAvatar.png';
     } elseif ($gender === 'Female') {
-        $avatarFileName = 'femaleAvatar.png';
+        $avatarFileName = 'avatar/femaleAvatar.png';
     }
 
     $checkSql = "SELECT COUNT(*) FROM zp_client_record WHERE client_firstname = ? AND client_lastname = ?";
@@ -123,7 +102,7 @@ if (isset($_POST['submit'])) {
             </script>";
         } else {
             $record_id = generateRecordID();
-            $insertSql = "INSERT INTO zp_client_record (clinic_number, client_firstname, client_lastname, client_middle, client_suffix, client_birthday, client_number, client_gender, clinic_email, clinic_password, client_emergency_person, client_relation, client_emergency_contact_number, client_avatar) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            $insertSql = "INSERT INTO zp_client_record (clinic_number, client_firstname, client_lastname, client_middle, client_suffix, client_birthday, client_number, client_gender, client_email, client_password, client_emergency_person, client_relation, client_emergency_contact_number, client_avatar) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $insertStmt = mysqli_prepare($conn, $insertSql);
             if ($insertStmt) {
                 mysqli_stmt_bind_param($insertStmt, "ssssssssssssss", $record_id, $fname, $lname, $mname, $sname, $birthday, $contact, $gender, $email, $password, $econtact, $relation, $econtactno, $avatarFileName);
@@ -140,6 +119,7 @@ if (isset($_POST['submit'])) {
                             }
                         });
                     </script>";
+                    exit();
                 } else {
                     echo "<script>
                         Swal.fire({
@@ -148,6 +128,7 @@ if (isset($_POST['submit'])) {
                             text: 'Failed to add data.'
                         });
                     </script>";
+                    exit();
                 }
 
                 mysqli_stmt_close($insertStmt);
@@ -187,19 +168,21 @@ function generateRecordID() {
                                         </div>
                                         <div class="mb-3 col-md-4">
                                             <label class="mb-2">First Name:</label>
-                                            <input class="form-control" type="text" name="client_firstname">
+                                            <input class="form-control" type="text" id="validationCustom01" name="client_firstname" required>
+                                            <div class="invalid-feedback">Please input the Field.</div>
                                         </div>
                                         <div class="mb-3 col-md-3">
-                                            <label class="mb-2">Last Name:</label>
-                                            <input class="form-control" type="text" name="client_lastname">
+                                            <label class="mb-2">Last Name: </label>
+                                            <input class="form-control" type="text" name="client_lastname" required>
+                                            <div class="invalid-feedback">Please input the Field.</div>
                                         </div>
                                         <div class="mb-3 col-md-3">
                                             <label class="mb-2">Middle Name:</label>
-                                            <input class="form-control" type="text" name="client_middle" required>
+                                            <input class="form-control" type="text" name="client_middle">
                                         </div>
                                         <div class="mb-3 col-md-2">
                                             <label class="mb-2">Suffix:</label>
-                                            <input class="form-control" type="text" name="client_suffix" required>
+                                            <input class="form-control" type="text" name="client_suffix">
                                         </div>
                                     </div>
                                     <div class="row">
@@ -213,7 +196,7 @@ function generateRecordID() {
                                     </div>
                                     <div class="mb-3 col-md-4">
                                             <label class="mb-3">Contact Number:</label>
-                                            <input class="form-control" type="text" name="client_number" required>
+                                            <input class="form-control" type="tel" pattern="[0-9]{11}" name="client_number" required>
                                     </div>
                                         <div class="mb-3 col-md-4">
                                             <label class="mb-3">Date of Birth:</label>
@@ -225,11 +208,11 @@ function generateRecordID() {
                                         <hr>
                                         <div class="mb-3 col-md-6">
                                             <label class="mb-3">Email:</label>
-                                            <input class="form-control" type="email" name="clinic_email" required>
+                                            <input class="form-control" type="email" name="client_email">
                                         </div>
                                         <div class="mb-3 col-md-6">
                                             <label class="mb-3">Password:</label>
-                                            <input class="form-control" type="password" name="clinic_password" required>
+                                            <input class="form-control" type="password" name="client_password">
                                         </div>
                                     </div>
                                     <div class="row">
@@ -243,11 +226,11 @@ function generateRecordID() {
                                         </div>
                                         <div class="mb-3 col-md-3">
                                             <label class="mb-3">Relation:</label>
-                                            <input class="form-control" type="text" name="client_relation" required>
+                                            <input class="form-control" type="text" name="client_relation">
                                         </div>
                                         <div class="mb-3 col-md-5">
                                             <label class="mb-3">Contact Person Number:</label>
-                                            <input class="form-control" type="text" name="client_emergency_contact_number" required>
+                                            <input class="form-control" type="text" name="client_emergency_contact_number">
                                         </div>
                                     </div>
                                     
@@ -271,6 +254,22 @@ function generateRecordID() {
 
         }
         flatpickr("#d", configuration);
+
+(() => {
+  'use strict';
+  const forms = document.querySelectorAll('.needs-validation');
+
+  // Loop over them and prevent submission
+  Array.prototype.slice.call(forms).forEach((form) => {
+    form.addEventListener('submit', (event) => {
+      if (!form.checkValidity()) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      form.classList.add('was-validated');
+    }, false);
+  });
+})();
       </script>
     </body>
 </html>

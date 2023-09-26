@@ -15,6 +15,8 @@ $userData = $_SESSION['zep_acc'];
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css">
+            <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+
         <style>
         </style>
     </head>
@@ -298,7 +300,7 @@ $userData = $_SESSION['zep_acc'];
                                     </div>
                                 </div>
                                 <div class="mb-3">
-                                    <input class="btn btn-purple bg-purple text-white" type="submit" name="update_client" value="Update">
+                                    <input class="btn btn-purple bg-purple text-white" type="submit" name="update_client" value="Update Information">
                                 </div>
                             </div>
                         </form>
@@ -315,31 +317,20 @@ $userData = $_SESSION['zep_acc'];
                         <div id="diagnosisContainer" class="bg-white p-3 rounded-3">
                             <form method="post">
                                 <input type="hidden" name="id" value="<?php echo $id; ?>">
-
-                                <div class="mb-3">
-                                    <label class="mb-3">Select an option:</label>
-                                    <select class="form-control" id="diagnosisSelect">
-                                        <option selected disabled>-- Set a Diagnosis --</option>
-                                        <option value="date">Date of Diagnosis</option>
-                                        <option value="history">History of the Patient</option>
-                                        <option value="diagnosis">Diagnosis of the Patient</option>
-                                        <option value="management">Management</option>
-                                    </select>
+                                <div class="mb-3" id="date_diagnosis_div"  style="width: 100%;">
+                                    <label class="mb-3">Date of Diagnosis: <span class="text-danger">*</span></label>
+                                    <input class="form-control" id="date_diagnosis" name="date_diagnosis" type="date" placeholder="Time of Diagnosis" required>
                                 </div>
-                                <div class="mb-3" id="date_diagnosis_div"  style="display: none; width: 100%;">
-                                    <label class="mb-3">Date of Diagnosis:</label>
-                                    <input class="form-control" name="date_diagnosis" type="date" required>
-                                </div>
-                                <div class="mb-3" id="history_div" style="display: none;">
-                                    <label class="mb-3">History of the Patient:</label>
+                                <div class="mb-3" id="history_div">
+                                    <label class="mb-3">History of the Patient: <span class="text-danger">*</span></label>
                                     <textarea class="form-control" name="history" id="summernote" rows="4" required></textarea>
                                 </div>
-                                <div class="mb-3" id="diagnosis_div" style="display: none;">
-                                    <label class="mb-3">Diagnosis of the Patient:</label>
+                                <div class="mb-3" id="diagnosis_div">
+                                    <label class="mb-3">Diagnosis of the Patient: <span class="text-danger">*</span></label>
                                     <textarea class="form-control" name="diagnosis" id="summernote" rows="4" required></textarea>
                                 </div>
-                                <div class="mb-3" id="management_div" style="display: none;">
-                                    <label class="mb-3">Management</label>
+                                <div class="mb-3" id="management_div">
+                                    <label class="mb-3">Management: <span class="text-danger">*</span></label>
                                     <textarea class="form-control" name="management" id="summernote" rows="4" required></textarea>
                                 </div>
                                 <div class="mb-3">
@@ -392,7 +383,7 @@ $userData = $_SESSION['zep_acc'];
                             <form method="post">
                                 <input type="hidden" name="id" value="<?php echo $id; ?>">
                                 <div>
-                                    <label for="">Schedule Date <span class="text-danger">*</span></label>
+                                    <label for="">Select Date Appointment<span class="text-danger">*</span></label>
                                     <input type="da" class="form-control" placeholder="Enter Schedule Date" id="d" name="date" value="<?php echo isset($date) ? $date : ''; ?>" required>
                                 </div>
                                 <div>
@@ -428,28 +419,76 @@ $userData = $_SESSION['zep_acc'];
     <script src="js/record.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
-<script>
-    $(document).ready(function() {
-        $('#calendar').fullCalendar({
-            editable: true,
-            header: {
-                left: 'prev,next today',
-                center: 'title',
-                right: 'month,agendaWeek,agendaDay'
-            },
-            events: 'get_schedule.php?id=<?php echo $id; ?>',
-            eventClick: function(event) {
-                alert('Event clicked: ' + event.title);
-            }
-        });
-            $('#clientTable').DataTable({
-                responsive: true,
-                rowReorder: {
-                    selector: 'td:nth-child(2)'
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#calendar').fullCalendar({
+                editable: true,
+                header: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'month,agendaWeek,agendaDay'
+                },
+                events: 'get_schedule.php?id=<?php echo $id; ?>',
+                eventClick: function(event) {
+                    alert('Event clicked: ' + event.title);
                 }
             });
-    });
-</script>
+                $('#clientTable').DataTable({
+                    responsive: true,
+                    rowReorder: {
+                        selector: 'td:nth-child(2)'
+                    },
+                    "dom": 'Bfrtip',
+            "buttons": [
+                'searchBuilder',
+                'copy',
+                'excel',
+                {
+                    extend: 'pdf',
+                    text: 'PDF',
+                    customize: function(doc) {
+                        doc.content.unshift(
+                            {
+                                text: 'Client Information',
+                                style: 'header'
+                            },
+                            {
+                                text: 'First Name: <?php echo $fname; ?>',
+                                fontSize: 12,
+                                margin: [10, 10, 0, 10],
+                            },
+                            {
+                                text: 'Middle Name: <?php echo $mname; ?>',
+                                fontSize: 12,
+                                margin: [10, 0, 0, 10],
+                            },
+                            {
+                                text: 'Last Name: <?php echo $lname; ?>',
+                                fontSize: 12,
+                                margin: [10, 0, 0, 10],
+                            },
+                        );
+                    }
+                },
+                'print'
+            ]
+        });
+        });
+    </script>
+    <script>
+        configuration = {
+            allowInput: true,
+          dateFormat: "Y-m-d",
+          maxDate: "today"
 
+        }
+        flatpickr("#date_diagnosis", configuration);
+      </script>
     </body>
     </html>

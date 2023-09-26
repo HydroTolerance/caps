@@ -54,8 +54,9 @@ $userData = $_SESSION['zep_acc'];
                             <tbody>
                                 <?php
                                 include "../../db_connect/config.php";
-                                $result = mysqli_query($conn, "SELECT * FROM zp_client_record");
-
+                                $stmt = mysqli_prepare($conn, "SELECT * FROM zp_client_record");
+                                mysqli_stmt_execute($stmt);
+                                $result = mysqli_stmt_get_result($stmt);
                                 while ($row = mysqli_fetch_array($result)) {
                                     ?>
 

@@ -1,35 +1,9 @@
 
-    var select = document.getElementById("diagnosisSelect");
-    var dateDiv = document.getElementById("date_diagnosis_div");
-    var historyDiv = document.getElementById("history_div");
-    var diagnosisDiv = document.getElementById("diagnosis_div");
-    var managementDiv = document.getElementById("management_div");
-
-    select.addEventListener("change", function () {
-
-        dateDiv.style.display = "none";
-        historyDiv.style.display = "none";
-        diagnosisDiv.style.display = "none";
-        managementDiv.style.display = "none";
-
-
-        var selectedOption = select.value;
-        if (selectedOption === "date") {
-            dateDiv.style.display = "block";
-        } else if (selectedOption === "history") {
-            historyDiv.style.display = "block";
-        } else if (selectedOption === "diagnosis") {
-            diagnosisDiv.style.display = "block";
-        } else if (selectedOption === "management") {
-            managementDiv.style.display = "block";
-        }
-    });
-
-        function showDiagnosisSection() {
-        document.getElementById('diagnosisContainer').style.display = 'block';
-        document.getElementById('appointmentContainer').style.display = 'none';
-        document.getElementById('diagnosisTab').classList.add('active');
-        document.getElementById('appointmentTab').classList.remove('active');
+    function showDiagnosisSection() {
+    document.getElementById('diagnosisContainer').style.display = 'block';
+    document.getElementById('appointmentContainer').style.display = 'none';
+    document.getElementById('diagnosisTab').classList.add('active');
+    document.getElementById('appointmentTab').classList.remove('active');
     }
     function showAppointmentSection() {
         document.getElementById('diagnosisContainer').style.display = 'none';

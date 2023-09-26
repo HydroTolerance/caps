@@ -6,13 +6,7 @@ $userData = $_SESSION['zep_acc'];
 <?php
 include "../../db_connect/config.php";
 $currentYear = date("Y");
-$queryServices = "SELECT services, YEAR(created) AS created_year, COUNT(*) as service_count 
-                FROM (
-                    SELECT services, created FROM zp_appointment
-                    UNION ALL
-                    SELECT services_appointment, created FROM zp_derma_appointment
-                ) AS combined_services
-                GROUP BY services, created_year";
+$queryServices = "SELECT services, YEAR(created) AS created_year, COUNT(*) as service_count FROM (SELECT services, created FROM zp_appointment) AS combined_services GROUP BY services, created_year";
 $resultServices = mysqli_query($conn, $queryServices);
 $serviceData = [];
 while ($rowService = mysqli_fetch_assoc($resultServices)) {
@@ -40,6 +34,13 @@ while ($rowService = mysqli_fetch_assoc($resultServices)) {
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
 </head>
 
 <body>
@@ -51,7 +52,6 @@ while ($rowService = mysqli_fetch_assoc($resultServices)) {
                 <div class="mx-3 text-center">
                     <div class="row">
                         <div class="col-xl-3">
-                            <button class="btn bg-purple text-white mb-3" id="generateReport">Export</button>
                         </div>
                         <div class="col-xl-6">
                             <h1 class=" mb-1" style="color:6537AE;">Generate Report</h1>
@@ -64,15 +64,9 @@ while ($rowService = mysqli_fetch_assoc($resultServices)) {
             <div class="bg-white p-3 rounded-3 border w-100">
                 <div class="mb-3 text-end">
                     <label for="yearFilter" class="form-label">Filter by Year: </label>
-                </div>
-                <table id="reportTable" class="table table-striped nowrap" style="width:100%">
-                    <thead>
-                        <tr>
-                            <th>Service Label</th>
-                            <th>Created Date
-                            <select id="yearFilter" class="form-select form-select-sm float-end ms-3" style="width: 16.5%;">
+                    <select id="yearFilter" class="form-select form-select-sm float-end ms-3 bi bi-funnel-fill" style="width: 190px;">
                                 <?php
-                                $queryUniqueYears = "SELECT DISTINCT YEAR(created) as year FROM zp_appointment UNION SELECT DISTINCT YEAR(created) as year FROM zp_derma_appointment";
+                                $queryUniqueYears = "SELECT DISTINCT YEAR(created) as year FROM zp_appointment";
                                 $resultUniqueYears = mysqli_query($conn, $queryUniqueYears);
                                 while ($rowYear = mysqli_fetch_assoc($resultUniqueYears)) {
                                     $year = $rowYear['year'];
@@ -80,6 +74,13 @@ while ($rowService = mysqli_fetch_assoc($resultServices)) {
                                 }
                                 ?>
                             </select>
+                </div>
+                
+                <table id="reportTable" class="table table-striped nowrap" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Service Label</th>
+                            <th>Created Date
                             </th>
                             <th>Service Count</th>
                         </tr>
@@ -110,42 +111,6 @@ while ($rowService = mysqli_fetch_assoc($resultServices)) {
 
 <script>
 // Function to generate the report in Excel format for the displayed data
-function generateExcelReport() {
-    const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet('Z Skin Files');
-
-    // Define the headers
-    worksheet.columns = [
-        { header: 'Service', key: 'service', width: 20 },
-        { header: 'Count', key: 'count', width: 15 },
-    ];
-
-    // Get the data from the displayed DataTable
-    const table = $('#reportTable').DataTable();
-    const displayedData = table.rows({ search: 'applied' }).data().toArray();
-
-    // Add data rows
-    displayedData.forEach(row => {
-        const serviceLabel = row[0];
-        const serviceCount = row[2];
-        worksheet.addRow({ service: serviceLabel, count: serviceCount });
-    });
-
-    // Generate the Excel file
-    workbook.xlsx.writeBuffer().then(function (data) {
-        const blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'report.xlsx';
-        a.click();
-        window.URL.revokeObjectURL(url);
-    });
-}
-
-// Add a click event listener to the "Generate Report" button
-document.getElementById('generateReport').addEventListener('click', generateExcelReport);
-
 function filterTableByYear(selectedYear) {
     $('#reportTable').DataTable().search(selectedYear, true, false).draw();
 }
@@ -160,6 +125,15 @@ $(document).ready(function() {
         rowReorder: {
             selector: 'td:nth-child(2)'
         },
+        "dom": 'Bfrtip',
+            "buttons": [
+                'searchBuilder',
+                'copy',
+                'csv',
+                'excel',
+                'pdf',
+                'print'
+            ]
     });
 });
 </script>

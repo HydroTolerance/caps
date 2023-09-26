@@ -14,7 +14,7 @@
     </style>
 <?php
 
-include "../../db_connect/config.php";
+include "../db_connect/config.php";
 if (isset($_POST['update'])) {
     $id = $_POST['id'];
     $email = mysqli_real_escape_string($conn, $_POST['email']);
@@ -29,21 +29,26 @@ if (isset($_POST['update'])) {
         require 'phpmailer/PHPMailerAutoload.php';
         $mail = new PHPMailer(true);
         try {
+            //Server settings
             $mail->isSMTP(); 
-            $mail->Host = 'smtp.gmail.com';
+            $mail->Host = 'smtp.gmail.com'; // Your SMTP server
             $mail->SMTPAuth = true;         
-            $mail->Username = 'blazered098@gmail.com';
-            $mail->Password = 'nnhthgjzjbdpilbh';
+            $mail->Username = 'blazered098@gmail.com'; // Your SMTP username
+            $mail->Password = 'nnhthgjzjbdpilbh'; // Your SMTP password
             $mail->SMTPSecure = 'tls';       
             $mail->Port = 587;              
-            $mail->setFrom('blazered098@gmail.com', 'Rogen');
+
+            //Recipients
+            $mail->setFrom('blazered098@gmail.com', 'ROgen');
             $mail->addAddress($email);
+
+            //Content
             $mail->isHTML(true); 
             $mail->Subject = 'Appointment Rescheduled';
             $mail->Body = "Your appointment has been rescheduled:<br><br>New Date: $date<br>New Time: $time<br>Reason: $reason";
 
             $mail->send();
-            header("Location: appointment.php");
+            header("Location: home.php");
             exit;
         } catch (Exception $e) {
             echo "Email could not be sent. Mailer Error: {$mail->ErrorInfo}";
@@ -101,8 +106,8 @@ if (!isset($_POST['secret_key']) || $_POST['secret_key'] !== $secret_key) {
     <?php if (isset($_POST['id'])) : ?>
         <input type="hidden" name="id" value="<?php echo $_POST['id']; ?>">
     <?php endif; ?>
-    <div class="modal-footer">
-        <button class="btn bg-purple text-white ml-auto" type="submit" name="<?php echo isset($_POST['id']) ? 'update' : 'save'; ?>"><?php echo isset($_POST['id']) ? 'Update' : 'Save'; ?></button>
+    <div class="text-right">]
+        <button type="submit" name="<?php echo isset($_POST['id']) ? 'update' : 'save'; ?>"><?php echo isset($_POST['id']) ? 'Update' : 'Save'; ?></button>
     </div>
 </form>
 

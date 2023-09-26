@@ -5,6 +5,7 @@ if (isset($_POST['submit'])) {
     $fname = $_POST['fname'];
     $lname = $_POST['lname'];
     $email = $_POST['email'];
+    $gender = $_POST['gender'];
     $password = $_POST['password'];
     $role = $_POST['role'];
     if (isset($_FILES['image'])) {
@@ -13,30 +14,37 @@ if (isset($_POST['submit'])) {
         if ($image['size'] > $maxFileSize) {
             echo "Error: The uploaded image file exceeds the maximum allowed size of 5MB.";
             exit();
-        }
-
-        $allowedTypes = ['jpeg', 'jpg', 'png'];
-        $fileExtension = strtolower(pathinfo($image['name'], PATHINFO_EXTENSION));
-        if (!in_array($fileExtension, $allowedTypes)) {
-            echo "Error: Invalid image format. Supported formats: JPEG, JPG, PNG, GIF.";
-            exit();
-        }
-        $imageFileName = time() . '_' . uniqid() . '.' . $fileExtension;
-        $uploadDir = './img';
-        $imagePath = $uploadDir . $imageFileName;
-        if (move_uploaded_file($image['tmp_name'], $imagePath)) {
-        } else {
-            echo "Error: There was an error uploading the image.";
-            exit();
+        }else {
+            // No image uploaded, generate a default image based on the role
+            $defaultImages = [
+                'Derma' => 'avatar/femaleAvatar.png',
+                'Staff' => 'avatar/maleAvatar.png',
+                // Add more role-image mappings as needed
+            ];
+    
+            // Set a default image based on the provided role
+            $defaultImage = $defaultImages[$role] ?? 'default_unknown.jpg';
+    
+            // Copy the default image to the upload directory
+            $uploadDir = 'img/';
+            $imageFileName = time() . '_' . uniqid() . '.jpg'; // Change the extension to JPG or the desired format
+            $imagePath = $uploadDir . $imageFileName;
+    
+            if (copy($defaultImage, $imagePath)) {
+                // Default image copied successfully
+            } else {
+                echo "Error: There was an error generating the default image.";
+                exit();
+            }
         }
     }
     $password = password_hash($password, PASSWORD_DEFAULT);
 
     $account_id = generateAccountID();
 
-    $sql = "INSERT INTO zp_accounts (zep_acc, clinic_firstname, clinic_lastname, clinic_email, image, clinic_password, clinic_role, account_status) VALUES (?, ?, ?, ?, ?, ?, ?, 'active')";
+    $sql = "INSERT INTO zp_accounts (zep_acc, clinic_firstname, clinic_lastname, clinic_email, clinic_gender, image, clinic_password, clinic_role, account_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'active')";
     $stmt = mysqli_prepare($conn, $sql);
-    mysqli_stmt_bind_param($stmt, "sssssss", $account_id, $fname,  $lname, $email, $imageFileName, $password, $role);
+    mysqli_stmt_bind_param($stmt, "ssssssss", $account_id, $fname,  $lname, $email, $gender, $imageFileName, $password, $role);
     if (mysqli_stmt_execute($stmt)) {
         mysqli_stmt_close($stmt);
         mysqli_close($conn);
@@ -49,7 +57,6 @@ if (isset($_POST['submit'])) {
     mysqli_stmt_close($stmt);
     mysqli_close($conn);
 }
-
 if (isset($_POST['edit_submit'])) {
     include "../../db_connect/config.php";
     $edit_id = $_POST['edit_id'];
@@ -57,34 +64,61 @@ if (isset($_POST['edit_submit'])) {
     $edit_lname = $_POST['edit_lname'];
     $edit_email = $_POST['edit_email'];
     $edit_role = $_POST['edit_role'];
-    if (!empty($_POST['edit_password'])) {
-        $edit_password = password_hash($_POST['edit_password'], PASSWORD_DEFAULT);
-    }
+    if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+        $getOldImageSql = "SELECT image FROM zp_accounts WHERE zep_acc=?";
+        $getOldImageStmt = mysqli_prepare($conn, $getOldImageSql);
+        mysqli_stmt_bind_param($getOldImageStmt, "s", $edit_id);
+        mysqli_stmt_execute($getOldImageStmt);
+        mysqli_stmt_bind_result($getOldImageStmt, $oldImage);
+        mysqli_stmt_fetch($getOldImageStmt);
+        mysqli_stmt_close($getOldImageStmt);
+        if (!empty($oldImage) && file_exists('img/' . $oldImage)) {
+            unlink('img/' . $oldImage);
+        }
 
-    $sql = "UPDATE zp_accounts SET clinic_firstname=?, clinic_lastname=?, clinic_password=?, clinic_email=?, clinic_role=?";
-    if (!empty($edit_password)) {
-        $sql .= ", clinic_password=?";
-    }
-    $sql .= " WHERE zep_acc=?";
-    $stmt = mysqli_prepare($conn, $sql);
-    if (!empty($edit_password)) {
-        mysqli_stmt_bind_param($stmt, "ssssss", $edit_fname, $edit_lname, $edit_email, $edit_role, $edit_password, $edit_id);
+        $imageName = time() . '_' . uniqid() . '.' . pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
+        $uploadDir = 'img/';
+        $imagePath = $uploadDir . $imageName;
+        if (move_uploaded_file($_FILES['image']['tmp_name'], $imagePath)) {
+            $sql = "UPDATE zp_accounts SET clinic_firstname=?, clinic_lastname=?, clinic_email=?, clinic_role=?, image=?";
+            $sql .= " WHERE zep_acc=?";
+
+            $stmt = mysqli_prepare($conn, $sql);
+            mysqli_stmt_bind_param($stmt, "ssssss", $edit_fname, $edit_lname, $edit_email, $edit_role, $imageName, $edit_id);
+
+            if (mysqli_stmt_execute($stmt)) {
+                mysqli_stmt_close($stmt);
+                mysqli_close($conn);
+                header("Location: clinic_account.php");
+                exit();
+            } else {
+                echo "Error: " . mysqli_error($conn);
+            }
+        } else {
+            echo "Error: There was an error uploading the image.";
+        }
     } else {
+        $sql = "UPDATE zp_accounts SET clinic_firstname=?, clinic_lastname=?, clinic_email=?, clinic_role=?";
+        $sql .= " WHERE zep_acc=?";
+
+        $stmt = mysqli_prepare($conn, $sql);
         mysqli_stmt_bind_param($stmt, "sssss", $edit_fname, $edit_lname, $edit_email, $edit_role, $edit_id);
-    }
 
-    if (mysqli_stmt_execute($stmt)) {
-        mysqli_stmt_close($stmt);
-        mysqli_close($conn);
-        header("Location: clinic_account.php");
-        exit();
-    } else {
-        echo "Error: " . mysqli_error($conn);
+        if (mysqli_stmt_execute($stmt)) {
+            mysqli_stmt_close($stmt);
+            mysqli_close($conn);
+            header("Location: clinic_account.php");
+            exit();
+        } else {
+            echo "Error: " . mysqli_error($conn);
+        }
     }
 
     mysqli_stmt_close($stmt);
     mysqli_close($conn);
 }
+
+
 
 
 function generateAccountID() {

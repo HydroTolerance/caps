@@ -297,6 +297,10 @@ background-color: #6537AE;
             <i class="fs-4 bi-calendar-week"></i> <span class="ms-3">Appointment</span></a>
     </li>
     <li>
+        <a href="../settings/account.php?>">
+            <i class="fs-4 bi-calendar-week"></i> <span class="ms-3">Account Settings</span></a>
+    </li>
+    <li>
         <a href="../clinic_account/clinic_account.php" >
             <i class="fs-4 bi-person-add"></i> <span class="ms-3">Clinic Account</span></a>
     </li>
@@ -334,7 +338,7 @@ background-color: #6537AE;
                     <span class="d-none d-sm-inline mx-1"><b> Hello!</b> <?php echo $userData['clinic_firstname']; ?></span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-dark text-small shadow dropdown-menu-end" aria-labelledby="dropdownUser1">
-                    <li><a class="dropdown-item" href="#">Settings</a></li>
+                    <li><a class="dropdown-item" href="../settings/account.php">Settings</a></li>
                     <li><a class="dropdown-item" href="#">Profile</a></li>
                     <li>
                         <hr class="dropdown-divider">

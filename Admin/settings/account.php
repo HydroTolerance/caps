@@ -1,7 +1,15 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
 <?php
 include "../../db_connect/config.php";
-
 if (isset($_POST['zep_acc'])) {
     $id = $_POST['zep_acc'];
     $sql = "SELECT * FROM zp_accounts WHERE zep_acc = ?";
@@ -13,8 +21,7 @@ if (isset($_POST['zep_acc'])) {
     mysqli_stmt_close($stmt);
 }
 ?>
-<div class="modal-body">
-    <form method="post" action="insert_update_acc.php" enctype="multipart/form-data">
+    <form method="post" enctype="multipart/form-data">
         <input type="hidden" name="edit_id" value="<?php echo $rows['zep_acc']; ?>">
         <div class="mb-3">
             <label for="image">Upload Image (Max 5MB):</label>
@@ -50,4 +57,5 @@ if (isset($_POST['zep_acc'])) {
         </div>
         <button type="submit" name="edit_submit" class="btn btn-primary">Save Changes</button>
     </form>
-</div>
+</body>
+</html>

@@ -18,25 +18,28 @@ $userData = $_SESSION['zep_acc'];
 <div id="wrapper">
             <?php include "../sidebar.php"; ?>
             <section id="content-wrapper">
-                <div class="row">
+                <div class="row mx-1">
                     <div class="col-lg-12">
-            <div class="container">
-                <div class="row">
-                    <div class="col-12">
-                        <h1 class="fs-3 mt-3 mb-4">Clinic Account</h1>
+                        <div class="text-center">
+                            <div class="row">
+                                <div class="col-xl-2 mb-3">
+                                        <button class="create_patients btn btn-purple bg-purple text-white mb-4 mt-2" onclick="showInsertModal()">CREATE ACCOUNT</button>
+                                </div>
+                                <div class="col-xl-9">
+                                    <h1 class=" mb-1" style="color:6537AE;">Account Settings</h1>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <button type="button" class="btn btn-primary" onclick="showInsertModal()">Create Account</button>
-            <div class="container">
-                <div class="row">
-                    <div class="bg-white p-3 rounded-3 border w-100">
+                <div>
+                    <div class="bg-white p-3 rounded-3 border w-100 mb-1" >
                         <table id="table_clinic" class="table table-striped nowra" style="width:100%">
                             <thead>
                                 <tr>
+                                    <th>Profile Image</th>
                                     <th>Full Name</th>
                                     <th>Email</th>
                                     <th>Role</th>
-                                    <th>Profile Image</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -47,12 +50,12 @@ $userData = $_SESSION['zep_acc'];
                                 while ($row = mysqli_fetch_array($result)) {
                                     ?>
                                     <tr>
+                                        <td>
+                                            <img src="img/<?php echo $row['image']; ?>" alt="User Image" width="100">
+                                        </td>
                                         <td><?php echo $row['clinic_firstname'] ?></td>
                                         <td><?php echo $row['clinic_email'] ?></td>
                                         <td><?php echo $row['clinic_role'] ?></td>
-                                        <td>
-                                            <img src="./img<?php echo $row['image']; ?>" alt="User Image" width="100">
-                                        </td>
                                         <td class="action-buttons">
                                             <div class="add-btn">
                                                 <?php

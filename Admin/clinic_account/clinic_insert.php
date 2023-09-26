@@ -12,22 +12,30 @@
                     <!-- Add your input fields for the new account data here -->
                     <div class="mb-3">
                         <label for="image">Upload Image (Max 5MB):</label>
-                        <input type="file" name="image" accept="image/*" id="image">
+                        <input class="form-control" type="file" name="image" accept="image/*" id="image">
                     </div>
                     <div class="mb-3"> 
-                        <label for="fname" class="form-label">Firstname</label>
+                        <label for="fname" class="form-label">Firstname: </label>
                         <input type="text" class="form-control" id="fname" name="fname" required>
                     </div>
                     <div class="mb-3">
-                        <label for="fname" class="form-label">Lastname</label>
+                        <label for="fname" class="form-label">Lastname: </label>
                         <input type="text" class="form-control" id="lname" name="lname" required>
                     </div>
                     <div class="mb-3">
-                        <label for="email" class="form-label">Email</label>
+                        <label for="fname" class="form-label">Gender: </label>
+                        <select class="form-control" name="gender" id="gender" required>
+                            <option selected="true" disabled></option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email:</label>
                         <input type="email" class="form-control" id="email" name="email" required>
                     </div>
                     <div class="form-group mb-3">
-                        <label>Password</label>
+                        <label>Password:</label>
                         <div class="input-group" id="show_hide_password">
                         <input class="form-control" type="password" name="password">
                         <div class="input-group-text">
@@ -36,8 +44,9 @@
                         </div>
                     </div>
                     <div class="mb-3">
+                    <label for="">Select Role:</label>
                     <select name="role" id="" class="form-control" required>
-                      <option selected="true" disabled>-- Select Role --</option>
+                      <option selected="true" disabled>-- Select Gender --</option>
                       <option value="Derma">Derma</option>
                       <option value="Staff">Staff</option>
                     </select>

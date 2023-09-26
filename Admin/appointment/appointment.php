@@ -71,7 +71,9 @@ $userData = $_SESSION['zep_acc'];
 .status-completed {
     color: green;
 }
-
+.status-did-not-show {
+    color: #F9A603;
+}
 
     </style>
 </head>
@@ -83,8 +85,8 @@ $userData = $_SESSION['zep_acc'];
             <div class="row mx-1">
                 <div class="col-lg-12">
                 <h1 class="text-purple" style="color:6537AE;">Appointment</h1>
-                <div class="bg-white p-3 rounded-3 border w-100 mb-1" style="width: 00%;">
-                <table id="patientTable" class="display nowrap" >
+                <div class="bg-white p-3 rounded-3 border w-100 mb-1" >
+            <table id="patientTable" class="display nowrap" style="width: 100%;">
             <thead>
                 <tr>
                     <th>#</th>
@@ -94,14 +96,14 @@ $userData = $_SESSION['zep_acc'];
                     <th>Time</th>
                     <th>Reference Code</th>
                     <th>Status</th>
-                    <th>All Info</th>
                     <th>Transaction</th>
+                    <th>All Info</th>
                 </tr>
             </thead>
             <tbody>
                 <?php
                 include "../../db_connect/config.php";
-                $stmt = mysqli_prepare($conn, "SELECT * FROM zp_appointment");
+                $stmt = mysqli_prepare($conn, "SELECT * FROM zp_appointment ORDER BY date DESC");
                 mysqli_stmt_execute($stmt);
                 $result = mysqli_stmt_get_result($stmt);
                 while ($row = mysqli_fetch_array($result)) {
@@ -119,7 +121,7 @@ $userData = $_SESSION['zep_acc'];
                         <td><button class="btn btn-primary" onclick="showData('<?php echo $row['id']; ?>')">View Data</button></td>
                         <td>
                             <select class="form-select" name="status" onchange="updateStatus(<?php echo $row['id']; ?>, this.value)">
-                                <option <?php if ($row['appointment_status'] === 'Pending') echo 'selected'; ?>>Pending</option>
+                                <option <?php if ($row['appointment_status'] === 'Pending') echo 'selected'; ?> selected="true" disabled>Pending</option>
                                 <option value="Completed" <?php if ($row['appointment_status'] === 'Completed') echo 'selected'; ?>>Completed</option>
                                 <option value="Acknowledged" <?php if ($row['appointment_status'] === 'Acknowledged') echo 'selected'; ?>>Acknowledged</option>
                                 <option value="Rescheduled" <?php if ($row['appointment_status'] === 'Rescheduled') echo 'selected'; ?>>Rescheduled</option>
@@ -155,15 +157,17 @@ $userData = $_SESSION['zep_acc'];
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
+                <!-- Center the modal title -->
                 <h5 class="modal-title" id="rescheduleModalLabel">Reschedule Appointment</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <!-- Reschedule form will be dynamically inserted here -->
+
             </div>
         </div>
     </div>
 </div>
+
 
 <div class="modal fade" id="cancelledModal" tabindex="-1" aria-labelledby="cancelledLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
