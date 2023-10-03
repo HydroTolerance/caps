@@ -3,6 +3,7 @@ include "../function.php";
 checklogin();
 $userData = $_SESSION['zep_acc'];
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -17,9 +18,12 @@ $userData = $_SESSION['zep_acc'];
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/additional-methods.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js">
+      </script>
+    <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js">
+      </script>
+    <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/additional-methods.min.js">
+      </script>
       <style>
         .error {
         color: #F00;
@@ -30,58 +34,26 @@ $userData = $_SESSION['zep_acc'];
             $("#signUpForm").validate({
                 rules: {
                     client_firstname: "required",
-                    client_lastname: "required",
+                    lastname: "required",
                     username: {
                         required: true,
                         minlength: 2
                     },
-                    client_email: {
+                    email: {
+                        required: true,
                         email: true
                     },
-                    client_number:{
-                        required: true,
-                        minlength: 5,
-                        number: true
-                    },
-                    client_birthday:{
-                        required: true,
-                    },
-                    client_gender:{
-                        required: true,
-                    },
-                    client_relation:{
-                        required: true,
-                    },
-                    client_emergency_contact_number:{
-                        required: true,
-                    },
-                    client_emergency_person:{
-                        required: true,
-                    },
-                    client_relation:{
-                        required: true,
-                    }
+                    agree: "required"
                 },
                 messages: {
-                    client_emergency_contact_number: " Please enter Contact Person Number",
-                    client_gender:{required: true,},
-                    client_firstname: " Please enter firstname",
-                    client_lastname: " Please enter lastname",
-                    client_birthday: " Please enter birthday",
-                    client_gender: " Please enter gender",
-                    client_relation: " Please enter relation",
-                    client_emergency_person: " Please enter Contact Person",
-                    client_number: {
-                        required: " Please enter a number",
-                        minlength:" Your password must be consist of at least 11 characters",
-                      number: "Please only number can submited"
-                    },
+                    client_firstname: " Please enter your firstname",
                     lastname: " Please enter your lastname",
                     username: {
                         required: " Please enter a username",
                         minlength:
                       " Your username must consist of at least 2 characters"
                     },
+                    agree: "Please accept our policy"
                 }
             });
         });
@@ -111,7 +83,7 @@ if (isset($_POST['submit'])) {
         $avatarFileName = 'avatar/femaleAvatar.png';
     }
 
-    $checkSql = "SELECT COUNT(*) FROM zp_client_record WHERE client_firstname = ? AND client_lastname = ? AND client_middle = ? AND client_suffix = ?";
+    $checkSql = "SELECT COUNT(*) FROM zp_client_record WHERE client_firstname = ? AND client_lastname = ?";
     $checkStmt = mysqli_prepare($conn, $checkSql);
     if ($checkStmt) {
         mysqli_stmt_bind_param($checkStmt, "ss", $fname, $lname);
@@ -185,9 +157,9 @@ function generateRecordID() {
             <section id="content-wrapper">
                 <div class="row">
                     <div class="col-lg-12">
-                        <div class="ms-3">
-                    </div>
-                    <div class="m-2 bg-white text-dark p-4 rounded-4 border shadow-sm">
+                <div class="ms-3">
+            </div>
+                    <div class="m-2 bg-white text-dark p-4 rounded-4 border border-4 shadow-sm">
                             <h2 style="color:6537AE;" class="text-center">Create Client Record</h2>
                                 <form method="post" id="signUpForm">
                                     <div class="row">
@@ -195,12 +167,12 @@ function generateRecordID() {
                                             <input class="form-label" type="hidden" name="id">
                                         </div>
                                         <div class="mb-3 col-md-4">
-                                            <label class="mb-2">First Name: <span class="text-danger">*</span></label>
+                                            <label class="mb-2">First Name:</label>
                                             <input class="form-control" type="text" id="validationCustom01" name="client_firstname" required>
                                             <div class="invalid-feedback">Please input the Field.</div>
                                         </div>
                                         <div class="mb-3 col-md-3">
-                                            <label class="mb-2">Last Name: <span class="text-danger">*</span></label>
+                                            <label class="mb-2">Last Name: </label>
                                             <input class="form-control" type="text" name="client_lastname" required>
                                             <div class="invalid-feedback">Please input the Field.</div>
                                         </div>
@@ -215,7 +187,7 @@ function generateRecordID() {
                                     </div>
                                     <div class="row">
                                     <div class="mb-3 col-md-4">
-                                        <label class="mb-3">Gender: <span class="text-danger">*</span></label>
+                                        <label class="mb-3">Gender:</label>
                                         <select class="form-control" name="client_gender" id="client_gender" required>
                                             <option selected="true" disabled></option>
                                             <option value="Male">Male</option>
@@ -223,11 +195,11 @@ function generateRecordID() {
                                         </select>
                                     </div>
                                     <div class="mb-3 col-md-4">
-                                            <label class="mb-3">Contact Number: <span class="text-danger">*</span></label>
-                                            <input class="form-control" type="tel" name="client_number" required>
+                                            <label class="mb-3">Contact Number:</label>
+                                            <input class="form-control" type="tel" pattern="[0-9]{11}" name="client_number" required>
                                     </div>
                                         <div class="mb-3 col-md-4">
-                                            <label class="mb-3">Date of Birth: <span class="text-danger">*</span></label>
+                                            <label class="mb-3">Date of Birth:</label>
                                             <input class="form-control" type="date" name="client_birthday" id="d" required>
                                         </div>
                                     </div>
@@ -249,15 +221,15 @@ function generateRecordID() {
                                     </div>
                                     <div class="row">
                                         <div class="mb-3 col-md-4">
-                                            <label class="mb-3">Contact Person: <span class="text-danger">*</span></label>
+                                            <label class="mb-3">Contact Person:</label>
                                             <input class="form-control" type="tel" name="client_emergency_person">
                                         </div>
                                         <div class="mb-3 col-md-3">
-                                            <label class="mb-3">Relation: <span class="text-danger">*</span></label>
+                                            <label class="mb-3">Relation:</label>
                                             <input class="form-control" type="text" name="client_relation">
                                         </div>
                                         <div class="mb-3 col-md-5">
-                                            <label class="mb-3">Contact Person Number: <span class="text-danger">*</span></label>
+                                            <label class="mb-3">Contact Person Number:</label>
                                             <input class="form-control" type="text" name="client_emergency_contact_number">
                                         </div>
                                     </div>

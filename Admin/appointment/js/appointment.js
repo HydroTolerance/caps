@@ -1,7 +1,7 @@
 $(document).ready(function() {
     $('#patientTable').DataTable({
         responsive: true,
-        order: [[3, 'desc']],
+        order: [[0, 'desc']],
         rowReorder: {
             selector: 'td:nth-child(2)'
         },
@@ -36,6 +36,21 @@ Swal.fire({
   Swal.fire({
     title: 'Confirmation',
     text: 'Are you sure you want to set "Did not Show" to this appointment?',
+    icon: 'warning',
+    showCancelButton: true,
+    cancelButtonText: 'No',
+    confirmButtonText: 'Yes',
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+  }).then((result) => {
+    if (result.isConfirmed) {
+      performStatusUpdate(id, status);
+    }
+  });
+}else if (status === 'Acknowledged'){
+  Swal.fire({
+    title: 'Confirmation',
+    text: 'Are you sure you want to set "Acknowledged" to this appointment?',
     icon: 'warning',
     showCancelButton: true,
     cancelButtonText: 'No',

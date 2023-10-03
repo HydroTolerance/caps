@@ -13,7 +13,7 @@ if (isset($_POST['update'])) {
     $id = $_POST['id'];
     $email = $_POST['email'];
     $reason = $_POST['apt_reason'];
-    $stmt = mysqli_prepare($conn, "UPDATE zp_appointment SET email=?, apt_reason = ?, appointment_status = 'Cancelled' WHERE id =?");
+    $stmt = mysqli_prepare($conn, "UPDATE zp_appointment SET email=?, apt_reason = ?, appointment_status = 'Cancelled', schedule_status = 'Cancel' WHERE id =?");
     mysqli_stmt_bind_param($stmt, "ssi", $email, $reason, $id);
     $result = mysqli_stmt_execute($stmt);
     if ($result) {

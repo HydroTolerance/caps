@@ -50,7 +50,7 @@
                     </td>
                     <td>
                         <?php
-                        if ($row['appointment_status'] !== 'Rescheduled' && $row['appointment_status'] !== 'Cancelled' && $row['appointment_status'] !== 'Completed' && $row['appointment_status'] !== 'Did not show' && $row['appointment_status'] !== 'Acknowledge') {
+                        if (($row['appointment_status'] !== 'Rescheduled' || $row['schedule_status'] !== 'Sched') && $row['appointment_status'] !== 'Cancelled' && $row['appointment_status'] !== 'Completed' && $row['appointment_status'] !== 'Did not show' && $row['appointment_status'] !== 'Acknowledge') {
                         ?>
                             <button class="btn btn-primary" onclick="showRescheduleModal(<?php echo $row['id']; ?>, 'Reschedule')">Reschedule Appointment</button>
                             <button class="btn btn-danger" onclick="showCancelledModal(<?php echo $row['id']; ?>, 'Cancelled')">Cancel Appointment</button>

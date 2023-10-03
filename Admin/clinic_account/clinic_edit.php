@@ -14,7 +14,7 @@ if (isset($_POST['zep_acc'])) {
 }
 ?>
 <div class="modal-body">
-    <form method="post" action="insert_update_acc.php" enctype="multipart/form-data">
+    <form method="post"  enctype="multipart/form-data">
         <input type="hidden" name="edit_id" value="<?php echo $rows['zep_acc']; ?>">
         <div class="mb-3">
             <label for="image">Upload Image (Max 5MB):</label>

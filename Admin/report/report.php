@@ -110,7 +110,6 @@ while ($rowService = mysqli_fetch_assoc($resultServices)) {
 </div>
 
 <script>
-// Function to generate the report in Excel format for the displayed data
 function filterTableByYear(selectedYear) {
     $('#reportTable').DataTable().search(selectedYear, true, false).draw();
 }
@@ -123,7 +122,7 @@ $(document).ready(function() {
     $('#reportTable').DataTable({
         responsive: true,
         rowReorder: {
-            selector: 'td:nth-child(2)'
+            selector: 'td:nth-child(3)'
         },
         "dom": 'Bfrtip',
             "buttons": [

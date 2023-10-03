@@ -5,20 +5,18 @@
     ?>
     <?php
         include "../../db_connect/config.php";
-        date_default_timezone_set('Asia/Manila');
         $currentYear = date("m");
-
-        $queryApproved = "SELECT COUNT(*) as total_approved FROM zp_appointment WHERE appointment_status = 'Completed' AND MONTH(created) = $currentYear";
+        $queryApproved = "SELECT COUNT(*) as total_approved FROM zp_appointment WHERE appointment_status = 'Completed' AND MONTH(date) = $currentYear";
         $resultApproved = mysqli_query($conn, $queryApproved);
         $rowApproved = mysqli_fetch_assoc($resultApproved);
         $totalApproved = $rowApproved['total_approved'];
 
-        $queryPending = "SELECT COUNT(*) as total_pending FROM zp_appointment WHERE appointment_status = 'Pending' AND MONTH(created) = $currentYear";
+        $queryPending = "SELECT COUNT(*) as total_pending FROM zp_appointment WHERE appointment_status = 'Pending' AND MONTH(date) = $currentYear";
         $resultPending = mysqli_query($conn, $queryPending);
         $rowPending = mysqli_fetch_assoc($resultPending);
         $totalPending = $rowPending['total_pending'];
 
-        $queryReschedule = "SELECT COUNT(*) as total_reschedule FROM zp_appointment WHERE appointment_status = 'Rescheduled' AND MONTH(created) = $currentYear";
+        $queryReschedule = "SELECT COUNT(*) as total_reschedule FROM zp_appointment WHERE appointment_status = 'Rescheduled' AND MONTH(date) = $currentYear";
         $resultReschedule = mysqli_query($conn, $queryReschedule);
         $rowReschedule = mysqli_fetch_assoc($resultReschedule);
         $totalReschedule = $rowReschedule['total_reschedule'];
@@ -44,7 +42,7 @@
 
         $queryServices = "SELECT services, COUNT(*) as service_count 
         FROM (
-            SELECT services FROM zp_appointment WHERE MONTH(created) = $currentYear
+            SELECT services FROM zp_appointment WHERE MONTH(date) = $currentYear
         ) AS combined_services
         GROUP BY services";
 $resultServices = mysqli_query($conn, $queryServices);
@@ -115,7 +113,7 @@ $serviceCounts[] = $rowService['service_count'];
                                     <div class="card h-100 fade-in ">
                                         <div class="card-body ">
                                             <div style="text-align: center;"> <!-- Center align the content -->
-                                                <img src="https://i.kym-cdn.com/photos/images/newsfeed/002/601/167/c81" class="rounded-circle mb-3" height="80px" width="80px" class="card-img-top" alt="...">
+                                                <img src="<?php echo $userData['image']; ?>" class="rounded-circle mb-3" height="80px" width="80px" class="card-img-top" alt="...">
                                             </div>
                                             <h4 class="text-center"><?php echo $userData['clinic_firstname'] . " " . $userData['clinic_lastname']; ?></h4>
                                             <p class="card-text text-center"><?php echo $userData['clinic_role'];?></p>
@@ -169,7 +167,7 @@ $serviceCounts[] = $rowService['service_count'];
                                     <div class="col-md-12 mt-2 fade-in">
                                         <div class="border bg-body rounded pt-3 pb-3 d-flex justify-content-center align-items-center">
                                             <div class="mx-2 text-center">
-                                                <h5>Services</h5>
+                                                <h5>Services for this Month</h5>
                                                 <div class="chart-container" style="position: relative; height:40vh; width:80vw">
                                                     <canvas id="serviceChart"  width="1000" height="200"></canvas>
                                                 </div>

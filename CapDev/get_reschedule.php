@@ -21,7 +21,7 @@ if (isset($_POST['update'])) {
     $date = mysqli_real_escape_string($conn, $_POST['date']);
     $time = mysqli_real_escape_string($conn, $_POST['time']);
     $reason = mysqli_real_escape_string($conn, $_POST['apt_reason']);
-    $query = "UPDATE zp_appointment SET email = ?, date = ?, `time` = ?, apt_reason = ?, appointment_status = 'Rescheduled' WHERE id = ?";
+    $query = "UPDATE zp_appointment SET email = ?, date = ?, `time` = ?, apt_reason = ?, appointment_status = 'Rescheduled' , schedule_status = 'Sched' WHERE id = ?";
     $stmt = mysqli_prepare($conn, $query);
     mysqli_stmt_bind_param($stmt, 'ssssi', $email, $date, $time, $reason, $id);
     $result = mysqli_stmt_execute($stmt);
@@ -99,14 +99,10 @@ if (!isset($_POST['secret_key']) || $_POST['secret_key'] !== $secret_key) {
             <?php endif; ?>
         </select>
     </div>
-    <div>
-        <label for="">Reason of Rescheduled</label>
-        <textarea class="form-control" placeholder="type....." name="apt_reason" required><?php echo isset($reason) ? $reason : ''; ?></textarea>
-    </div>
     <?php if (isset($_POST['id'])) : ?>
         <input type="hidden" name="id" value="<?php echo $_POST['id']; ?>">
     <?php endif; ?>
-    <div class="text-right">]
+    <div class="text-right">
         <button type="submit" name="<?php echo isset($_POST['id']) ? 'update' : 'save'; ?>"><?php echo isset($_POST['id']) ? 'Update' : 'Save'; ?></button>
     </div>
 </form>

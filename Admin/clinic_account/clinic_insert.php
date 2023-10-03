@@ -6,47 +6,91 @@
         <title>Dashboard</title>
         <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
     </head>
-    
+    <style>
+        .error {
+        color: #F00;
+        }
+      </style>
+    <script>
+        $().ready(function () {
+            $("#signUpForm").validate({
+                rules: {
+                    fname: "required",
+                    lname: "required",
+                    username: {
+                        required: true,
+                        minlength: 2
+                    },
+                    email: {
+                        required: true,
+                        email: true
+                    },
+                    client_number:{
+                        required: true,
+                        minlength: 5,
+                        number: true
+                    },
+                    gender:{
+                        required: true,
+                    },
+                    password:{
+                        required: true,
+                        minlength: 8,
+                    }
+                },
+                messages: {
+                    client_emergency_contact_number: " Please enter Contact Person Number",
+                    client_gender:{required: true,},
+                    fname: " Please enter firstname",
+                    lname: " Please enter lastname",
+                    gender: " Please enter gender",
+                    email: {
+                        required: " Please enter a email",
+                        email: "Please add '@' on your email"
+                    },
+                    password: {
+                        minlength: "Please input a password atlease 8 characters",
+                    }
+                }
+            });
+        });
+    </script>
     <body>
-            <form method="post" action="insert_update_acc.php" enctype="multipart/form-data">
+            <form method="post" id="signUpForm" enctype="multipart/form-data">
                     <!-- Add your input fields for the new account data here -->
                     <div class="mb-3">
                         <label for="image">Upload Image (Max 5MB):</label>
                         <input class="form-control" type="file" name="image" accept="image/*" id="image">
                     </div>
                     <div class="mb-3"> 
-                        <label for="fname" class="form-label">Firstname: </label>
+                        <label for="fname" class="form-label">Firstname: <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="fname" name="fname" required>
                     </div>
                     <div class="mb-3">
-                        <label for="fname" class="form-label">Lastname: </label>
+                        <label for="fname" class="form-label">Lastname: <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="lname" name="lname" required>
                     </div>
                     <div class="mb-3">
-                        <label for="fname" class="form-label">Gender: </label>
+                        <label for="fname" class="form-label">Gender: <span class="text-danger">*</span></label>
                         <select class="form-control" name="gender" id="gender" required>
-                            <option selected="true" disabled></option>
+                            <option selected="true" disabled>-- Select Gender --</option>
                             <option value="Male">Male</option>
                             <option value="Female">Female</option>
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label for="email" class="form-label">Email:</label>
+                        <label for="email" class="form-label">Email: <span class="text-danger">*</span></label>
                         <input type="email" class="form-control" id="email" name="email" required>
                     </div>
                     <div class="form-group mb-3">
-                        <label>Password:</label>
-                        <div class="input-group" id="show_hide_password">
+                        <label for="password" class="form-label">Password: <span class="text-danger">*</span></label>
                         <input class="form-control" type="password" name="password">
-                        <div class="input-group-text">
-                            <a href=""><i class="bi bi-eye-slash text-black" aria-hidden="true"></i></a>
-                        </div>
                         </div>
                     </div>
                     <div class="mb-3">
-                    <label for="">Select Role:</label>
+                    <label for="">Select Role: <span class="text-danger">*</span></label>
                     <select name="role" id="" class="form-control" required>
-                      <option selected="true" disabled>-- Select Gender --</option>
+                      <option selected="true" disabled>-- Select Role --</option>
                       <option value="Derma">Derma</option>
                       <option value="Staff">Staff</option>
                     </select>

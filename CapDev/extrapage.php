@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>FAQ</title>
+    <title>Home</title>
     <!-- Include Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
@@ -69,21 +69,6 @@
 
        }
 
-.FAQ-container {
-        
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        padding: 20px;
-        height: 60vh;
-        background-image: url('image10.jpg');
-        background-size: cover;
-        background-repeat: no-repeat;
-        
-    }
-
-    
 
  </style>
 
@@ -125,36 +110,6 @@
             </ul>    
         </div>        
     </nav>
-
-    <div class="FAQ-container">
-            
-        </div> 
-
-    <div class="faq-content" style="background-color: #6537AE; display: flex; align-items: center; justify-content:center;">
-    <div class="unders">
-    <p style="font-family:roboto; font-size: 50px; color: white; display: flex; align-items: center; justify-content:center;">FAQs</p>
-         <p style="font-family:poppins; font-size: 30px; color: white; display: flex; align-items: center; justify-content:center;">Frequently Asked Questions</p>
-    </div>
-         
-
-
-         
-    </div>
-
-    <br><br><br><br><br>
-
-    
-
-
-
-    <div class="content">
-        <p> question and answerssss</p>
-    </div>
-
-
-
-
-
 
 
 
