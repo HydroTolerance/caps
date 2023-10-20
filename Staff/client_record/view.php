@@ -1,6 +1,7 @@
 <?php
-    include "../function.php";
-    checklogin();
+include "../function.php";
+checklogin();
+$userData = $_SESSION['id'];
 ?>
     <!DOCTYPE html>
     <html lang="en">
@@ -16,6 +17,11 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css">
         
     </head>
+    <style>
+        .nav-link{
+            color: purple;
+        }
+    </style>
     <body>
     <?php
 
@@ -33,6 +39,8 @@
             $recordId = $row['clinic_number'];
             $fname = $row['client_firstname'];
             $lname = $row['client_lastname'];
+            $mname = $row['client_middle'];
+            $sname = $row['client_suffix'];
             $dob = $row['client_birthday'];
             $gender = $row['client_gender'];
             $contact = $row['client_number'];
@@ -62,104 +70,278 @@
         mysqli_close($conn);
     }
     ?>
-    <div class="container-fluid">
-        <div class="row flex-nowrap">
+        <div id="wrapper">
             <?php include "../sidebar.php"; ?>
-            <div class="col main-content custom-navbar bg-light">
-                <?php include "../navbar.php";?>
-                <div class="ms-3">
-                    <div class="m-2 bg-white text-dark p-4 rounded-4 border border-4 shadow-sm">
-                        <h2 style="color:6537AE;" class="text-center mb-5">Client Record (View)</h2>
-                        <div>
-                            <div class="row mb-3 justify-content-center">
-                                <input type="hidden" name="id" value="<?php echo $id; ?>">
-                                <div class="col-md-2">
-                                    <img class="justify content-center" src="<?php echo $avatar; ?>" alt="Avatar" style="width: 150px; height: 150px; border-radius: 50%;"><br>
-                                    <label class="text-center mt-3"><b><?php echo $recordId; ?></b></label>
+            <section id="content-wrapper">
+                <div class="row">
+                    <div class="col-lg-12">
+                    <div class="mx-3">
+                        <form method="post" >
+                            <div class="container">
+                            <a class="btn btn-secondary" href="client_record.php"><i class="bi bi-arrow-left"></i> Go Back</a>
+                            <h2 style="color:6537AE;" class="text-center">View Client Record</h2>
+                                <div class="row mb-3">
+                                    <input class="form-label" type="hidden" name="id" value="<?php echo $id; ?>">
                                 </div>
-                                <div class="col-md-4 col-sm-4">
-                                    <p class="fw-normal fs-1" style="margin-bottom: -20px;"><?php echo $fname . " " . $lname; ; ?></p><br>
-                                    <label><b>Details:</b></label>
-                                    <hr>
-                                    <label class="mb-3"><b>Gender:</b> <?php echo $gender; ?></label><br>
-                                    <label class="mb-3"><b>Day of Birth:</b> <?php echo $dob; ?></label><br>
-                                    <label class="mb-3"><b>Contact Number:</b> <?php echo $contact; ?></label><br>
-                                    <label class="mb-3"><b>Email:</b> <?php echo $email; ?></label><br>
+                                <div class="row justify-content-center">
+                                    <div class=" col-xl-3 col-lg-12">
+                                        <div class="bg-white pt-5 text-center rounded border mb-3">
+                                            <img src="<?php echo $avatar; ?>" alt="Avatar" style="width: 155px; height: 155px; border-radius: 50%; display: block; margin: 0 auto;"><br>
+                                            <div class="bg-purple p-2 rounded-bottom">
+                                                <label class="text-center text-light"><b><?php echo $recordId; ?></b></label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-9 col-lg-12 mb-4">
+                                        <div class="bg-white px-5 py-3 border rounded">
+                                            <div class="row mb-3">
+                                                <div class="row">
+                                                    <strong><label class="mb-2">CLIENT INFORMATION:</label></strong>
+                                                    <hr>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <strong><p>Full Name: </p></strong>
+                                                    <p><?php echo ($fname. ", " .$lname. " " .$mname. " " .$sname); ?></p>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <strong><label class="mb-3">Email:</label></strong>
+                                                    <p><?php echo $email ?></p>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <strong><label class="mb-3">Contact Number:</label></strong>
+                                                    <p><?php echo $contact ?></p>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <strong><p>Gender: </p></strong>
+                                                    <p><?php echo $gender; ?></p>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <strong><p>Date of Birth: </p></strong>
+                                                    <p><?php echo ($fname. ", " .$lname. " " .$mname. " " .$sname); ?></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="col-md-5 col-sm-4">
-                                    <label class="mb-2 mt-4"><b>EMERGENCY PERSON:</b></label>
+                                <div class="col-md-12 bg-white p-5 border rounded mb-3" style="padding: 20px;">
+                                <div class="row mb-3">
+                                    <strong><label class="mb-2">EMERGENCY CONTACT PERSON:</label></strong>
                                     <hr>
-                                    <label class="mb-3"><b>Contact Person:</b> <?php echo $econtact; ?></label><br>
-                                    <label class="mb-3"><b>Contact Number Person:</b> <?php echo $econtactno; ?></label><br>
-                                    <label class="mb-3"><b>Relation:</b> <?php echo $relation; ?></label><br>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        <strong><label class="mb-3">Contact Person:</label></strong>
+                                        <p><?php echo $econtact ?></p>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <strong><label class="mb-3">Relation:</label></strong>
+                                        <p><?php echo $relation ?></p>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <strong><label class="mb-3">Relation:</label></strong>
+                                        <p><?php echo $econtactno ?></p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="d-flex flex-row-reverse">
-                        <button onclick="showDiagnosis()" class="btn border-end border-top border-start">Show Diagnosis</button>
-                        <button onclick="showAppointment()" class="btn border-end border-top border-start">Show Appointment</button>
-                        </div>
-
-                        <div id="diagnosisContainer" class="border p-3">
+                        </form>
+                        <div class="bg-white p-3 rounded-3 border">
+                            <ul class="nav nav-tabs" >
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="diagnosisTab" href="#">Diagnosis</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="appointmentTab" href="#">Appointment</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="sessionTab" href="#">Session</a>
+                                </li>
+                            </ul>
+                        <!-- Container for the Diagnosis -->
+                        <div id="diagnosisContainer" class="bg-white p-3 rounded-3">
                             <div>
-                            <div class="bg-white text-dark p-4 rounded-4 border border-4 shadow-sm mb-3">
-                                <h2 style="color: 6537AE;">Diagnosis</h2>
-                                <?php
-                                if (isset($_GET['id'])) {
-                                    include "../../db_connect/config.php";
-                                    $id = $_GET['id'];
-                                    $info_sql = "SELECT * FROM zp_derma_record WHERE patient_id=?";
-                                    $info_stmt = mysqli_prepare($conn, $info_sql);
-                                    mysqli_stmt_bind_param($info_stmt, "i", $id);
-                                    mysqli_stmt_execute($info_stmt);
-                                    $info_result = mysqli_stmt_get_result($info_stmt);
-
-                                    if (mysqli_num_rows($info_result) > 0) {
-                                        echo '<table class="table table-striped nowrap" id="clientTable">';
-                                        echo '  <thead>
+                            <div class="text-dark border rounded p-3 mb-3">
+                                <h2 style="color: 6537AE;" class="text-center">Diagnosis of the Patient</h2>
+                                    <table id="clientTable" class="table table table-bordered table-striped nowrap" style="width:100%">
+                                        <thead>
                                                     <tr>
-                                                        <th style="width:20%">Date:</th>
-                                                        <th style="width:20%">History:</th>
+                                                        <th>Date:</th>
+                                                        <th>History:</th>
                                                         <th>Diagnosis:</th>
                                                         <th>Management:</th>
                                                     </tr>
-                                                </thead>';
-                                        echo '<tbody>';
-                                        while ($info_row = mysqli_fetch_assoc($info_result)) {
-                                            $date_diagnosis = $info_row['date_diagnosis'];
-                                            $history = $info_row['history'];
-                                            $diagnosis = $info_row['diagnosis'];
-                                            $management = $info_row['management'];
-                                            echo '
-                                            <tr>
-                                                <td>' . date("F jS Y ", strtotime(strval($date_diagnosis))) . '</td>
-                                                <td>' . $history . '</td>
-                                                <td>' . $diagnosis . '</td>
-                                                <td>' . $management . '</td>
-                                            </tr>';
-                                        }
-                                        echo '</tbody></table>';
-                                    } else {
-                                        echo '<p>No diagnosis information available for this patient.</p>';
-                                    }
+                                                </thead>
+                                        <tbody>
+                                        <?php
+                                            if (isset($_GET['id'])) {
+                                                include "../../db_connect/config.php";
+                                                $id = $_GET['id'];
+                                                $stmt = mysqli_prepare($conn, "SELECT * FROM zp_derma_record WHERE patient_id=? AND archive != '1'");
+                                                mysqli_stmt_bind_param($stmt, "i", $id);
+                                                mysqli_stmt_execute($stmt);
+                                                $info_result = mysqli_stmt_get_result($stmt);
+                                                while ($info_row = mysqli_fetch_assoc($info_result)) {
+                                                ?>
+                                                        <tr>
+                                                            <td><?php echo date('M d, Y', strtotime($info_row['date_diagnosis']))?></td>
+                                                            <td><?php echo $info_row['history']?></td>
+                                                            <td><?php echo $info_row['diagnosis']?></td>
+                                                            <td><?php echo $info_row['management']?></td>
 
-                                    mysqli_stmt_close($info_stmt);
-                                    mysqli_close($conn);
+                                                        </tr>
+
+                                                        <?php
+                                            }           mysqli_stmt_close($stmt);
+                                                mysqli_close($conn);
+                                            }
+                                            ?>
+                                    </tbody>
+                                </table>
+                            </div>     
+                        </div>
+                        </div>
+
+                        <!-- Container for Appointment -->
+
+                        <div id="appointmentContainer" style="display: none;" class="bg-white p-3 rounded-3">
+
+                            <div class="border rounded p-3 my-3">
+                                <div class="row">
+                                    <div class="col-md-6"> <!-- Calendar column -->
+                                        <div class="d-flex justify-content-center">
+                                            <div id="calendar"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <table class="table table-bordered my-3">
+                                            <tr><th colspan='3' class='text-center' style='background-color: #f2f2f2;'>Upcoming Appointment</th></tr>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Time</th>
+                                                <th>Service</th>
+                                            </tr>
+                                            <?php
+                                            if (isset($_GET['id'])) {
+                                                $id = $_GET['id'];
+                                                include "../../db_connect/config.php";
+                                                
+                                                // Fetch upcoming appointments (assuming the date is in the future)
+                                                $currentDate = date("Y-m-d");
+                                                $upcomingAppointmentsQuery = "SELECT * FROM zp_appointment WHERE client_id = '$id' AND date >= '$currentDate'";
+                                                $upcomingAppointmentsResult = mysqli_query($conn, $upcomingAppointmentsQuery);
+                                                while ($appointmentRow = mysqli_fetch_assoc($upcomingAppointmentsResult)) {
+                                                    $appointmentDate = $appointmentRow['date'];
+                                                    $appointmentTime = $appointmentRow['time'];
+                                                    $appointmentService = $appointmentRow['services'];
+                                                    echo "<tr>";
+                                                    echo "<td>$appointmentDate</td>";
+                                                    echo "<td>$appointmentTime</td>";
+                                                    echo "<td>$appointmentService</td>";
+                                                    echo "</tr>";
+                                                }
+                                                
+                                                // Add a header for past appointments
+                                                echo "<tr><th colspan='3' class='text-center' style='background-color: #f2f2f2;'>Past Appointments</th></tr>";
+                                                echo "<th>Date</th>";
+                                                echo "<th>Time</th>";
+                                                echo "<th>Service</th>";
+                                                
+                                                $pastAppointmentsQuery = "SELECT * FROM zp_appointment WHERE client_id = '$id' AND date < '$currentDate'";
+                                                $pastAppointmentsResult = mysqli_query($conn, $pastAppointmentsQuery);
+                                                while ($appointmentRow = mysqli_fetch_assoc($pastAppointmentsResult)) {
+                                                    $appointmentDate = $appointmentRow['date'];
+                                                    $appointmentTime = $appointmentRow['time'];
+                                                    $appointmentService = $appointmentRow['services'];
+                                                    echo "<tr>";
+                                                    echo "<td>$appointmentDate</td>";
+                                                    echo "<td>$appointmentTime</td>";
+                                                    echo "<td>$appointmentService</td>";
+                                                    echo "</tr>";
+                                                }
+                                                
+                                                mysqli_close($conn);
+                                            }
+                                            ?>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            </div>
+                            <div id="sessionContainer" class="bg-white p-3" style="display: none;">
+                        <div class="border rounded p-3 my-3">
+                        <div>
+                            <h2 class="my-3 text-center" class="color:#6537AE;">Session of the Client</h2>
+                        </div>
+                        <?php
+                            if (isset($_GET['id'])) {
+                                $id = $_GET['id'];
+                                include "../../db_connect/config.php";
+                                $sessionsQuery = "SELECT * FROM zp_sessions WHERE client_id = '$id'";
+                                $sessionsResult = mysqli_query($conn, $sessionsQuery);
+                                if ($sessionsResult) {
+                                    while ($sessionRow = mysqli_fetch_assoc($sessionsResult)) {
+                                        $sessionId = $sessionRow['id'];
+                                        $sessionName = $sessionRow['session_name'];
+                                        ?>
+
+                                        <div class="container rounded border my-3">
+                                            <div class="row my-3">
+                                                <div>
+                                                    <h2>Services: <?= $sessionName ?></h2>
+                                                    <div>
+                                                    <table class="table table-bordered">
+                                                        <tr>
+                                                            <th>Number of Session</th>
+                                                            <th>Time Start of Session</th>
+                                                            <th>Time end of Session</th>
+                                                            <th>Date of Session</th>
+                                                        </tr>
+                                                        <?php
+                                                        include "../../db_connect/config.php";
+                                                        $diagnosesQuery = "SELECT * FROM zp_diagnoses WHERE session_id = $sessionId";
+                                                        $diagnosesResult = mysqli_query($conn, $diagnosesQuery);
+
+                                                        if ($diagnosesResult) {
+                                                            $sessionNumber = 1; // Initialize session number
+                                                            while ($diagnosisRow = mysqli_fetch_assoc($diagnosesResult)) {
+                                                                $diagnosisText = $diagnosisRow['diagnosis_text'];
+                                                                $sessionDate = $diagnosisRow['diagnosis_date'];
+                                                                $sessionStart = $diagnosisRow['session_time_start'];
+                                                                $sessionEnd = $diagnosisRow['session_end_time'];
+                                                                ?>
+                                                                <tr>
+                                                                    <td><?= $sessionNumber ?></td>
+                                                                    <td><?= date('F d, Y', strtotime($sessionDate)) ?></td>
+                                                                    <td><?= date('h:i A', strtotime($sessionStart)) ?></td>
+                                                                    <td><?= date('h:i A', strtotime($sessionEnd)) ?></td>
+                                                                </tr>
+                                                                <?php
+                                                                $sessionNumber++;
+                                                            }
+                                                        } else {
+                                                            echo "Error fetching diagnoses: " . mysqli_error($conn);
+                                                        }
+                                                        ?>
+                                                    </table>
+                                                </div>
+                                                </div>
+                                                
+                                            </div>
+                                        </div>
+                                        <?php
+                                    }
                                 }
-                                ?>
-                            </div>
-                        </div>
-                        </div>
-                        <div id="appointmentContainer" style="display: none;" class="border p-3">
-                            <div style="width: 70%;" class="d-flex justify-content-center">
-                                <div id="calendar"></div>
-                            </div>
-                        </div>
-                        
-                            
-                        
-                        
+                            }
+                        ?>
                     </div>
+                    </div>
+                        </div>
+                        </div>
+                        <!-- Add Session Container -->
+                    
+
+
                 </div>
             </div>
         </div>
@@ -191,5 +373,22 @@
                     });
                 });
     </script>
+<script>
+    function showDiagnosisSection() {
+        document.getElementById('diagnosisContainer').style.display = 'block';
+        document.getElementById('appointmentContainer').style.display = 'none';
+        document.getElementById('diagnosisTab').classList.add('active');
+        document.getElementById('appointmentTab').classList.remove('active');
+    }
+    function showAppointmentSection() {
+        document.getElementById('diagnosisContainer').style.display = 'none';
+        document.getElementById('appointmentContainer').style.display = 'block';
+        document.getElementById('appointmentTab').classList.add('active');
+        document.getElementById('diagnosisTab').classList.remove('active');
+    }
+    document.getElementById('diagnosisTab').addEventListener('click', showDiagnosisSection);
+    document.getElementById('appointmentTab').addEventListener('click', showAppointmentSection);
+</script>
+
     </body>
     </html>

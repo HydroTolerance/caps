@@ -1,7 +1,7 @@
 <?php
 include "../function.php";
 checklogin();
-$userData = $_SESSION['zep_acc'];
+$userData = $_SESSION['id'];
 ?>
 <?php
 if (isset($_POST['submit'])) {

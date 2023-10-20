@@ -1,7 +1,7 @@
 <?php 
 include "../function.php";
 checklogin();
-$userData = $_SESSION['zep_acc'];
+$userData = $_SESSION['id'];
 ?>
 <?php
 if (isset($_POST['submit'])) {
@@ -44,7 +44,7 @@ if (isset($_POST['submit'])) {
             echo "Error: The uploaded image file exceeds the maximum allowed size of 5MB.";
             exit();
         } else {
-            $uploadDir = 'img/';
+            $uploadDir = '../../img/img/';
             $imageFileName = $uploadDir . time() . '_' . uniqid() . '.jpg';
             $imagePath = $imageFileName;
 
@@ -55,8 +55,8 @@ if (isset($_POST['submit'])) {
         }
     } else {
         $defaultImages = [
-            'Derma' => 'avatar/femaleAvatar.png',
-            'Staff' => 'avatar/maleAvatar.png',
+            'Derma' => '../../img/avatar/femaleAvatar.png',
+            'Staff' => '../../img/avatar/maleAvatar.png',
         ];
         $defaultImage = $defaultImages[$role] ?? 'default_unknown.jpg';
         $imageFileName = $defaultImage;
@@ -99,10 +99,10 @@ if (isset($_POST['edit_submit'])) {
         mysqli_stmt_bind_result($getOldImageStmt, $oldImage);
         mysqli_stmt_fetch($getOldImageStmt);
         mysqli_stmt_close($getOldImageStmt);
-        if (!empty($oldImage) && file_exists('img/' . $oldImage)) {
-            unlink('img/' . $oldImage);
+        if (!empty($oldImage) && file_exists('../../img/img/' . $oldImage)) {
+            unlink('../../img/img/' . $oldImage);
         }
-        $uploadDir = 'img/';
+        $uploadDir = '../../img/img/';
         $imageName = $uploadDir . time() . '_' . uniqid() . '.' . pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
         
         $imagePath = $imageName;
@@ -220,7 +220,7 @@ function deactivateAccount($zep_acc) {
                             <tbody>
                                 <?php
                                 include "../../db_connect/config.php";
-                                $result = mysqli_query($conn, "SELECT * FROM zp_accounts");
+                                $result = mysqli_query($conn, "SELECT * FROM zp_accounts WHERE clinic_role IN ('Derma', 'Staff');                                ");
                                 while ($row = mysqli_fetch_array($result)) {
                                     ?>
                                     <tr>

@@ -1,3 +1,10 @@
+<?php
+if (!isset($_SESSION['id'])) {
+    header("Location: ../login.php");
+    exit();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -262,7 +269,6 @@ background-color: #6537AE;
 
 </style>
 <body>
-
 <aside id="sidebar-wrapper">
   <div class="sidebar-brand">
     <h2>Logo</h2>
@@ -278,31 +284,55 @@ background-color: #6537AE;
             <i class="fs-4 bi-people"></i> <span class="ms-3">Client Record</span></a>
     </li>
     <li>
-        <a href="../appointment/appointment.php" >
-            <i class="fs-4 bi-calendar-week"></i> <span class="ms-3">Appointment</span></a>
+        <a href="#submenu3" data-bs-toggle="collapse" data-bs-target="#appointment-submenu">
+            <i class="fs-4 bi-calendar-week"></i> <span class="ms-3">Appointment</span>
+        </a>
+        <ul class="collapse nav flex-column ms-1" id="appointment-submenu" data-bs-parent="#sidebar-wrapper">
+            <li class="w-100">
+                <a href="../appointment/appointment.php">
+                    <span class="ms-3"> - <i class="bi bi-calendar-week-fill me-2"></i> Appointment List</span>
+                </a>
+            </li>
+            <li>
+                <a href="../appointment/completed.php">
+                    <span class="ms-3"> - <i class="bi bi-calendar-check-fill me-2"></i> Completed</span>
+                </a>
+            </li>
+        </ul>
     </li>
+
     <li>
         <a href="../clinic_account/clinic_account.php" >
             <i class="fs-4 bi-person-add"></i> <span class="ms-3">Clinic Account</span></a>
     </li>
     <li>
-        <a href="#submenu3" data-bs-toggle="collapse" >
-            <i class="fs-4 bi-grid"></i> <span class="ms-3">Website Settings</span> </a>
-            <ul class="collapse nav flex-column ms-1" id="submenu3" data-bs-parent="#menu">
+        <a href="#submenu4" data-bs-toggle="collapse" data-bs-target="#website-settings-submenu">
+            <i class="fs-4 bi-grid"></i> <span class="ms-3">Website Settings</span>
+        </a>
+        <ul class="collapse nav flex-column ms-1" id="website-settings-submenu" data-bs-parent="#sidebar-wrapper">
             <li class="w-100">
-                <a href="../faq/faq.php" > <span class="ms-3"> <i class="fs-4 bi-question-circle-fill"></i> Frequently Ask</span>  </a>
+                <a href="../faq/faq.php">
+                    <span class="ms-3"> - <i class="bi-question-circle-fill"></i> Frequently Ask</span>
+                </a>
             </li>
             <li>
-                <a href="../service/service.php" > <span class="ms-3"> Services</span> </a>
+                <a href="../service/service.php">
+                    <span class="ms-3"> - <i class="bi-collection"></i> Services</span>
+                </a>
             </li>
         </ul>
     </li>
     <li>
+        <a href="../activity/activity.php" >
+        <i class="fs-4 bi-clipboard"></i> <span class="ms-3">Activity Log</span></a>
+    </li>
+    <li>
         <a href="../report/report.php" >
-            <i class="fs-4 bi-people"></i> <span class="ms-3">Generate Report </span> </a>
+            <i class="fs-4 bi-folder"></i></i> <span class="ms-3">Generate Report </span> </a>
     </li>
   </ul>
 </aside>
+
 <div id="navbar-wrapper">
   <nav class="navbar navbar-inverse">
     <div class="container-fluid">
@@ -324,12 +354,10 @@ background-color: #6537AE;
             }
             ?>
 
-            <a href="#" class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle" id="dropdownNotification" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fs-5 bi bi-bell"></i>
-                <?php if ($notificationCount > 0) { ?>
-                    <span class="badge bg-danger"><?php echo $notificationCount; ?></span>
-                <?php } ?>
-            </a>
+<a href="#" class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle" id="dropdownNotification" data-bs-toggle="dropdown" aria-expanded="false">
+    <i class="fs-5 bi bi-bell"></i>
+    <span id="notification-count" class="badge bg-danger"><?php echo $notificationCount; ?></span>
+</a>
             <ul class="dropdown-menu text-small shadow dropdown-menu-end p-1" aria-labelledby="dropdownNotification">
               <?php
               include "../../db_connect/config.php";
@@ -339,19 +367,14 @@ background-color: #6537AE;
               if ($stmt) {
                   mysqli_stmt_execute($stmt);
                   $result = mysqli_stmt_get_result($stmt);
-
                   while ($row = mysqli_fetch_assoc($result)) {
-                      // Set data-read attribute to false initially
                       $dataRead = 'false';
-
-                      // Check if the schedule_status is Sched or Cancel
                       if ($row['schedule_status'] == 'Sched') {
                           echo '<li data-read="' . $dataRead . '"><a class="dropdown-item" href="#">The client has rescheduled the appointment: ' . $row['firstname'] . ' ' . $row['lastname'] . '</a></li>';
                       } elseif ($row['schedule_status'] == 'Cancel') {
                           echo '<li data-read="' . $dataRead . '"><a class="dropdown-item" href="#">The client has canceled the appointment: ' . $row['firstname'] . ' ' . $row['lastname'] . '</a></li>';
                       }
                   }
-                  // Close the database statement
                   mysqli_stmt_close($stmt);
               }
               ?>
@@ -359,11 +382,11 @@ background-color: #6537AE;
           </div>
           <div class="dropdown">
             <a href="#" class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
-              <img src="<?php echo $userData['image']; ?>" class="rounded-circle" height="30px" width="30px">
+              <img src="../img/<?php echo $userData['image']; ?>" class="rounded-circle" height="30px" width="30px">
               <span class="d-none d-sm-inline mx-1"><b> Hello!</b> <?php echo $userData['clinic_firstname']; ?></span>
             </a>
             <ul class="dropdown-menu text-small shadow dropdown-menu-end" aria-labelledby="dropdownUser1">
-              <li><a class="dropdown-item" >Settings</a></li>
+              <li><a class="dropdown-item" href="../slot/settings.php">Settings</a></li>
               <li><a class="dropdown-item" href="../profile/account.php">Profile</a></li>
               <li>
                 <hr class="dropdown-divider">
@@ -377,6 +400,8 @@ background-color: #6537AE;
     </div>
   </nav>
 </div>
+
+
 
 <script>
   const $button  = document.querySelector('#sidebar-toggle');

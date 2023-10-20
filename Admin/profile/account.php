@@ -1,16 +1,16 @@
 <?php
 include "../function.php";
 checklogin();
-$userData = $_SESSION['zep_acc'];
+$userData = $_SESSION['id'];
 $target_file = ""; // Define a default value for $target_file
 
 if (isset($_POST['edit_submit'])) {
-    $userID = $_SESSION['zep_acc']['id'];
+    $userID = $_SESSION['id']['id'];
     include "../../db_connect/config.php";
 
     if ($_FILES['image']['name']) {
-        if ($_SESSION['zep_acc']['image']) {
-            unlink($_SESSION['zep_acc']['image']);
+        if ($_SESSION['id']['image']) {
+            unlink($_SESSION['id']['image']);
         }
         $target_dir = "../clinic_account/img/";
         $file_name = basename($_FILES["image"]["name"]);
@@ -30,8 +30,8 @@ if (isset($_POST['edit_submit'])) {
         }
         if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) {
             // Image is updated
-            $stmt = mysqli_prepare($conn, "UPDATE zp_accounts SET clinic_firstname=?, clinic_lastname=?, clinic_email=?, clinic_gender=?, clinic_role=?, image=? WHERE id=?");
-            mysqli_stmt_bind_param($stmt, "ssssssi", $_POST['edit_fname'], $_POST['edit_lname'], $_POST['edit_email'], $_POST['edit_gender'], $_POST['edit_role'], $target_file, $userID);
+            $stmt = mysqli_prepare($conn, "UPDATE zp_accounts SET clinic_firstname=?, clinic_lastname=?, clinic_email=?, clinic_gender=?,  image=? WHERE id=?");
+            mysqli_stmt_bind_param($stmt, "sssssi", $_POST['edit_fname'], $_POST['edit_lname'], $_POST['edit_email'], $_POST['edit_gender'],  $target_file, $userID);
         } else {
             echo "<script>
                 Swal.fire({
@@ -44,20 +44,19 @@ if (isset($_POST['edit_submit'])) {
         }
     } else {
         // Image is not updated
-        $stmt = mysqli_prepare($conn, "UPDATE zp_accounts SET clinic_firstname=?, clinic_lastname=?, clinic_email=?, clinic_gender=?, clinic_role=? WHERE id=?");
-        mysqli_stmt_bind_param($stmt, "sssssi", $_POST['edit_fname'], $_POST['edit_lname'], $_POST['edit_email'], $_POST['edit_gender'], $_POST['edit_role'], $userID);
+        $stmt = mysqli_prepare($conn, "UPDATE zp_accounts SET clinic_firstname=?, clinic_lastname=?, clinic_email=?, clinic_gender=? WHERE id=?");
+        mysqli_stmt_bind_param($stmt, "ssssi", $_POST['edit_fname'], $_POST['edit_lname'], $_POST['edit_email'], $_POST['edit_gender'],  $userID);
     }
     if ($stmt->execute()) {
         // Update other fields
-        $_SESSION['zep_acc']['clinic_firstname'] = $_POST['edit_fname'];
-        $_SESSION['zep_acc']['clinic_lastname'] = $_POST['edit_lname'];
-        $_SESSION['zep_acc']['clinic_email'] = $_POST['edit_email'];
-        $_SESSION['zep_acc']['clinic_gender'] = $_POST['edit_gender'];
-        $_SESSION['zep_acc']['clinic_role'] = $_POST['edit_role'];
+        $_SESSION['id']['clinic_firstname'] = $_POST['edit_fname'];
+        $_SESSION['id']['clinic_lastname'] = $_POST['edit_lname'];
+        $_SESSION['id']['clinic_email'] = $_POST['edit_email'];
+        $_SESSION['id']['clinic_gender'] = $_POST['edit_gender'];
         
         // Update the image only if it was uploaded
         if ($_FILES['image']['name']) {
-            $_SESSION['zep_acc']['image'] = $target_file; 
+            $_SESSION['id']['image'] = $target_file; 
         }
         
         echo "<script>
@@ -137,8 +136,8 @@ if (isset($_POST['edit_submit'])) {
                                 <input type="email" class="form-control" id="edit_email" name="edit_email" value="<?php echo $userData['clinic_email']; ?>" required>
                             </div>
                             <div class="mb-3">
-                                <label for="edit_role" class="form-label">Gender</label>
-                                <select name="edit_role" id="edit_role" class="form-select" required>
+                                <label for="edit_gender" class="form-label">Gender</label>
+                                <select name="edit_gender" id="edit_gender" class="form-select" required>
                                     <option selected disabled>-- Select Role --</option>
                                     <option value="Male" <?php echo ($userData['clinic_gender'] === 'Male') ? 'selected' : ''; ?>>Male</option>
                                     <option value="Female" <?php echo ($userData['clinic_gender'] === 'Female') ? 'selected' : ''; ?>>Female</option>

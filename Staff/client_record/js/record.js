@@ -1,18 +1,43 @@
 
-    const diagnosisContainer = document.getElementById('diagnosisContainer');
-const appointmentContainer = document.getElementById('appointmentContainer');
+function showDiagnosisSection() {
+        document.getElementById('diagnosisContainer').style.display = 'block';
+        document.getElementById('appointmentContainer').style.display = 'none';
+        document.getElementById('sessionContainer').style.display = 'none';
+        document.getElementById('diagnosisTab').classList.add('active');
+        document.getElementById('appointmentTab').classList.remove('active');
+        document.getElementById('sessionTab').classList.remove('active');
+    }
 
-function showDiagnosis() {
-    diagnosisContainer.style.display = 'block';
-    appointmentContainer.style.display = 'none';
-}   
+    function showAppointmentSection() {
+        document.getElementById('diagnosisContainer').style.display = 'none';
+        document.getElementById('appointmentContainer').style.display = 'block';
+        document.getElementById('sessionContainer').style.display = 'none';
+        document.getElementById('appointmentTab').classList.add('active');
+        document.getElementById('diagnosisTab').classList.remove('active');
+        document.getElementById('sessionTab').classList.remove('active');
+    }
 
-function showAppointment() {
-    diagnosisContainer.style.display = 'none';
-    appointmentContainer.style.display = 'block';
-}
+    function showSessionSection() {
+        document.getElementById('diagnosisContainer').style.display = 'none';
+        document.getElementById('appointmentContainer').style.display = 'none';
+        document.getElementById('sessionContainer').style.display = 'block';
+        document.getElementById('sessionTab').classList.add('active');
+        document.getElementById('diagnosisTab').classList.remove('active');
+        document.getElementById('appointmentTab').classList.remove('active');
+
+        
+    }
+    
+
+    document.getElementById('diagnosisTab').addEventListener('click', showDiagnosisSection);
+    document.getElementById('sessionTab').addEventListener('click', showSessionSection);
+    document.getElementById('appointmentTab').addEventListener('click', showAppointmentSection);
+    
+
+    
 var configuration = {
     dateFormat: "Y-m-d",
+    allowInput:true,
     minDate: new Date().fp_incr(1),
     maxDate: new Date().fp_incr(60),
     disable: [
@@ -23,15 +48,12 @@ var configuration = {
 };
 
 flatpickr("#d", configuration);
-var d = document.getElementById("d");
-var time = document.getElementById("time");
 
 d.addEventListener("change", updateTime);
-
 function updateTime() {
-    var selectedDate = d.value;
+    var d = document.getElementById("d").value;
+    var time = document.getElementById("time");
     time.innerHTML = "";
-
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
@@ -54,11 +76,31 @@ function updateTime() {
                 option.text = slotText;
             }
 
-
             var num_slots = Object.keys(slots).length;
             document.getElementById("num_slots").innerHTML = " (" + num_slots + " slots available)";
         }
     };
-    xmlhttp.open("GET", "get_slot.php?d=" + encodeURIComponent(selectedDate), true);
+    xmlhttp.open("GET", "get_slot.php?d=" + encodeURIComponent(d), true);
     xmlhttp.send();
+}
+
+function showSuccessMessage(message, redirectUrl = null) {
+    Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: message,
+    }).then(function(result) {
+        if (result.isConfirmed && redirectUrl) {
+            window.location.href = redirectUrl;
+        }
+    });
+}
+
+// Function to show error message
+function showErrorMessage(message) {
+    Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: message,
+    });
 }

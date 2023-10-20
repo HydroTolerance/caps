@@ -1,7 +1,7 @@
 <?php
 include "../function.php";
 checklogin();
-$userData = $_SESSION['zep_acc'];
+$userData = $_SESSION['id'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -103,18 +103,18 @@ if (isset($_POST['submit'])) {
     $econtact = $_POST['client_emergency_person'];
     $relation = $_POST['client_relation'];
     $econtactno = $_POST['client_emergency_contact_number'];
-    $avatarFileName = ''; 
+    $avatarFileName = '';
 
     if ($gender === 'Male') {
-        $avatarFileName = 'avatar/maleAvatar.png';
+        $avatarFileName = '../../img/avatar/maleAvatar.png';
     } elseif ($gender === 'Female') {
-        $avatarFileName = 'avatar/femaleAvatar.png';
+        $avatarFileName = '../../img/avatar/femaleAvatar.png';
     }
 
     $checkSql = "SELECT COUNT(*) FROM zp_client_record WHERE client_firstname = ? AND client_lastname = ? AND client_middle = ? AND client_suffix = ?";
     $checkStmt = mysqli_prepare($conn, $checkSql);
     if ($checkStmt) {
-        mysqli_stmt_bind_param($checkStmt, "ss", $fname, $lname);
+        mysqli_stmt_bind_param($checkStmt, "ssss", $fname, $lname, $mname, $sname);
         mysqli_stmt_execute($checkStmt);
         mysqli_stmt_bind_result($checkStmt, $count);
         mysqli_stmt_fetch($checkStmt);
@@ -130,24 +130,44 @@ if (isset($_POST['submit'])) {
             </script>";
         } else {
             $record_id = generateRecordID();
+            $password = password_hash($_POST['client_password'], PASSWORD_BCRYPT);
             $insertSql = "INSERT INTO zp_client_record (clinic_number, client_firstname, client_lastname, client_middle, client_suffix, client_birthday, client_number, client_gender, client_email, client_password, client_emergency_person, client_relation, client_emergency_contact_number, client_avatar) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $insertStmt = mysqli_prepare($conn, $insertSql);
             if ($insertStmt) {
                 mysqli_stmt_bind_param($insertStmt, "ssssssssssssss", $record_id, $fname, $lname, $mname, $sname, $birthday, $contact, $gender, $email, $password, $econtact, $relation, $econtactno, $avatarFileName);
 
                 if (mysqli_stmt_execute($insertStmt)) {
-                    echo "<script>
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success!',
-                            text: 'Data added successfully.'
-                        }).then(function(result) {
-                            if (result.isConfirmed) {
-                                window.location.href = 'client_record.php';
-                            }
-                        });
-                    </script>";
-                    exit();
+                    $clinicRole = $userData['clinic_role'];
+                    $actionDescription = "Client added: " . $fname . " " . $lname;
+                    $insertLogQuery = "INSERT INTO activity_log (user_id, action_type, role, action_description) 
+                                       VALUES (?, 'Client Added', ?, ?)";
+                    $stmt = mysqli_prepare($conn, $insertLogQuery);
+                    mysqli_stmt_bind_param($stmt, 'iss', $userData['id'], $clinicRole, $actionDescription);
+                    if (mysqli_stmt_execute($stmt)) {
+                        echo "<script>
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: 'Data added successfully.'
+                            }).then(function(result) {
+                                if (result.isConfirmed) {
+                                    window.location.href = 'client_record.php';
+                                }
+                            });
+                        </script>";
+                        exit();
+                    } else {
+                        echo "<script>
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error!',
+                                text: 'Failed to add data.'
+                            });
+                        </script>";
+                        exit();
+                    }
+
+                    mysqli_stmt_close($stmt);
                 } else {
                     echo "<script>
                         Swal.fire({
@@ -170,7 +190,9 @@ if (isset($_POST['submit'])) {
 
     mysqli_close($conn);
 }
-function generateRecordID() {
+
+function generateRecordID()
+{
     include "../../db_connect/config.php";
     $sql = "SELECT MAX(SUBSTRING_INDEX(clinic_number, '-', -1)) AS max_counter FROM zp_client_record";
     $result = mysqli_query($conn, $sql);
@@ -188,6 +210,7 @@ function generateRecordID() {
                         <div class="ms-3">
                     </div>
                     <div class="m-2 bg-white text-dark p-4 rounded-4 border shadow-sm">
+                    <a class="btn btn-secondary" href="client_record.php"><i class="bi bi-arrow-left"></i> Go Back</a>
                             <h2 style="color:6537AE;" class="text-center">Create Client Record</h2>
                                 <form method="post" id="signUpForm">
                                     <div class="row">
@@ -224,7 +247,7 @@ function generateRecordID() {
                                     </div>
                                     <div class="mb-3 col-md-4">
                                             <label class="mb-3">Contact Number: <span class="text-danger">*</span></label>
-                                            <input class="form-control" type="tel" name="client_number" required>
+                                            <input class="form-control" type="text" name="client_number" required>
                                     </div>
                                         <div class="mb-3 col-md-4">
                                             <label class="mb-3">Date of Birth: <span class="text-danger">*</span></label>
@@ -250,7 +273,7 @@ function generateRecordID() {
                                     <div class="row">
                                         <div class="mb-3 col-md-4">
                                             <label class="mb-3">Contact Person: <span class="text-danger">*</span></label>
-                                            <input class="form-control" type="tel" name="client_emergency_person">
+                                            <input class="form-control" type="text" name="client_emergency_person">
                                         </div>
                                         <div class="mb-3 col-md-3">
                                             <label class="mb-3">Relation: <span class="text-danger">*</span></label>
@@ -264,7 +287,7 @@ function generateRecordID() {
                                     
                                     <div class="mb-3 text-end">
                                         <input class="btn btn-purple bg-purple text-white" type="submit" name="submit" value="Create Record">
-                                        <a class="btn" style="background-color: #adb5bd;" href="client_record.php">Cancel</a>
+                                        <a class="btn btn-secondary" href="client_record.php">Cancel</a>
                                     </div>
                                 </form>
                             </div>

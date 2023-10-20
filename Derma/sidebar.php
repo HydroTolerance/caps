@@ -1,3 +1,10 @@
+<?php
+if (!isset($_SESSION['id'])) {
+    header("Location: ../login.php");
+    exit();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -176,21 +183,6 @@ background-color: #6537AE;
     position: relative;
     margin-right: 60px;
   }
-    /* Style Shit on the scrollbar */
-    ::-webkit-scrollbar {
-    width: 5px;
-}
-::-webkit-scrollbar-thumb {
-    background-color: #6537AE;
-    border-radius: 6px; 
-}
-
-::-webkit-scrollbar-track {
-    background-color: #ccc;
-}
-.content-wrapper::-webkit-scrollbar {
-    width: 0;
-}
 }
 
 @media (min-width: 768px) and (max-width: 991px) {
@@ -298,7 +290,6 @@ background-color: #6537AE;
     </li>
   </ul>
 </aside>
-
 <div id="navbar-wrapper">
   <nav class="navbar navbar-inverse">
     <div class="container-fluid">
@@ -308,22 +299,65 @@ background-color: #6537AE;
       <div>
       <nav class="navbar navbar-light">
         <div class="container-fluid d-flex justify-content-end">
-            <div class="dropdown">
-                <a href="#" class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
-                    <img src="https://i.kym-cdn.com/photos/images/newsfeed/002/601/167/c81" class="rounded-circle" height="30px" width="30px">
-                    <span class="d-none d-sm-inline mx-1"><b> Hello!</b> <?php echo $userData['clinic_firstname']; ?></span>
-                </a>
-                <ul class="dropdown-menu dropdown-menu-dark text-small shadow dropdown-menu-end" aria-labelledby="dropdownUser1">
-                    <li><a class="dropdown-item" href="#">Settings</a></li>
-                    <li><a class="dropdown-item" href="#">Profile</a></li>
-                    <li>
-                        <hr class="dropdown-divider">
-                    </li>
-                    <li><a class="dropdown-item" href="../logout.php">Sign out</a></li>
-                </ul>
-            </div>
+          <div class="dropdown mx-4 width">
+            <?php
+            include "../../db_connect/config.php";
+            $stmt = mysqli_prepare($conn, "SELECT * FROM zp_appointment WHERE schedule_status IN ('Sched', 'Cancel');");
+            $notificationCount = 0;
+            if ($stmt) {
+                mysqli_stmt_execute($stmt);
+                $result = mysqli_stmt_get_result($stmt);
+                $notificationCount = mysqli_num_rows($result); // Count notifications
+            }
+            ?>
+
+<a href="#" class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle" id="dropdownNotification" data-bs-toggle="dropdown" aria-expanded="false">
+    <i class="fs-5 bi bi-bell"></i>
+    <span id="notification-count" class="badge bg-danger"><?php echo $notificationCount; ?></span>
+</a>
+            <ul class="dropdown-menu text-small shadow dropdown-menu-end p-1" aria-labelledby="dropdownNotification">
+              <?php
+              include "../../db_connect/config.php";
+              $stmt = mysqli_prepare($conn, "SELECT * FROM zp_appointment WHERE schedule_status IN ('Sched', 'Cancel');");
+              $notificationCount = 0;
+
+              if ($stmt) {
+                  mysqli_stmt_execute($stmt);
+                  $result = mysqli_stmt_get_result($stmt);
+
+                  while ($row = mysqli_fetch_assoc($result)) {
+                      // Set data-read attribute to false initially
+                      $dataRead = 'false';
+
+                      // Check if the schedule_status is Sched or Cancel
+                      if ($row['schedule_status'] == 'Sched') {
+                          echo '<li data-read="' . $dataRead . '"><a class="dropdown-item" href="#">The client has rescheduled the appointment: ' . $row['firstname'] . ' ' . $row['lastname'] . '</a></li>';
+                      } elseif ($row['schedule_status'] == 'Cancel') {
+                          echo '<li data-read="' . $dataRead . '"><a class="dropdown-item" href="#">The client has canceled the appointment: ' . $row['firstname'] . ' ' . $row['lastname'] . '</a></li>';
+                      }
+                  }
+                  // Close the database statement
+                  mysqli_stmt_close($stmt);
+              }
+              ?>
+              </ul>
+          </div>
+          <div class="dropdown">
+            <a href="#" class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+              <img src="<?php echo $userData['image']; ?>" class="rounded-circle" height="30px" width="30px">
+              <span class="d-none d-sm-inline mx-1"><b> Hello!</b> <?php echo $userData['clinic_firstname']; ?></span>
+            </a>
+            <ul class="dropdown-menu text-small shadow dropdown-menu-end" aria-labelledby="dropdownUser1">
+              <li><a class="dropdown-item" >Settings</a></li>
+              <li><a class="dropdown-item" href="../profile/account.php">Profile</a></li>
+              <li>
+                <hr class="dropdown-divider">
+              </li>
+              <li><a class="dropdown-item" href="../logout.php">Sign out</a></li>
+            </ul>
+          </div>
         </div>
-    </nav>
+      </nav>
       </div>
     </div>
   </nav>
@@ -331,14 +365,6 @@ background-color: #6537AE;
 
 
 
-<script>
-  const $button  = document.querySelector('#sidebar-toggle');
-const $wrapper = document.querySelector('#wrapper');
 
-$button.addEventListener('click', (e) => {
-  e.preventDefault();
-  $wrapper.classList.toggle('toggled');
-});
-</script>
 </body>
 </html>

@@ -37,7 +37,7 @@ if (isset($_POST["submit"])) {
                 $role = $fetch["clinic_role"];
                 $_SESSION['clinic_email'] = $email;
                 $_SESSION['clinic_role'] = $role;
-                $_SESSION['zep_acc'] = $fetch;
+                $_SESSION['id'] = $fetch;
 
                 switch ($role) {
                     case 'Admin':
@@ -60,16 +60,22 @@ if (isset($_POST["submit"])) {
             $error_message = "Invalid email or password, please try again.";
         }
     } else {
-        $clientSql = mysqli_query($conn, "SELECT * FROM zp_client_record WHERE client_email = '$email' AND client_password = '$password'");
+        $clientSql = mysqli_query($conn, "SELECT * FROM zp_client_record WHERE client_email = '$email'");
         $clientCount = mysqli_num_rows($clientSql);
 
         if ($clientCount > 0) {
             $userData = mysqli_fetch_assoc($clientSql);
-            $_SESSION['id'] = $userData;
-            $_SESSION['client_email'] = $userData;
-            $_SESSION['client_password'] = $userData;
-            header("Location: Client/dashboard/dashboard.php");
-            exit();
+            $hashedPassword = $userData['client_password'];
+
+            if (password_verify($password, $hashedPassword)) {
+                $_SESSION['id'] = $userData;
+                $_SESSION['client_email'] = $userData;
+                $_SESSION['client_password'] = $userData;
+                header("Location: Client/client_record/view.php");
+                exit();
+            } else {
+                $error_message = "Invalid email or password, please try again.";
+            }
         } else {
             $error_message = "Invalid email or password, please try again.";
         }
@@ -78,8 +84,6 @@ if (isset($_POST["submit"])) {
 
 ?>
 
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -87,76 +91,43 @@ if (isset($_POST["submit"])) {
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@2.11.6/dist/umd/popper.min.js"></script>
-
-    <!-- Include Bootstrap JavaScript -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
     <link rel="stylesheet" href="style.css">
     <title>Document</title>
 </head>
-<script>
-    const bgImages = ['side1.png', 'side2.png', 'side3.png'];
-    let currentIndex = 0;
-
-    function changeBackgroundImage() {
-      const bgElement = document.querySelector('.bg');
-      const fadeInDuration = 600;
-      bgElement.style.transition = `opacity ${fadeInDuration / 2}ms ease-out`;
-      bgElement.style.opacity = 0;
-
-      setTimeout(() => {
-        bgElement.style.backgroundImage = `url('${bgImages[currentIndex]}')`;
-        bgElement.style.transition = `opacity ${fadeInDuration / 1}ms ease-in`;
-        bgElement.style.opacity = 1;
-
-        currentIndex = (currentIndex + 1) % bgImages.length;
-      }, fadeInDuration / 2);
-    }
-    setTimeout(changeBackgroundImage);
-    setInterval(changeBackgroundImage, 15000);
-</script>
 
 <body>
-  <div class="d-lg-flex half">
-    <div class="bg order-2 order-md-1 bg"></div>
-    <div class="contents order-1 order-md-2">
-      <div class="container">
-        <div class="row align-items-center justify-content-center">
-          <div class="col-md-7">
-            <div class="mb-4" >
-              <h3>Login</h3>
-            </div>
-            <form method="post">
-              <div class="form-group first">
-                <label for="username">Username</label>
-                <input type="text" class="form-control" name="clinic_email" id="username">
-              </div>
-              <div class="form-group last mb-3">
-                <label for="password">Password</label>
-                <input type="password" class="form-control" name="clinic_password" id="password">
-                
-              </div>
-              <?php if (!empty($error_message)) : ?>
-                <div class="alert alert-danger">
-                    <?php echo $error_message; ?>
+
+<div class="container-fluid" style="background-color: #6537AE;">
+    <div class="row justify-content-center align-items-center vh-100">
+        <div class="col-md-6 col-lg-5 animate__animated animate__fadeIn">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h3 class="card-title text-center">Login</h3>
+                    <form method="post">
+                        <div class="mb-3">
+                            <label for="clinic_email" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="clinic_email" name="clinic_email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="clinic_password" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="clinic_password" name="clinic_password" required>
+                        </div>
+                        <?php if (!empty($error_message)) : ?>
+                            <div class="alert alert-danger animate__animated animate__fadeIn" role="alert">
+                                <?php echo $error_message; ?>
+                            </div>
+                        <?php endif; ?>
+                        <div class="mb-3">
+                            <a href="forgot_password.php" class="float-end" style="color: grey;">Forgot Password?</a>
+                        </div>
+                        <button type="submit" name="submit" class="btn btn-block text-white" style="background-color: #6537AE;">Log In</button>
+                    </form>
                 </div>
-            <?php endif; ?>
-              <div class="d-flex mb-5 align-items-center">
-                <span class="ml-auto"><a href="forgot_password.php" class="forgot-pass">Forgot Password</a></span> 
-              </div>
-              <input type="submit" name="submit" value="Log In" class="btn btn-block btn-primary w-100">
-            </form>
-          </div>
+            </div>
         </div>
-      </div>
     </div>
+</div>
 
-
-  </div>
-  <script src="js/jquery-3.3.1.min.js"></script>
-    <script src="js/popper.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/main.js"></script>
 </body>
 </html>
-

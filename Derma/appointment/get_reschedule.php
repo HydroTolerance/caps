@@ -7,6 +7,11 @@
     <title>Document</title>
 </head>
 <body>
+    <style>
+            #rescheduleModal .modal-dialog .modal-content .modal-header {
+        text-align: center;
+    }
+    </style>
 <?php
 
 include "../../db_connect/config.php";
@@ -16,7 +21,7 @@ if (isset($_POST['update'])) {
     $date = mysqli_real_escape_string($conn, $_POST['date']);
     $time = mysqli_real_escape_string($conn, $_POST['time']);
     $reason = mysqli_real_escape_string($conn, $_POST['apt_reason']);
-    $query = "UPDATE book1 SET email = ?, date = ?, `time` = ?, apt_reason = ?, appointment_status = 'Rescheduled' WHERE id = ?";
+    $query = "UPDATE zp_appointment SET email = ?, date = ?, `time` = ?, apt_reason = ?, appointment_status = 'Rescheduled' WHERE id = ?";
     $stmt = mysqli_prepare($conn, $query);
     mysqli_stmt_bind_param($stmt, 'ssssi', $email, $date, $time, $reason, $id);
     $result = mysqli_stmt_execute($stmt);
@@ -24,20 +29,15 @@ if (isset($_POST['update'])) {
         require 'phpmailer/PHPMailerAutoload.php';
         $mail = new PHPMailer(true);
         try {
-            //Server settings
             $mail->isSMTP(); 
-            $mail->Host = 'smtp.gmail.com'; // Your SMTP server
+            $mail->Host = 'smtp.gmail.com';
             $mail->SMTPAuth = true;         
-            $mail->Username = 'blazered098@gmail.com'; // Your SMTP username
-            $mail->Password = 'nnhthgjzjbdpilbh'; // Your SMTP password
+            $mail->Username = 'blazered098@gmail.com';
+            $mail->Password = 'nnhthgjzjbdpilbh';
             $mail->SMTPSecure = 'tls';       
             $mail->Port = 587;              
-
-            //Recipients
-            $mail->setFrom('blazered098@gmail.com', 'ROgen');
+            $mail->setFrom('blazered098@gmail.com', 'Rogen');
             $mail->addAddress($email);
-
-            //Content
             $mail->isHTML(true); 
             $mail->Subject = 'Appointment Rescheduled';
             $mail->Body = "Your appointment has been rescheduled:<br><br>New Date: $date<br>New Time: $time<br>Reason: $reason";
@@ -52,7 +52,7 @@ if (isset($_POST['update'])) {
 }
 if (isset($_POST['id'])) {
     $id = $_POST['id'];
-    $query = "SELECT * FROM book1 WHERE id = $id";
+    $query = "SELECT * FROM zp_appointment WHERE id = $id";
     $result = mysqli_query($conn, $query);
 
     if ($result && mysqli_num_rows($result) > 0) {
@@ -100,10 +100,10 @@ if (!isset($_POST['secret_key']) || $_POST['secret_key'] !== $secret_key) {
     </div>
     <?php if (isset($_POST['id'])) : ?>
         <input type="hidden" name="id" value="<?php echo $_POST['id']; ?>">
-        <button type="submit" name="update">Update</button>
-    <?php else : ?>
-        <button type="submit" name="save">Save</button>
     <?php endif; ?>
+    <div class="modal-footer">
+        <button class="btn bg-purple text-white ml-auto" type="submit" name="<?php echo isset($_POST['id']) ? 'update' : 'save'; ?>"><?php echo isset($_POST['id']) ? 'Update' : 'Save'; ?></button>
+    </div>
 </form>
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -150,8 +150,6 @@ if (!isset($_POST['secret_key']) || $_POST['secret_key'] !== $secret_key) {
                     var slotText = option.text + " (" + slotsLeftForOption + " slot(s) left)";
                     option.text = slotText;
                 }
-
-
                 var num_slots = Object.keys(slots).length;
                 document.getElementById("num_slots").innerHTML = " (" + num_slots + " slots available)";
             }

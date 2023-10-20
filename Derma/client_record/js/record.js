@@ -1,45 +1,40 @@
 
-    var select = document.getElementById("diagnosisSelect");
-    var dateDiv = document.getElementById("date_diagnosis_div");
-    var historyDiv = document.getElementById("history_div");
-    var diagnosisDiv = document.getElementById("diagnosis_div");
-    var managementDiv = document.getElementById("management_div");
-
-    select.addEventListener("change", function () {
-
-        dateDiv.style.display = "none";
-        historyDiv.style.display = "none";
-        diagnosisDiv.style.display = "none";
-        managementDiv.style.display = "none";
-
-
-        var selectedOption = select.value;
-        if (selectedOption === "date") {
-            dateDiv.style.display = "block";
-        } else if (selectedOption === "history") {
-            historyDiv.style.display = "block";
-        } else if (selectedOption === "diagnosis") {
-            diagnosisDiv.style.display = "block";
-        } else if (selectedOption === "management") {
-            managementDiv.style.display = "block";
-        }
-    });
-
-        function showDiagnosisSection() {
+function showDiagnosisSection() {
         document.getElementById('diagnosisContainer').style.display = 'block';
         document.getElementById('appointmentContainer').style.display = 'none';
+        document.getElementById('sessionContainer').style.display = 'none';
         document.getElementById('diagnosisTab').classList.add('active');
         document.getElementById('appointmentTab').classList.remove('active');
+        document.getElementById('sessionTab').classList.remove('active');
     }
+
     function showAppointmentSection() {
         document.getElementById('diagnosisContainer').style.display = 'none';
         document.getElementById('appointmentContainer').style.display = 'block';
+        document.getElementById('sessionContainer').style.display = 'none';
         document.getElementById('appointmentTab').classList.add('active');
         document.getElementById('diagnosisTab').classList.remove('active');
+        document.getElementById('sessionTab').classList.remove('active');
     }
-    document.getElementById('diagnosisTab').addEventListener('click', showDiagnosisSection);
-    document.getElementById('appointmentTab').addEventListener('click', showAppointmentSection);
 
+    function showSessionSection() {
+        document.getElementById('diagnosisContainer').style.display = 'none';
+        document.getElementById('appointmentContainer').style.display = 'none';
+        document.getElementById('sessionContainer').style.display = 'block';
+        document.getElementById('sessionTab').classList.add('active');
+        document.getElementById('diagnosisTab').classList.remove('active');
+        document.getElementById('appointmentTab').classList.remove('active');
+
+        
+    }
+    
+
+    document.getElementById('diagnosisTab').addEventListener('click', showDiagnosisSection);
+    document.getElementById('sessionTab').addEventListener('click', showSessionSection);
+    document.getElementById('appointmentTab').addEventListener('click', showAppointmentSection);
+    
+
+    
 var configuration = {
     dateFormat: "Y-m-d",
     allowInput:true,

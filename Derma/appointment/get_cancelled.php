@@ -13,7 +13,7 @@ if (isset($_POST['update'])) {
     $id = $_POST['id'];
     $email = $_POST['email'];
     $reason = $_POST['apt_reason'];
-    $stmt = mysqli_prepare($conn, "UPDATE book1 SET email=?, apt_reason = ?, appointment_status = 'Cancelled' WHERE id =?");
+    $stmt = mysqli_prepare($conn, "UPDATE zp_appointment SET email=?, apt_reason = ?, appointment_status = 'Cancelled' WHERE id =?");
     mysqli_stmt_bind_param($stmt, "ssi", $email, $reason, $id);
     $result = mysqli_stmt_execute($stmt);
     if ($result) {
@@ -48,7 +48,7 @@ if (isset($_POST['update'])) {
 }
 if (isset($_POST['id'])) {
     $id = $_POST['id'];
-    $stmt = mysqli_prepare($conn, "SELECT * FROM book1 WHERE id = ?");
+    $stmt = mysqli_prepare($conn, "SELECT * FROM zp_appointment WHERE id = ?");
     mysqli_stmt_bind_param($stmt, "i", $id);
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
@@ -69,7 +69,10 @@ if (isset($_POST['id'])) {
     </div>
     <?php if (isset($_POST['id'])) : ?>
         <input type="hidden" name="id" value="<?php echo $_POST['id']; ?>">
-        <button type="submit" name="update">Cancel Appointment</button>
+        <div class="modal-footer">
+        <button class="btn bg-purple text-white ml-auto" type="submit" name="update">Cancel Appointment</button>
+        </div>
+        
     <?php endif; ?>
 </form>
 

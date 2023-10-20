@@ -39,72 +39,40 @@ if (isset($_POST["send_otp"])) {
     }
 }
 ?>
-<style>
-
-.container {
-        background-color: #FFFF;
-        padding: 20px;
-        border-radius: 10px;
-    }
-
-    body {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        margin: 0;
-        background-color: #F2B85A;
-        
-    }
-
-    .form-outline {
-            text-align: center;
-            padding: 50px;
-        }
-        .form-outline label {
-            display: block;
-            margin-top: 5px;
-        }
-
-        .text-center {
-            justify-content: center;
-            margin-left: 95px;
-            margin-top: 5px;
-           
-        }
-    
-        .header-text {
-       
-        text-align: center;
-        margin-bottom: 20px;
-        color: #F2B85A;
-        font-size: 30px;
-        
-    }
-
-</style>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.19.0/font/bootstrap-icons.css" rel="stylesheet">
+
     <title>Forgot Password</title>
 </head>
 <body>
-<div class="container">
-
-<p class="header-text">Forgot Password</p>
-
-    <form method="post">
-        <div class="form-outline mb-2">
-            <input type="email" id="form2ExampleEmail" class="form-control" name="clinic_email" required />
-            <label class="form-label" for="form2ExampleEmail">Enter your email address</label>
+<div class="container-fluid" style="background-color: #6537AE;">
+    <div class="row justify-content-center align-items-center vh-100">
+        <div class="col-md-6 col-lg-5 animate__animated animate__fadeIn">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h2 class="card-title text-center">Forgot Password</h2>
+                    <form method="post">
+                        <div class="form-outline mb-2 input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                            </div>
+                            <input type="email" id="form2ExampleEmail" class="form-control" name="clinic_email" placeholder="Enter your Email" required />
+                        </div>
+                        <div class="text-center pt-1 mb-5 pb-1">
+                            <button type="submit" name="send_otp" value="Send OTP" class="btn btn-primary btn-block fa-lg gradient-custom-2 mb-3">Send OTP</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
-        <div class="text-center pt-1 mb-5 pb-1">
-            <button type="submit" name="send_otp" value="Send OTP" class="btn btn-primary btn-block fa-lg gradient-custom-2 mb-3">Send OTP</button>
-        </div>
-    </form>
+    </div>
+</div>
 </div>
 </body>
 </html>

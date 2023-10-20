@@ -1,7 +1,7 @@
 <?php
 include "../function.php";
 checklogin();
-$userData = $_SESSION['zep_acc'];
+$userData = $_SESSION['id'];
 ?>
 <?php
     if(!$_SERVER['HTTP_X_REQUESTED_WITH'])
@@ -20,11 +20,28 @@ $userData = $_SESSION['zep_acc'];
     <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
 </head>
 <body>
-    <form method="post" action="service.php">
-        <label>Answer:</label>
-        <input type="text" name="services" required><br><br>
-        <input type="submit" name="submit" value="Submit">
-        <a href="faq.php">Cancel</a>
+    <form method="post" action="service.php" enctype="multipart/form-data">
+        <div>
+            <label>Image:</label>
+            <input type="file" name="image" class="form-control" accept=".jpeg, .jpg, .png" required>
+        </div>
+        <div>
+            <label>Services:</label>
+            <select name="services" id="" class="form-control">
+                <option value="Skin">Skin</option>
+                <option value="Nail">Nail</option>
+                <option value="Hair">Hair</option>
+            </select>
+        </div>
+        <div>
+            <label>Description:</label>
+            <input type="text" name="description" class="form-control" required>
+        </div>
+        <div>
+            <input type="submit" name="submit" value="Submit">
+            <a href="faq.php">Cancel</a>
+        </div>
+        
     </form>
 </body>
 </html>

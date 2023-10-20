@@ -1,18 +1,32 @@
 <?php
 include "../function.php";
 checklogin();
-$userData = $_SESSION['zep_acc'];
+$userData = $_SESSION['id'];
 ?>
 <?php 
-
-if(isset($_POST['submit'])){
+if (isset($_POST['submit'])) {
     include "../../db_connect/config.php";
+
+    // Handle image upload
+    if (isset($_FILES['image'])) {
+        $uploadDir = "../../img/services/";
+        $fileExtension = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
+        $uniqueFilename = uniqid() . '.' . $fileExtension;
+        $uploadedFile = $uploadDir . $uniqueFilename;
+
+        if (move_uploaded_file($_FILES['image']['tmp_name'], $uploadedFile)) {
+            // File uploaded successfully.
+        } else {
+            echo "Error uploading the image.";
+        }
+    }
+
     $service = $_POST['services'];
+    $answer = $_POST['description'];
 
-    $sql = "INSERT INTO service (services) VALUES (?)";
-
+    $sql = "INSERT INTO service (services, description, image) VALUES (?, ?, ?)";
     $stmt = mysqli_prepare($conn, $sql);
-    mysqli_stmt_bind_param($stmt, "s", $service);
+    mysqli_stmt_bind_param($stmt, "sss", $service, $answer, $uniqueFilename);
 
     if (mysqli_stmt_execute($stmt)) {
         mysqli_stmt_close($stmt);
@@ -26,6 +40,7 @@ if(isset($_POST['submit'])){
     mysqli_stmt_close($stmt);
     mysqli_close($conn);
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -41,39 +56,39 @@ if(isset($_POST['submit'])){
         <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.0/dist/sweetalert2.min.css" rel="stylesheet">
     </head>
     <body>
-    <div class="container-fluid">
-    <div class="row flex-nowrap">
-        <?php include "../sidebar.php"; ?>
-        <div class="col main-content custom-navbar bg-light">
-        <?php include "../navbar.php"?>
-        <div class="mx-3">
+    <div id="wrapper">
+    <?php include "../sidebar.php"; ?>
+        <section id="content-wrapper">
+            <div class="row mx-1">
             <button type="button" class="btn btn-primary mb-3" onclick="addServiceModal()">Add Services</button>
             <div class="bg-white p-3 rounded-3 border w-100">
                 <table id="clientTable" class="table table-striped nowrap">
                     <thead>
                         <tr>
-                            <th>#</th>
                             <th>Service</th>
+                            <th>Images</th>
+                            <th>Description</th>
                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php
                         include "../../db_connect/config.php";
-                        $stmt = mysqli_prepare($conn, "SELECT id, services FROM service");
+                        $stmt = mysqli_prepare($conn, "SELECT id, services, image, description FROM service");
                         mysqli_stmt_execute($stmt);
                         mysqli_stmt_store_result($stmt);
-                        mysqli_stmt_bind_result($stmt, $id, $services);
+                        mysqli_stmt_bind_result($stmt, $id, $services, $image, $description);
 
                         while (mysqli_stmt_fetch($stmt)) {
                             ?>
                             <tr>
-                            <td><?php echo $id; ?></td>
-                            <td><?php echo $services; ?></td>
+                                <td><?php echo $services; ?></td>
+                                <td><img src="../../img/services/<?php echo $image;?>" alt="" width="50px" height="50px"></td>
+                                <td><?php echo $description; ?></td>
                                 <td class="action-buttons">
                                     <button onclick="showRescheduleModal('<?php echo $id; ?>')" class="btn btn-primary">Edit</button>
-                                    <a href="#" onclick="deleteFAQ(<?php echo $id; ?>)" class="link-dark">
-                                        <span class="las la-trash" style="font-size: 20px; color:#222; margin-left:40px;"></span>
+                                    <a href="#" onclick="deleteFAQ(<?php echo $id; ?>)" class="text-decoration-none btn btn-danger">
+                                        Delete
                                     </a>
                                 </td>
                             </tr>

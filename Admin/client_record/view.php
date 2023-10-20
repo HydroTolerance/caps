@@ -1,7 +1,7 @@
 <?php
 include "../function.php";
 checklogin();
-$userData = $_SESSION['zep_acc'];
+$userData = $_SESSION['id'];
 ?>
     <!DOCTYPE html>
     <html lang="en">
@@ -76,10 +76,11 @@ $userData = $_SESSION['zep_acc'];
                 <div class="row">
                     <div class="col-lg-12">
                     <div class="mx-3">
-                        <a class="btn btn-warning" href="client_record.php">Cancel</a>
-                        <h2 style="color:6537AE;" class="text-center">View Client Record</h2>
+                        
                         <form method="post" >
                             <div class="container">
+                            <a class="btn btn-secondary" href="client_record.php"><i class="bi bi-arrow-left"></i> Go Back</a>
+                            <h2 style="color:6537AE;" class="text-center">View Client Record</h2>
                                 <div class="row mb-3">
                                     <input class="form-label" type="hidden" name="id" value="<?php echo $id; ?>">
                                 </div>

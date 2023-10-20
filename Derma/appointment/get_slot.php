@@ -1,9 +1,9 @@
 <?php
 include "../../db_connect/config.php";
 $d = $_GET['d'];
-$query = "SELECT appointment_slots.slots, COUNT(book1.time) AS num_bookings
+$query = "SELECT appointment_slots.slots, COUNT(zp_appointment.time) AS num_bookings
           FROM appointment_slots
-          LEFT JOIN book1 ON appointment_slots.slots = book1.time AND book1.date = '$d'
+          LEFT JOIN zp_appointment ON appointment_slots.slots = zp_appointment.time AND zp_appointment.date = '$d'
           GROUP BY appointment_slots.slots";
 $result = mysqli_query($conn, $query);
 $slots = array();

@@ -1,7 +1,7 @@
 <?php 
 include "../function.php";
 checklogin();
-
+$userData = $_SESSION['id'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -20,13 +20,19 @@ checklogin();
 </head>
 
 <body>
-<div class="container-fluid">
-        <div class="row flex-nowrap">
+        <div id="wrapper">
             <?php include "../sidebar.php"; ?>
-            <div class="col main-content custom-navbar bg-light">
-                <?php include "../navbar.php"?>
-                <div class="ms-3 mx-3">
-                <div>
+                <section id="content-wrapper">
+                    <div class="row mx-1">
+                        <div class="col-lg-12">
+                            <div class="mx-3 text-center">
+                                <div class="row">
+                                    <div>
+                                        <h1 class=" mb-1 text-center" style="color:6537AE;">Client Record</h1>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     <div>
                     <div class="bg-white p-3 rounded-3 border w-100">
                         <table id="clientTable" class="table table-striped nowrap" style="width:100%">
@@ -43,8 +49,9 @@ checklogin();
                             <tbody>
                                 <?php
                                 include "../../db_connect/config.php";
-                                $result = mysqli_query($conn, "SELECT * FROM zp_client_record");
-
+                                $stmt = mysqli_prepare($conn, "SELECT * FROM zp_client_record");
+                                mysqli_stmt_execute($stmt);
+                                $result = mysqli_stmt_get_result($stmt);
                                 while ($row = mysqli_fetch_array($result)) {
                                     ?>
 

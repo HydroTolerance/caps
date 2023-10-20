@@ -1,44 +1,28 @@
 <?php
 include "../../db_connect/config.php";
 $d = $_GET['d'];
-$slots_query = "SELECT slots_left FROM slots WHERE id = 1";
+$query = "SELECT appointment_slots.slots, COUNT(zp_appointment.time) AS num_bookings
+          FROM appointment_slots
+          LEFT JOIN zp_appointment ON appointment_slots.slots = zp_appointment.time AND zp_appointment.date = '$d'
+          GROUP BY appointment_slots.slots";
+$result = mysqli_query($conn, $query);
+$slots = array();
+while ($row = mysqli_fetch_array($result)) {
+    $slot = $row['slots'];
+    $num_bookings = $row['num_bookings'];
+    $slots[$slot] = $num_bookings;
+}
+
+$slots_query = "SELECT `slots_left` FROM `slots` WHERE id = 1";
 $slots_result = mysqli_query($conn, $slots_query);
 $slots_row = mysqli_fetch_assoc($slots_result);
 $slots_left_value = $slots_row['slots_left'];
-$query = "SELECT appointment_slots.slots,
-            ($slots_left_value - 
-             IFNULL(bookings_and_appointments.num_bookings, 0)) AS available_slots
-          FROM appointment_slots
-          LEFT JOIN (
-            SELECT time,
-                   COUNT(*) AS num_bookings
-            FROM (
-              SELECT time
-              FROM zp_appointment
-              WHERE date = '$d'
-              UNION ALL
-              SELECT time_appointment
-              FROM zp_derma_appointment
-              WHERE date_appointment = '$d'
-            ) AS all_bookings_and_appointments
-            GROUP BY time
-          ) AS bookings_and_appointments
-          ON appointment_slots.slots = bookings_and_appointments.time";
 
-$result = mysqli_query($conn, $query);
-while ($row = mysqli_fetch_assoc($result)) {
-    $slot = $row['slots'];
-    $total_num_bookings = $row['available_slots'];
-
-    $available_slots_for_slot = $slots_left_value - $total_num_bookings;
-    if ($available_slots_for_slot < 0) {
-        $available_slots_for_slot = 0;
-    }
-    $slots[$slot] = $available_slots_for_slot;
-}
-$response = [
+$response = array(
     'slots' => $slots,
     'slots_left' => $slots_left_value
-];
+);
+
+// Return the response as a JSON-encoded string
 echo json_encode($response);
 ?>

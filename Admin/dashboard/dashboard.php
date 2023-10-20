@@ -1,7 +1,7 @@
 <?php
     include "../function.php";
     checklogin();
-    $userData = $_SESSION['zep_acc'];
+    $userData = $_SESSION['id'];
     ?>
     <?php
         include "../../db_connect/config.php";
@@ -75,6 +75,11 @@ $serviceCounts[] = $rowService['service_count'];
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css">
         </head>
         <style>
+            .status-indicator { display: inline-block; margin-right: 10px; width: 20px; height: 20px; border-radius: 50%; }
+    .bg-purple { background-color: #6f42c1; } /* Violet for Completed */
+    .bg-blue { background-color: #007bff; } /* Blue for Rescheduled */
+    .bg-grey { background-color: #6c757d; } /* Grey for Pending */
+    .bg-yellow { background-color: #ffc107; } /* Yellow for Did Not Show */
             .dropdown-menu {
             margin-left: -2rem;
         }
@@ -160,22 +165,35 @@ $serviceCounts[] = $rowService['service_count'];
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        
-                            <div class="container-fluid">
-                                <div class="row justify-content-center">
-                                    <div class="col-md-12 mt-2 fade-in">
-                                        <div class="border bg-body rounded pt-3 pb-3 d-flex justify-content-center align-items-center">
-                                            <div class="mx-2 text-center">
-                                                <h5>Services for this Month</h5>
-                                                <div class="chart-container" style="position: relative; height:40vh; width:80vw">
-                                                    <canvas id="serviceChart"  width="1000" height="200"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
+                            <div class="bg-white p-4 fade-in my-3 text-center rounded">
+                                <h2 class="text-center mb-3" style="color:#6f42c1;">Color Calendar Appointment Indicator</h2>
+                                <div class="status-indicator-container d-flex justify-content-between">
+                                    <div class="text-center">
+                                        <span class="status-indicator bg-purple"></span> Completed 
+                                    </div>
+                                    <div class="text-center">
+                                        <span class="status-indicator bg-blue"></span> Rescheduled 
+                                    </div>
+                                    <div class="text-center">
+                                        <span class="status-indicator bg-grey"></span> Pending 
+                                    </div>
+                                    <div class="text-center">
+                                        <span class="status-indicator bg-red"></span> Cancelled
+                                    </div>
+                                    <div class="text-center">
+                                        <span class="status-indicator bg-"></span> Acknowledged
+                                    </div>
+                                    <div class="text-center">
+                                        <span class="status-indicator bg-yellow"></span> Did Not Show 
                                     </div>
                                 </div>
                             </div>
+
+                                        <div class="text-center  bg-white border rounded fade-in">
+                                        <div class="p-4" id="calendar"></div>
+                                        </div>
+                                    </div>
+                                    
                             <div class="container-fluid">
                                 <div class="row justify-content-center">
                                     <div class="col-md-6 mt-2 fade-in">
@@ -201,13 +219,25 @@ $serviceCounts[] = $rowService['service_count'];
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            
-                        
-                                        <div class="text-center mt-4 mb-5 bg-white border rounded fade-in">
-                                        <div class="p-4" id="calendar"></div>
+                                <div class="container-fluid">
+                                <div class="row justify-content-center">
+                                    <div class="col-md-12 mt-2 fade-in">
+                                        <div class="border bg-body rounded pt-3 pb-3 d-flex justify-content-center align-items-center">
+                                            <div class="mx-2 text-center">
+                                                <h5>Services for this Month</h5>
+                                                <div class="chart-container" style="position: relative; height:40vh; width:80vw">
+                                                    <canvas id="serviceChart"  width="1000" height="200"></canvas>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                        
+                            
+                            
                                 </div>
                             </div>
                         </div>
