@@ -68,8 +68,10 @@ if (isset($_POST['id'])) {
         <textarea class="form-control" placeholder="Enter reason for cancellation" name="apt_reason" required></textarea>
     </div>
     <?php if (isset($_POST['id'])) : ?>
+        <div class="modal-footer">
         <input type="hidden" name="id" value="<?php echo $_POST['id']; ?>">
-        <button type="submit" name="update">Cancel Appointment</button>
+        <button class="btn text-white" style="background-color: #6537AE;" type="submit" name="update">Cancel Appointment</button>
+        </div>
     <?php endif; ?>
 </form>
 

@@ -1,6 +1,6 @@
 <?php 
 include "../function.php";
-checklogin();
+checklogin('Staff');
 $userData = $_SESSION['id'];
 ?>
 <!DOCTYPE html>
@@ -32,7 +32,43 @@ $userData = $_SESSION['id'];
 <script src="https://cdn.datatables.net/datetime/1.1.5/js/dataTables.dateTime.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <style>
+.page-item.active .page-link {
+    background-color: #6537AE !important;
+    color: #fff !important;
+    border: #6537AE;
+}   
 
+#pageloader {
+    background: rgba(255, 255, 255, 0.8);
+    display: none;
+    height: 100%;
+    position: fixed;
+    width: 100%;
+    z-index: 9999;
+}
+
+.custom-loader {
+    border: 5px solid #6537AE;
+    border-top: 5px solid transparent;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation-name: spin;
+    animation-duration: 1s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    margin: 0 auto;
+    margin-top: 50vh;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.page-link {
+    color: black !important;
+}
         h1 {
             text-align: center;
             margin-bottom: 20px;
@@ -74,27 +110,35 @@ $userData = $_SESSION['id'];
             margin-bottom: 20px;
         }
         .status-cancelled {
-    color: red;
+    color: red !important;
 }
 
 .status-approved {
-    color: green;
+    color: green !important;
 }
 
 .status-rescheduled {
-    color: blue;
+    color: blue !important;
 }
 .status-completed {
-    color: green;
+    color: green !important;
 }
 .status-did-not-show {
-    color: #F9A603;
+    color: #F9A603 !important;
 }
-
+.status-acknowledged {
+    color: orange !important;
+}
+.custom-width {
+    width: 150px;
+}
     </style>
 </head>
 
 <body>
+<div id="pageloader">
+    <div class="custom-loader"></div>
+</div>
 <div id="wrapper">
     <?php include "../sidebar.php"; ?>
         <section id="content-wrapper">
@@ -110,62 +154,56 @@ $userData = $_SESSION['id'];
                         <span></span> <i class="fa fa-caret-down"></i>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <label for="yearFilter">Filter by Year:</label>
-                    <select id="yearFilter" class="form-select">
-                        <option value="">All Years</option>
-                        <!-- Generate options dynamically based on available years -->
-                        <?php
-                        include "../../db_connect/config.php";
-                        $query = "SELECT DISTINCT YEAR(date) AS year FROM zp_appointment ORDER BY year DESC";
-                        $result = mysqli_query($conn, $query);
-                        while ($row = mysqli_fetch_assoc($result)) {
-                            $year = $row['year'];
-                            echo '<option value="' . $year . '">' . $year . '</option>';
-                        }
-                        mysqli_close($conn);
-                        ?>
+                <div class="col-md-4">
+                    <label for="statusFilter">Filter Status:</label>
+                    <select id="statusFilter" class="form-control">
+                        <option value="">All</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Acknowledged">Acknowledged</option>
+                        <option value="Rescheduled">Rescheduled</option>
+                        <option value="Cancelled">Cancelled</option>
+                        <option value="Did not show">Did not Show</option>
                     </select>
                 </div>
             </div>
-            <table id="example" class="table table-bordered text-center" cellspacing="0" style="width: 100%;" >
+            <table id="example" class="table table-bordered  table-striped nowrap" cellspacing="0" style="width: 100%;" >
             <thead>
                 <tr>
-                    <th>#</th>
                     <th>Full Name</th>
                     <th>Services</th>
-                    <th>Date</th>
-                    <th>Time</th>
-                    <th>Reference Code</th>
+                    <th class="text-nowrap">Appointment Date</th>
+                    <th class="text-nowrap">Appointment Time</th>
+                    <th class="text-nowrap">Reference Code</th>
                     <th>Status</th>
-                    <th>Transaction</th>
+                    <th>All Info</th>
                 </tr>
             </thead>
             <tbody>
-                <?php
-                include "../../db_connect/config.php";
-                $stmt = mysqli_prepare($conn, "SELECT * FROM zp_appointment ORDER BY date DESC");
-                mysqli_stmt_execute($stmt);
-                $result = mysqli_stmt_get_result($stmt);
-                while ($row = mysqli_fetch_array($result)) {
-                    ?>
-                    <tr>
-                        <td><?php echo $row['appointment_id']?></td>
-                        <td><?php echo $row['firstname']. ' ' .$row['lastname']?></td>
-                        <td><?php echo $row['services']?></td>
-                        <td><?php echo date('F d, Y', strtotime($row['date'])); ?></td>
-                        <td><?php echo $row['time']?></td>
-                        <td><?php echo $row['reference_code']?></td>
-                        <td id="status_<?php echo $row['id']; ?>" class="status-<?php echo strtolower(str_replace(' ', '-', $row['appointment_status'])); ?>">
-                            <?php echo $row['appointment_status']; ?>
-                        </td>
-                        <td><button class="btn btn-primary status-select" onclick="showData('<?php echo $row['id']; ?>')">View Data</button></td>
-                    </tr>
+            <?php
+include "../../db_connect/config.php";
+$stmt = mysqli_prepare($conn, "SELECT * FROM zp_appointment");
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
+while ($row = mysqli_fetch_array($result)) {
+    $isCompleted = ($row['appointment_status'] === 'Completed' || $row['appointment_status'] === 'Cancelled');
+    ?>
+    <tr>
+        <td><?php echo $row['firstname']. ' ' .$row['lastname']?></td>
+        <td><?php echo $row['services']?></td>
+        <td><?php echo date('F d, Y', strtotime($row['date'])); ?></td>
+        <td><?php echo $row['time']?></td>
+        <td class="text-center"><?php echo $row['reference_code']?></td>
+        <td id="status_<?php echo $row['id']; ?>" class="status-<?php echo strtolower(str_replace(' ', '-', $row['appointment_status'])); ?>">
+            <?php echo $row['appointment_status']; ?>
+        </td>
+        <td class="text-center"><button class="btn bg-purple text-white status-select" onclick="showData('<?php echo $row['id']; ?>')">View</button></td>
+    </tr>
+    <?php
+}
+mysqli_close($conn);
+?>
 
-                    <?php
-                }
-                mysqli_close($conn);
-                ?>
             </tbody>
         </table>
         </div>
@@ -193,7 +231,6 @@ $userData = $_SESSION['id'];
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-
             </div>
         </div>
     </div>
@@ -226,16 +263,32 @@ $userData = $_SESSION['id'];
 <script>
 $(document).ready(function() {
     var table = $('#example').DataTable({
-        order: [[0, 'desc']],
+        order: [[2, 'desc']],
         responsive: true,
         dom: "<'row'<'col-sm-1 mt-2'B><'col-md-1 mt-2' l><'col-md-10'f>>" +
      "<'row'<'col-md-12'tr>>" +
      "<'row'<'col-md-12'i><'col-md-12'p>>",
-buttons: [
+     buttons: [
     {
         extend: 'collection',
-        text: '<i class="bi bi-funnel"></i>',
-        buttons: ['copy', 'excel', 'pdf', 'csv', 'print']
+        text: '<i class="bi bi-box-arrow-up"></i>',
+        buttons: [
+            {
+                extend: 'pdfHtml5',
+                text: 'PDF',
+                title: 'Z-Skin Care Report',
+                customize: function (doc) {
+
+                            doc.content[1].table.widths = ['auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'];
+                            doc.content[1].table.body.forEach(function(row) {
+                                row.splice(7, 2);
+                            });
+                        }
+                    },
+            'copy',
+            'excel',
+            'print'
+        ]
     }
 ],
         scrollY: 500,
@@ -263,14 +316,15 @@ buttons: [
         table.draw();
         dateRangePicker.find('span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
             });
-        }
+        },
+        
     });
     var minDateFilter = null;
     var maxDateFilter = null;
     $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
     var min = minDateFilter ? moment(minDateFilter) : null;
     var max = maxDateFilter ? moment(maxDateFilter) : null;
-    var date = moment(data[3], 'MMMM D, YYYY'); // Update the format to match your actual date format
+    var date = moment(data[2], 'MMMM D, YYYY'); // Update the format to match your actual date format
     if ((min === null || date.isSameOrAfter(min)) && (max === null || date.isSameOrBefore(max))) {
         return true;
     }
@@ -281,8 +335,15 @@ buttons: [
     });
     $('#yearFilter').on('change', function() {
         var selectedYear = $(this).val();
-        table.column(3).search(selectedYear, true, false).draw();
+        table.column(2).search(selectedYear, true, false).draw();
     });
+    var statusFilter = $('#statusFilter');
+
+// Apply the status filter on change
+statusFilter.on('change', function() {
+    var selectedStatus = $(this).val();
+    table.column(5).search(selectedStatus).draw();
+});
 });
 </script>
 </body>

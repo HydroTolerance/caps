@@ -1,6 +1,6 @@
-<?php
+<?php 
 include "../function.php";
-checklogin();
+checklogin('Derma');
 $userData = $_SESSION['id'];
 ?>
     <!DOCTYPE html>
@@ -16,7 +16,7 @@ $userData = $_SESSION['id'];
         <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css">
             <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
-
+            <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/css/select2.min.css" rel="stylesheet">
         <style>
         </style>
     </head>
@@ -46,6 +46,12 @@ $userData = $_SESSION['id'];
             $relation = $row['client_relation'];
             $econtactno = $row['client_emergency_contact_number'];
             $avatar = $row['client_avatar'];
+            $houseNumber = $row['client_house_number'];
+            $streetName = $row['client_street_name'];
+            $barangay = $row['client_barangay'];
+            $city = $row['client_city'];
+            $province = $row['client_province'];
+            $postalCode = $row['client_postal_code'];
         } else {
             echo "Record not found";
             exit;
@@ -74,11 +80,12 @@ $userData = $_SESSION['id'];
         $history = $_POST['history'];
         $date_diagnosis = $_POST['date_diagnosis'];
         $management = $_POST['management'];
+        $notes = $_POST['notes'];
 
         // Insert or update diagnosis information in zp_derma_record table
-        $info_sql = "INSERT INTO zp_derma_record (patient_id, date_diagnosis, history, management, diagnosis) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE diagnosis=?";
+        $info_sql = "INSERT INTO zp_derma_record (patient_id, date_diagnosis, history, management, diagnosis, notes) VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE diagnosis=?";
         $info_stmt = mysqli_prepare($conn, $info_sql);
-        mysqli_stmt_bind_param($info_stmt, "isssss", $id, $date_diagnosis, $history, $management, $diagnosis, $diagnosis);
+        mysqli_stmt_bind_param($info_stmt, "issssss", $id, $date_diagnosis, $history, $management,  $diagnosis, $notes, $diagnosis);
 
         if ($info_stmt->execute()) {
             echo "<script>
@@ -109,7 +116,6 @@ $userData = $_SESSION['id'];
         $services = $_POST['services'];
 
         $reference = generateReferenceCode();
-        $appointment_id = generateAppointmentID();
         $currentTimestamp = date("Y-m-d H:i:s");
 
         $name_sql = "SELECT client_firstname, client_lastname, client_email FROM zp_client_record WHERE id=?";
@@ -123,9 +129,9 @@ $userData = $_SESSION['id'];
             $lname = $name_row['client_lastname'];
             $email = $name_row['client_email'];
 
-            $info_sql = "INSERT INTO zp_appointment (client_id, firstname, appointment_id, reference_code, lastname, email, date, time, services, appointment_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,'Pending')";
+            $info_sql = "INSERT INTO zp_appointment (client_id, firstname, reference_code, lastname, email, date, time, services, appointment_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?,'Pending')";
             $info_stmt = mysqli_prepare($conn, $info_sql);
-            mysqli_stmt_bind_param($info_stmt, "issssssss", $id, $fname, $appointment_id, $reference, $lname, $email, $date, $time, $services);
+            mysqli_stmt_bind_param($info_stmt, "isssssss", $id, $fname, $reference, $lname, $email, $date, $time, $services);
     
             if (mysqli_stmt_execute($info_stmt)) {
                 echo "<script>
@@ -191,77 +197,32 @@ $userData = $_SESSION['id'];
         });";
     }
     }
-    if (isset($_POST['insert_session'])) {
-        include "../../db_connect/config.php";
-        $id = $_POST['id'];
-        $sessionName = $_POST['session_name'];
-        $session_stmt = mysqli_prepare($conn, "INSERT INTO zp_sessions (client_id, session_name) VALUES (?,?)");
-        if ($session_stmt) {
-            mysqli_stmt_bind_param($session_stmt, "is", $id , $sessionName);
-            if (mysqli_stmt_execute($session_stmt)) {
-                mysqli_stmt_close($session_stmt); // Close the prepared statement
-                mysqli_close($conn); // Close the database connection
-                echo "<script>
-                window.addEventListener('DOMContentLoaded', (event) => {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success!',
-                    text: 'Data Updated successfully.'
-                }).then(function() {
-                    window.location.href = 'edit_client_record.php?id=" . $id . "';
-                });
-            });</script>";
-            } else {
-                echo "Error creating ZP Session: " . mysqli_error($conn);
-            }
-        }
-    } else if (isset($_POST['session_id']) && isset($_POST['diagnosis_text'])) {
-        include "../../db_connect/config.php";
-        $sessionId = $_POST['session_id'];
-        $diagnosisText = $_POST['diagnosis_text'];
-        $sessionDate = $_POST['diagnosis_date'];
-        $sessionStart = $_POST['session_time_start'];
-        $sessionEnd = $_POST['session_end_time'];
-        $sql = "INSERT INTO zp_diagnoses (session_id, diagnosis_text, diagnosis_date, session_end_time, session_time_start) VALUES (?, ?, ?, ?, ?)";
-        $diagnosis_stmt = mysqli_prepare($conn, $sql);
-        if ($diagnosis_stmt) {
-            mysqli_stmt_bind_param($diagnosis_stmt, "issss", $sessionId, $diagnosisText, $sessionDate, $sessionStart, $sessionEnd);
-            if (mysqli_stmt_execute($diagnosis_stmt)) {
-                mysqli_stmt_close($diagnosis_stmt);
-                mysqli_close($conn);
-                echo "<script>
-                window.addEventListener('DOMContentLoaded', (event) => {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success!',
-                    text: 'Data Updated successfully.'
-                }).then(function() {
-                    window.location.href = 'edit_client_record.php?id=" . $id . "';
-                });
-            });</script>";
-            } else {
-                echo "Error adding ZP Diagnosis: " . mysqli_error($conn);
-            }
-        }
-    }
+
 if (isset($_POST['update_diagnosis'])) {
     include "../../db_connect/config.php";
     $id = $_POST['id'];
     $editedHistory = $_POST['edit_history'];
     $editedDiagnosis = $_POST['edit_diagnosis'];
     $editedManagement = $_POST['edit_management'];
+    $editednotes = $_POST['edit_notes'];
 
-    // Update the record in the database
-    $update_sql = "UPDATE zp_derma_record SET history=?, diagnosis=?, management=? WHERE id=?";
+    $update_sql = "UPDATE zp_derma_record SET history=?, diagnosis=?, management=?, notes=? WHERE id=?";
     $update_stmt = mysqli_prepare($conn, $update_sql);
-    mysqli_stmt_bind_param($update_stmt, "sssi", $editedHistory, $editedDiagnosis, $editedManagement, $id);
+    mysqli_stmt_bind_param($update_stmt, "ssssi", $editedHistory, $editedDiagnosis, $editedManagement, $editednotes, $id);
 
     if ($update_stmt->execute()) {
-        echo "Record updated successfully";
+        echo "<script>
+        window.addEventListener('DOMContentLoaded', (event) => {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: 'Data Updated successfully.'
+            })
+        });</script>";
     } else {
         echo "Error updating record: " . mysqli_error($conn);
     }
-
+    
     mysqli_stmt_close($update_stmt);
     mysqli_close($conn);
 }
@@ -301,15 +262,6 @@ if (isset($_POST['archive'])) {
         return $reference;
     }
     
-    function generateAppointmentID() {
-        $counterFile = '../../CapDev/appointment_counter.txt';
-        $counter = file_get_contents($counterFile);
-        $counter++;
-        $appointmentID = 'apt#' . str_pad($counter, 3, '0', STR_PAD_LEFT);
-        file_put_contents($counterFile, $counter);
-    
-        return $appointmentID;
-    }
     
     ?>
         <div id="wrapper">
@@ -318,105 +270,179 @@ if (isset($_POST['archive'])) {
                 <div class="row">
                     <div class="col-lg-12">
                     <div class="mx-3">
-                        <form method="post" >
+                    <form method="post" >
                             <div class="container">
-                            <a class="btn btn-secondary" href="client_record.php"><i class="bi bi-arrow-left"></i> Go Back</a>
-                        <h2 style="color:6537AE;" class="text-center">Edit Client Record</h2>
+                            <a class="btn btn-secondary" href="client_record.php"><i class="bi bi-arrow-left"></i></a>
+                            <h2 style="color:6537AE;" class="text-center">Edit Client Record</h2>
                                 <div class="row mb-3">
                                     <input class="form-label" type="hidden" name="id" value="<?php echo $id; ?>">
                                 </div>
                                 <div class="row justify-content-center">
-                                    <div class=" col-xl-3 col-lg-12">
-                                        <div class="bg-white pt-5 text-center rounded border mb-3">
-                                            <img src="<?php echo $avatar; ?>" alt="Avatar" style="width: 155px; height: 155px; border-radius: 50%; display: block; margin: 0 auto;"><br>
-                                            <div class="bg-purple p-2 rounded-bottom">
-                                                <label class="text-center text-light"><b><?php echo $recordId; ?></b></label>
-                                            </div>
+                                    <div class="col-xl-3 col-lg-12">
+                                        <div class="bg-white mb-4 p-5 text-center rounded border" style="height: 90%; padding-bottom: 25px;">
+                                            <img src="<?php echo $avatar; ?>" alt="Avatar" style="width: 155px; height: 155px; border-radius: 50%; margin: 0 auto;"><br>
                                         </div>
                                     </div>
                                     <div class="col-xl-9 col-lg-12 mb-4">
-                                        <div class="bg-white p-5 border rounded">
+                                        <div class="bg-white px-5 py-3 border rounded">
                                             <div class="row mb-3">
+                                                <div class="row">
+                                                    <strong><label class="mb-2">CLIENT INFORMATION:</label></strong>
+                                                    <hr>
+                                                </div>
                                                 <div class="col-md-4">
-                                                    <label class="mb-3">First Name:</label>
-                                                    <input class="form-control" type="text" name="client_firstname" value="<?php echo $fname; ?>" required>
+                                                    <strong><p>Full Name: </p></strong>
+                                                    <p><?php echo ($lname. ", " .$fname. " " .$mname. " " .$sname); ?></p>
                                                 </div>
-                                                <div class="col-md-3">
-                                                    <label class="mb-3">Middle Name:</label>
-                                                    <input class="form-control" type="text" name="client_middle" value="<?php echo $mname; ?>" required>
+                                                <div class="col-md-4">
+                                                    <strong><label class="mb-3">Email:</label></strong>
+                                                    <p><?php echo $email ?></p>
                                                 </div>
-                                                <div class="col-md-3">
-                                                    <label class="mb-3">Last Name:</label>
-                                                    <input class="form-control" type="text" name="client_lastname" value="<?php echo $lname; ?>" required>
-                                                </div>
-                                                <div class="col-md-2">
-                                                    <label for="" class="mb-3">Suffix</label>
-                                                    <input type="text" class="form-control" name="client_suffix" value="<?php echo $sname; ?>" required>
+                                                <div class="col-md-4">
+                                                    <strong><label class="mb-3">Contact Number:</label></strong>
+                                                    <p><?php echo $contact ?></p>
                                                 </div>
                                             </div>
                                             <div class="row">
-                                                <div class="col-md-6">
-                                                    <label class="mb-3">Gender:</label>
-                                                    <select class="form-control" name="client_gender" required>
-                                                        <option value="Male" <?php echo ($gender === 'Male') ? 'selected' : ''; ?>>Male</option>
-                                                        <option value="Female" <?php echo ($gender === 'Female') ? 'selected' : ''; ?>>Female</option>
-                                                    </select>
+                                                <div class="col-md-4">
+                                                    <strong><p>Gender: </p></strong>
+                                                    <p><?php echo $gender; ?></p>
                                                 </div>
                                                 <div class="col-md-6">
-                                                    <label class="mb-3">Date of Birth:</label>
-                                                    <input class="form-control" type="date" name="client_birthday" value="<?php echo $dob; ?>" required>
+                                                    <strong><p>Date of Birth: </p></strong>
+                                                    <p><?php echo $dob; ?></p>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-12 bg-white p-5 border rounded mb-3" style="padding: 20px;">
+                            <div class="col-md-12 bg-white p-5 border rounded mb-3" style="padding: 20px;">
                                 <div class="row mb-3">
-                                    <label class="mb-2">EMERGENCY PERSON:</label>
+                                    <strong><label class="mb-2">ADDRESS:</label></strong>
                                     <hr>
-                                    <div class="col-md-5">
-                                        <label class="mb-3">Contact Number:</label>
-                                        <input class="form-control" type="text" name="client_number" value="<?php echo $contact; ?>" required>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        <strong><label class="mb-3">House Number</label></strong>
+                                        <p><?php echo $houseNumber ?></p>
                                     </div>
-                                    <div class="col-md-6">
-                                        <label class="mb-3">Email:</label>
-                                        <input class="form-control" type="email" name="client_email" value="<?php echo $email; ?>" required>
+                                    <div class="col-md-3">
+                                        <strong><label class="mb-3">Street Name</label></strong>
+                                        <p><?php echo $streetName?></p>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <strong><label class="mb-3">Barangay</label></strong>
+                                        <p><?php echo $barangay?></p>
                                     </div>
                                 </div>
                                 <div class="row mb-3">
                                     <div class="col-md-4">
-                                        <label class="mb-3">Contact Person:</label>
-                                        <input class="form-control" type="text" name="client_emergency_person" value="<?php echo $econtact; ?>" required>
+                                        <strong><label class="mb-3">City</label></strong>
+                                        <p><?php echo $city?></p>
                                     </div>
                                     <div class="col-md-3">
-                                        <label class="mb-3">Relation:</label>
-                                        <input class="form-control" type="text" name="client_relation" value="<?php echo $relation; ?>" required>
+                                        <strong><label class="mb-3">Province</label></strong>
+                                        <p><?php echo $province?></p>
                                     </div>
                                     <div class="col-md-5">
-                                        <label class="mb-3">Contact Person Number:</label>
-                                        <input class="form-control" type="text" name="client_emergency_contact_number" value="<?php echo $econtactno; ?>" required>
+                                        <strong><label class="mb-3">Postal Code</label></strong>
+                                        <p><?php echo $postalCode?></p>
                                     </div>
                                 </div>
-                                <div class="mb-3">
-                                    <input class="btn btn-purple bg-purple text-white" type="submit" name="update_client" value="Update Information">
+                            </div>
+                            <div class="col-md-12 bg-white p-5 border rounded mb-3" style="padding: 20px;">
+                                <div class="row mb-3">
+                                    <strong><label class="mb-2">EMERGENCY CONTACT PERSON:</label></strong>
+                                    <hr>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        <strong><label class="mb-3">Contact Person:</label></strong>
+                                        <p><?php echo $econtact ?></p>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <strong><label class="mb-3">Relation:</label></strong>
+                                        <p><?php echo $relation ?></p>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <strong><label class="mb-3">Relation:</label></strong>
+                                        <p><?php echo $econtactno ?></p>
+                                    </div>
                                 </div>
                             </div>
                         </form>
-                    <div class="bg-white p-3 rounded-3 border">
-                            <ul class="nav nav-tabs" >
-                                <li class="nav-item">
-                                    <a class="nav-link active" id="diagnosisTab" href="#">Diagnosis</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" id="appointmentTab" href="#">Appointment</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" id="sessionTab" href="#">Session</a>
-                                </li>
-                            </ul>
-                        <!-- Container for the Diagnosis -->
-                        <div id="diagnosisContainer" class="bg-white p-3 rounded-3">
-                            <form method="post">
+                        <nav>
+                        <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                            <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">List Diagnosis</button>
+                            <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Create Diagnosis</button>
+                        </div>
+                        </nav>
+                        <div class="bg-white mb-4">
+                        <div class="tab-content" id="nav-tabContent">
+                            <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
+                                
+                            <div id="diagnosisContainer" class="bg-white p-3">
+                            <table id="clientTable" class="table table table-bordered table-striped w-100">
+                                        <thead>
+                                            <tr>
+                                                <th>Date:</th>
+                                                <th>History:</th>
+                                                <th>Diagnosis:</th>
+                                                <th>Management:</th>
+                                                <th>Action:</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        <?php
+                                            if (isset($_GET['id'])) {
+                                                include "../../db_connect/config.php";
+                                                $id = $_GET['id'];
+                                                $stmt = mysqli_prepare($conn, "SELECT * FROM zp_derma_record WHERE patient_id=? AND archive != '1'");
+                                                mysqli_stmt_bind_param($stmt, "i", $id);
+                                                mysqli_stmt_execute($stmt);
+                                                $info_result = mysqli_stmt_get_result($stmt);
+                                                while ($info_row = mysqli_fetch_assoc($info_result)) {
+                                                ?>
+                                                        <tr>
+                                                            <td><?php echo date('M d, Y', strtotime($info_row['date_diagnosis']))?></td>
+                                                            <td><?php echo strlen($info_row['history']) > 50 ? substr($info_row['history'], 0, 50) . '...' : $info_row['history']; ?></td>
+                                                            <td><?php echo strlen($info_row['diagnosis']) > 50 ? substr($info_row['diagnosis'], 0, 50) . '...' : $info_row['diagnosis']; ?></td>
+                                                            <td><?php echo $info_row['management']?></td>
+                                                            <td>
+                                                                <div style="display: flex; gap: 10px;">
+                                                                    <button type="button" onclick="showData('<?php echo $info_row['id']; ?>')" class="btn btn-purple bg-purple text-white" data-zep-acc="<?php echo $info_row['id']; ?>">Edit</button>
+                                                                    <button type="button" onclick="showDiagnosis('<?php echo $info_row['id']; ?>')" class="btn btn-purple bg-purple text-white" data-zep-acc="<?php echo $info_row['id']; ?>">View</button>
+                                                                    <form method="post" action="">
+                                                                        <input type="hidden" name="id" value="<?php echo $info_row['id']; ?>">
+                                                                    </form>
+                                                                </div>
+                                                                <div style="display: flex; gap: 10px;">
+                                                                    
+                                                                    <form method="post" action="">
+                                                                        <input type="hidden" name="id" value="<?php echo $info_row['id']; ?>">
+                                                                    </form>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+
+                                                        <?php
+                                            }           mysqli_stmt_close($stmt);
+                                                mysqli_close($conn);
+                                            }
+                                            ?>
+                                    </tbody>
+                                </table>
+                            
+                            <div>
+                            
+                        </div>
+                        </div>
+                            </div>
+                            <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+                            <div class="rounded p-3 bg-white">
+                            <div class="text-dark border rounded p-3 mb-3">
+                                    <!--  -->
+                                    <form method="post">
                                 <input type="hidden" name="id" value="<?php echo $id; ?>">
                                 <div class="mb-3" id="date_diagnosis_div"  style="width: 100%;">
                                     <label class="mb-3">Date of Diagnosis: <span class="text-danger">*</span></label>
@@ -432,66 +458,158 @@ if (isset($_POST['archive'])) {
                                 </div>
                                 <div class="mb-3" id="management_div">
                                     <label class="mb-3">Management: <span class="text-danger">*</span></label>
-                                    <textarea class="form-control" name="management" id="summernote" rows="4" required></textarea>
+                                    <select class="select2 form-select" name="management" style="width: 100%;"  required>
+                                        <option value=""></option>
+                                        <optgroup label="HAIR">
+                                            <option value="Face-to-face Hair Consultation">Face-to-face Hair Consultation</option>
+                                            <option value="Laser Hair Removal">Laser Hair Removal</option>
+                                            <option value="Platelet Rich Plasma">Platelet Rich Plasma</option>
+                                        </optgroup>
+                                        <optgroup label="NAIL">
+                                            <option value="Face-to-face Nail Consultation">Face-to-face Nail Consultation</option>
+                                        </optgroup>
+                                        <optgroup label="SKIN">
+                                            <option value="Face-to-face Skin Consultation">Face-to-face Skin Consultation</option>
+                                        </optgroup>
+                                        <optgroup label="OTHER SERVICES">
+                                            <option value="HIFU">HIFU</option>
+                                            <option value="Skin biopsy">Skin biopsy</option>
+                                            <option value="Cryolipolysis">Cryolipolysis</option>
+                                            <option value="Mohs Microhraphic Surgery">Mohs Microhraphic Surgery</option>
+                                            <option value="Platelet Rich Plasma">Platelet Rich Plasma</option>
+                                            <option value="Warts, Milia Removal">Warts, Milia Removal</option>
+                                            <option value="Chemical Peel">Chemical Peel</option>
+                                            <option value="Syringoma Removal">Syringoma Removal</option>
+                                            <option value="Tattoo Removal">Tattoo Removal</option>
+                                            <option value="Dermalux - LED Phototherapy">Dermalux - LED Phototherapy</option>
+                                            <option value="Acne Treatment">Acne Treatment</option>
+                                            <option value="Double Chin treatment">Double Chin treatment</option>
+                                            <option value="Botulinum toxin injection">Botulinum toxin injection</option>
+                                            <option value="Ear Keloid Removal">Ear Keloid Removal</option>
+                                            <option value="Excision of ear keloid">Excision of ear keloid</option>
+                                            <option value="Treatment for Excessive Sweating">Treatment for Excessive Sweating</option>
+                                            <option value="Sclerotherapy">Sclerotherapy</option>
+                                            <option value="Mole Removal">Mole Removal</option>
+                                            <option value="Melasma treatment">Melasma treatment</option>
+                                            <option value="Fractional CO2 laser">Fractional CO2 laser</option>
+                                            <option value="Easy TCA Peel">Easy TCA Peel</option>
+                                            <option value="Cyst / Tumor Excision">Cyst / Tumor Excision</option>
+                                            <option value="Electrocautery, Laser">Electrocautery, Laser</option>
+                                            <option value="Power Peel">Power Peel</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                                <div class="mb-3" id="diagnosis_div">
+                                    <label class="mb-3">Session Notes <span class="text-danger">*</span></label>
+                                    <textarea class="form-control" name="notes" rows="4" required></textarea>
                                 </div>
                                 <div class="mb-3">
                                     <input class="btn btn-purple bg-purple text-white" type="submit" name="add_diagnosis" value="Add Diagnosis">
                                 </div>
                             </form>
-                            <div>
-                            <div class="text-dark border rounded p-3 mb-3">
-                                <h2 style="color: 6537AE;" class="text-center">Diagnosis of the Patient</h2>
-                                    <table id="clientTable" class="table table table-bordered table-striped nowrap" style="width:100%">
-                                        <thead>
-                                                    <tr>
-                                                        <th>Date:</th>
-                                                        <th>History:</th>
-                                                        <th>Diagnosis:</th>
-                                                        <th>Management:</th>
-                                                        <th>Action:</th>
-                                                    </tr>
-                                                </thead>
-                                        <tbody>
-                                        <?php
-                                            if (isset($_GET['id'])) {
-                                                include "../../db_connect/config.php";
-                                                $id = $_GET['id'];
-                                                $stmt = mysqli_prepare($conn, "SELECT * FROM zp_derma_record WHERE patient_id=? AND archive != '1'");
-                                                mysqli_stmt_bind_param($stmt, "i", $id);
-                                                mysqli_stmt_execute($stmt);
-                                                $info_result = mysqli_stmt_get_result($stmt);
-                                                while ($info_row = mysqli_fetch_assoc($info_result)) {
-                                                ?>
-                                                        <tr>
-                                                            <td><?php echo date('M d, Y', strtotime($info_row['date_diagnosis']))?></td>
-                                                            <td><?php echo $info_row['history']?></td>
-                                                            <td><?php echo $info_row['diagnosis']?></td>
-                                                            <td><?php echo $info_row['management']?></td>
-                                                            <td>
-                                                                <div style="display: flex; gap: 10px;">
-                                                                    <button type="button" onclick="showData('<?php echo $info_row['id']; ?>')" class="btn btn-purple bg-purple text-white btn-sm" data-zep-acc="<?php echo $info_row['id']; ?>">Edit</button>
-                                                                    <form method="post" action="">
-                                                                        <input type="hidden" name="id" value="<?php echo $info_row['id']; ?>">
-                                                                        <button type="submit" name="archive" class="btn btn-danger btn-sm">Archive</button>
-                                                                    </form>
-                                                                </div>
-                                                            </td>
-                                                        </tr>
-
-                                                        <?php
-                                            }           mysqli_stmt_close($stmt);
-                                                mysqli_close($conn);
-                                            }
-                                            ?>
-                                    </tbody>
-                                </table>
                             </div>     
+                            
+                            </div>
+                            </div>
+                            </div>
+                            
+                            </div>
+                            
+                            <!-- Another Tab-->
+                            <nav>
+                        <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                            <button class="nav-link active" id="nav-diagnosis-tab" data-bs-toggle="tab" data-bs-target="#nav-diagnosis" type="button" role="tab" aria-controls="nav-diagnosis" aria-selected="true">Appointment Schedule</button>
+                            <button class="nav-link" id="nav-appointment-tab" data-bs-toggle="tab" data-bs-target="#nav-appointment" type="button" role="tab" aria-controls="nav-appointment" aria-selected="false">Create Appointment</button>
                         </div>
-                        </div>
-
-                        <!-- Container for Appointment -->
-
-                        <div id="appointmentContainer" style="display: none;" class="bg-white p-3 rounded-3">
+                        </nav>
+                        <div class="bg-white">
+                        <div class="tab-content" id="nav-tabContent">
+                            <div class="tab-pane fade show active" id="nav-diagnosis" role="tabpanel" aria-labelledby="nav-diagnosis-tab">
+                            <div id="diagnosisContainer" class="bg-white p-3">
+                            
+                            <div class="text-dark border rounded p-3 mb-3">
+                                <div class="d-flex justify-content-center">
+                                    <div id="calendar"></div>
+                                </div>
+                            </div>
+                            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">Upcomming Appointment</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab" aria-controls="profile" aria-selected="false">Past Appoinment</button>
+                                    </li>
+                                </ul>
+                                <div class="tab-content" id="myTabContent">
+                                <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                                    <table class="table table-bordered my-3">
+                                        <tr><th colspan='3' class='text-center' style='background-color: #f2f2f2;'>Upcoming Appointment</th></tr>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Time</th>
+                                            <th>Service</th>
+                                        </tr>
+                                        <?php
+                                        if (isset($_GET['id'])) {
+                                            $id = $_GET['id'];
+                                            include "../../db_connect/config.php";
+                                            $currentDate = date("Y-m-d");
+                                            $upcomingAppointmentsQuery = "SELECT * FROM zp_appointment WHERE client_id = '$id' AND date >= '$currentDate'";
+                                            $upcomingAppointmentsResult = mysqli_query($conn, $upcomingAppointmentsQuery);
+                                            while ($appointmentRow = mysqli_fetch_assoc($upcomingAppointmentsResult)) {
+                                                $appointmentDate = $appointmentRow['date'];
+                                                $appointmentTime = $appointmentRow['time'];
+                                                $appointmentService = $appointmentRow['services'];
+                                                echo "<tr>";
+                                                echo "<td>$appointmentDate</td>";
+                                                echo "<td>$appointmentTime</td>";
+                                                echo "<td>$appointmentService</td>";
+                                                echo "</tr>";
+                                            }
+                                            
+                                            mysqli_close($conn);
+                                        }
+                                        ?>
+                                    </table>
+                                </div>
+                                <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+                                <table class="table table-bordered my-3">
+                                        <tr><th colspan='3' class='text-center' style='background-color: #f2f2f2;'>Past Appointment</th></tr>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Time</th>
+                                            <th>Service</th>
+                                        </tr>
+                                        <?php
+                                        if (isset($_GET['id'])) {
+                                            $id = $_GET['id'];
+                                            include "../../db_connect/config.php";
+                                            
+                                            // Fetch upcoming appointments (assuming the date is in the future)
+                                            $currentDate = date("Y-m-d");
+                                            $pastAppointmentsQuery = "SELECT * FROM zp_appointment WHERE client_id = '$id' AND date < '$currentDate'";
+                                            $pastAppointmentsResult = mysqli_query($conn, $pastAppointmentsQuery);
+                                            while ($appointmentRow = mysqli_fetch_assoc($pastAppointmentsResult)) {
+                                                $appointmentDate = $appointmentRow['date'];
+                                                $appointmentTime = $appointmentRow['time'];
+                                                $appointmentService = $appointmentRow['services'];
+                                                echo "<tr>";
+                                                echo "<td>$appointmentDate</td>";
+                                                echo "<td>$appointmentTime</td>";
+                                                echo "<td>$appointmentService</td>";
+                                                echo "</tr>";
+                                            }
+                                            
+                                            mysqli_close($conn);
+                                        }
+                                        ?>
+                                    </table>
+                                </div>
+                                </div>
+                            </div>
+                            </div>
+                            <div class="tab-pane fade" id="nav-appointment" role="tabpanel" aria-labelledby="nav-appointment-tab">
+                            <div class="rounded p-3 bg-white">
                             <form method="post">
                                 <input type="hidden" name="id" value="<?php echo $id; ?>">
                                 <div>
@@ -520,182 +638,31 @@ if (isset($_POST['archive'])) {
                                     <input type="submit" name="add_appointment" class="btn btn-purple bg-purple text-white" value="Add Appointment">
                                 </div>
                             </form>
-                        </div>
-                            <div class="border rounded p-3 my-3">
-                            
-                            <div class="row">
-                                <div class="col-md-6"> <!-- Calendar column -->
-                                <div class="d-flex justify-content-center">
-                                    <div id="calendar"></div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <table class="table table-bordered my-3">
-                                    <tr><th colspan='3' class='text-center' style='background-color: #f2f2f2;'>Upcoming Appointment</th></tr>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Time</th>
-                                        <th>Service</th>
-                                    </tr>
-                                    <?php
-                                    if (isset($_GET['id'])) {
-                                        $id = $_GET['id'];
-                                        include "../../db_connect/config.php";
-                                        
-                                        // Fetch upcoming appointments (assuming the date is in the future)
-                                        $currentDate = date("Y-m-d");
-                                        $upcomingAppointmentsQuery = "SELECT * FROM zp_appointment WHERE client_id = '$id' AND date >= '$currentDate'";
-                                        $upcomingAppointmentsResult = mysqli_query($conn, $upcomingAppointmentsQuery);
-                                        while ($appointmentRow = mysqli_fetch_assoc($upcomingAppointmentsResult)) {
-                                            $appointmentDate = $appointmentRow['date'];
-                                            $appointmentTime = $appointmentRow['time'];
-                                            $appointmentService = $appointmentRow['services'];
-                                            echo "<tr>";
-                                            echo "<td>$appointmentDate</td>";
-                                            echo "<td>$appointmentTime</td>";
-                                            echo "<td>$appointmentService</td>";
-                                            echo "</tr>";
-                                        }
-                                        
-                                        // Add a header for past appointments
-                                        echo "<tr><th colspan='3' class='text-center' style='background-color: #f2f2f2;'>Past Appointments</th></tr>";
-                                        echo "<th>Date</th>";
-                                        echo "<th>Time</th>";
-                                        echo "<th>Service</th>";
-                                        
-                                        $pastAppointmentsQuery = "SELECT * FROM zp_appointment WHERE client_id = '$id' AND date < '$currentDate'";
-                                        $pastAppointmentsResult = mysqli_query($conn, $pastAppointmentsQuery);
-                                        while ($appointmentRow = mysqli_fetch_assoc($pastAppointmentsResult)) {
-                                            $appointmentDate = $appointmentRow['date'];
-                                            $appointmentTime = $appointmentRow['time'];
-                                            $appointmentService = $appointmentRow['services'];
-                                            echo "<tr>";
-                                            echo "<td>$appointmentDate</td>";
-                                            echo "<td>$appointmentTime</td>";
-                                            echo "<td>$appointmentService</td>";
-                                            echo "</tr>";
-                                        }
-                                        
-                                        mysqli_close($conn);
-                                    }
-                                    ?>
-                                </table>
-
-                            </div>
                             </div>
                             
                             </div>
-                        </div>
-                        <!-- Add Session Container -->
-                    <div id="sessionContainer" class="bg-white p-3" style="display: none;">
-                        <div class="container border rounded p-3">
-                            <h2 class="text-center mt-3" style="color:#6537AE">Create a ZP Session</h2>
-                            <form method="POST">
-                                <label for="session_name">Session Name:</label>
-                                <input type="hidden" name="id" value="<?php echo $id; ?>" class="form-control">
-                                <input type="text" name="session_name" class="form-control" required>
-                                <input type="submit" name="insert_session" class="btn mt-3  text-white" style="background-color:#6537AE" value="Add Session">
-                            </form>
-                        </div>
-                        <div class="border rounded p-3 my-3">
-                        <div>
-                            <h2 class="my-3 text-center" class="color:#6537AE;">Session of the Client</h2>
-                        </div>
-                        <?php
-                            if (isset($_GET['id'])) {
-                                $id = $_GET['id'];
-                                include "../../db_connect/config.php";
-                                $sessionsQuery = "SELECT * FROM zp_sessions WHERE client_id = '$id'";
-                                $sessionsResult = mysqli_query($conn, $sessionsQuery);
-                                if ($sessionsResult) {
-                                    while ($sessionRow = mysqli_fetch_assoc($sessionsResult)) {
-                                        $sessionId = $sessionRow['id'];
-                                        $sessionName = $sessionRow['session_name'];
-                                        ?>
-
-                                        <div class="container rounded border my-3">
-                                            <div class="row my-3">
-                                                <div class="col-lg-6">
-                                                    <h2>Services: <?= $sessionName ?></h2>
-                                                    <form method="POST" id="sessionForm">
-                                                        <div class="mb-3">
-                                                            <input type="hidden" name="session_id" value="<?= $sessionId ?>">
-                                                            <div class="mt-3">
-                                                                <label for="session_date" class="form-label">Session Date:</label>
-                                                                <input type="date" class="form-control" name="diagnosis_date" id="date_diagnosis" placeholder="Select Date" required>
-                                                            </div>
-                                                            <div class="mt-3">
-                                                                <label for="session_start_time" class="form-label">Start Time:</label>
-                                                                <input type="time" class="form-control" id="time_diagnosis" name="session_time_start" placeholder="Select Session Start Time">
-                                                            </div>
-                                                            <div class="mt-3">
-                                                                <label for="session_end_time" class="form-label">End Time:</label>
-                                                                <input type="time" class="form-control" id="time_diagnosis" name="session_end_time" placeholder="Select Session End Time">
-                                                            </div>
-                                                            <div class="mt-3">
-                                                                <label for="session_notes" class="form-label">Session Notes:</label>
-                                                                <textarea class="form-control" name="diagnosis_text" rows="4"></textarea>
-                                                            </div>
-                                                            <input type="submit" class="btn mt-3 text-white" style="background-color:#6537AE" value="Add Information">
-                                                            <button type="button" class="btn btn-secondary mt-3" id="clearFormButton">Clear Form</button>
-                                                        </div>
-                                                    </form>
-                                                </div>
-                                                <div class="col-lg-6">
-                                                    <table class="table table-bordered">
-                                                        <tr>
-                                                            <th>Number of Session</th>
-                                                            <th>Time Start of Session</th>
-                                                            <th>Time end of Session</th>
-                                                            <th>Date of Session</th>
-                                                        </tr>
-                                                        <?php
-                                                        include "../../db_connect/config.php";
-                                                        $diagnosesQuery = "SELECT * FROM zp_diagnoses WHERE session_id = $sessionId";
-                                                        $diagnosesResult = mysqli_query($conn, $diagnosesQuery);
-
-                                                        if ($diagnosesResult) {
-                                                            $sessionNumber = 1; // Initialize session number
-                                                            while ($diagnosisRow = mysqli_fetch_assoc($diagnosesResult)) {
-                                                                $diagnosisText = $diagnosisRow['diagnosis_text'];
-                                                                $sessionDate = $diagnosisRow['diagnosis_date'];
-                                                                $sessionStart = $diagnosisRow['session_time_start'];
-                                                                $sessionEnd = $diagnosisRow['session_end_time'];
-                                                                ?>
-                                                                <tr>
-                                                                    <td><?= $sessionNumber ?></td>
-                                                                    <td><?= date('F d, Y', strtotime($sessionDate)) ?></td>
-                                                                    <td><?= date('h:i A', strtotime($sessionStart)) ?></td>
-                                                                    <td><?= date('h:i A', strtotime($sessionEnd)) ?></td>
-                                                                </tr>
-                                                                <?php
-                                                                $sessionNumber++;
-                                                            }
-                                                        } else {
-                                                            echo "Error fetching diagnoses: " . mysqli_error($conn);
-                                                        }
-                                                        ?>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <?php
-                                    }
-                                }
-                            }
-                        ?>
-                    </div>
-                    </div>
-                        </div>
-                        
+                            
                             </div>
-                        </div>
-                    </div>
+
                 </div>
+                
             </div>
         </div>
     </div>
     <div class="modal fade" id="displayAccount" tabindex="-1" aria-labelledby="dataModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="dataModalLabel">Edit Diagnosis</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Data will be dynamically inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="displaydata" tabindex="-1" aria-labelledby="dataModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -727,6 +694,7 @@ if (isset($_POST['archive'])) {
 <link rel="stylesheet" href="https://cdn.datatables.net/datetime/1.1.5/css/dataTables.dateTime.min.css">
 <script src="https://cdn.datatables.net/datetime/1.1.5/js/dataTables.dateTime.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/js/select2.min.js"></script>
     <script>
         $(document).ready(function() {
             $('#calendar').fullCalendar({
@@ -781,6 +749,17 @@ $.ajax({
     }
 })
 }
+function showDiagnosis(id) {
+$.ajax({
+    url: 'get_diagnosis.php',
+    type: 'POST',
+    data: { id: id },
+    success: function (response) {
+        $('#displaydata .modal-body').html(response);
+        $('#displaydata').modal('show');
+    }
+})
+}
 </script>
 <script>
     $(document).ready(function() {
@@ -806,6 +785,16 @@ $.ajax({
         select: true,
     });
 })
+$(document).ready(function() {
+    $('.select2').select2({
+        placeholder: {
+            id: '',
+            text: 'None Selected'
+        },
+        allowClear: true,
+        tags: true
+    });
+});
 </script>
     </body>
     </html>

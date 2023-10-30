@@ -1,6 +1,6 @@
 <?php 
 include "../function.php";
-checklogin();
+checklogin('Admin');
 $userData = $_SESSION['id'];
 ?>
 <?php
@@ -12,15 +12,26 @@ if (isset($_POST['submit'])) {
     $gender = $_POST['gender'];
     $password = $_POST['password'];
     $role = $_POST['role'];
-    $checkEmailQuery = "SELECT COUNT(*) FROM zp_accounts WHERE clinic_email = ?";
-    $stmtCheckEmail = mysqli_prepare($conn, $checkEmailQuery);
-    mysqli_stmt_bind_param($stmtCheckEmail, "s", $email);
-    mysqli_stmt_execute($stmtCheckEmail);
-    mysqli_stmt_bind_result($stmtCheckEmail, $emailCount);
-    mysqli_stmt_fetch($stmtCheckEmail);
-    mysqli_stmt_close($stmtCheckEmail);
+    
+    // Check if the email exists in zp_accounts
+    $checkEmailQueryAccounts = "SELECT COUNT(*) FROM zp_accounts WHERE clinic_email = ?";
+    $stmtCheckEmailAccounts = mysqli_prepare($conn, $checkEmailQueryAccounts);
+    mysqli_stmt_bind_param($stmtCheckEmailAccounts, "s", $email);
+    mysqli_stmt_execute($stmtCheckEmailAccounts);
+    mysqli_stmt_bind_result($stmtCheckEmailAccounts, $emailCountAccounts);
+    mysqli_stmt_fetch($stmtCheckEmailAccounts);
+    mysqli_stmt_close($stmtCheckEmailAccounts);
 
-    if ($emailCount > 0) {
+    // Check if the email exists in zp_client_record
+    $checkEmailQueryClient = "SELECT COUNT(*) FROM zp_client_record WHERE client_email = ?";
+    $stmtCheckEmailClient = mysqli_prepare($conn, $checkEmailQueryClient);
+    mysqli_stmt_bind_param($stmtCheckEmailClient, "s", $email);
+    mysqli_stmt_execute($stmtCheckEmailClient);
+    mysqli_stmt_bind_result($stmtCheckEmailClient, $emailCountClient);
+    mysqli_stmt_fetch($stmtCheckEmailClient);
+    mysqli_stmt_close($stmtCheckEmailClient);
+
+    if ($emailCountAccounts > 0 || $emailCountClient > 0) {
         echo "<script>
             window.addEventListener('DOMContentLoaded', (event) => {
                 Swal.fire({
@@ -90,9 +101,41 @@ if (isset($_POST['edit_submit'])) {
     $edit_lname = $_POST['edit_lname'];
     $edit_email = $_POST['edit_email'];
     $edit_role = $_POST['edit_role'];
-    
+
+    // Check if the email exists in zp_accounts (excluding the current edited record)
+    $checkEmailQueryAccounts = "SELECT COUNT(*) FROM zp_accounts WHERE clinic_email = ? AND id != ?";
+    $stmtCheckEmailAccounts = mysqli_prepare($conn, $checkEmailQueryAccounts);
+    mysqli_stmt_bind_param($stmtCheckEmailAccounts, "ss", $edit_email, $edit_id);
+    mysqli_stmt_execute($stmtCheckEmailAccounts);
+    mysqli_stmt_bind_result($stmtCheckEmailAccounts, $emailCountAccounts);
+    mysqli_stmt_fetch($stmtCheckEmailAccounts);
+    mysqli_stmt_close($stmtCheckEmailAccounts);
+
+    // Check if the email exists in zp_client_record
+    $checkEmailQueryClient = "SELECT COUNT(*) FROM zp_client_record WHERE client_email = ?";
+    $stmtCheckEmailClient = mysqli_prepare($conn, $checkEmailQueryClient);
+    mysqli_stmt_bind_param($stmtCheckEmailClient, "s", $edit_email);
+    mysqli_stmt_execute($stmtCheckEmailClient);
+    mysqli_stmt_bind_result($stmtCheckEmailClient, $emailCountClient);
+    mysqli_stmt_fetch($stmtCheckEmailClient);
+    mysqli_stmt_close($stmtCheckEmailClient);
+
+    if ($emailCountAccounts > 0 || $emailCountClient > 0) {
+        echo "<script>
+            window.addEventListener('DOMContentLoaded', (event) => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'The email address already exists in the database.',
+                }).then(function() {
+                    window.location.href = 'clinic_account.php'; // Redirect to your page
+                });
+            });
+        </script>";
+        exit();
+    }
     if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-        $getOldImageSql = "SELECT image FROM zp_accounts WHERE zep_acc=?";
+        $getOldImageSql = "SELECT image FROM zp_accounts WHERE id=?";
         $getOldImageStmt = mysqli_prepare($conn, $getOldImageSql);
         mysqli_stmt_bind_param($getOldImageStmt, "s", $edit_id);
         mysqli_stmt_execute($getOldImageStmt);
@@ -108,7 +151,7 @@ if (isset($_POST['edit_submit'])) {
         $imagePath = $imageName;
         if (move_uploaded_file($_FILES['image']['tmp_name'], $imagePath)) {
             $sql = "UPDATE zp_accounts SET clinic_firstname=?, clinic_lastname=?, clinic_email=?, clinic_role=?, image=?";
-            $sql .= " WHERE zep_acc=?";
+            $sql .= " WHERE id=?";
 
             $stmt = mysqli_prepare($conn, $sql);
             mysqli_stmt_bind_param($stmt, "ssssss", $edit_fname, $edit_lname, $edit_email, $edit_role, $imageName, $edit_id);
@@ -126,7 +169,7 @@ if (isset($_POST['edit_submit'])) {
         }
     } else {
         $sql = "UPDATE zp_accounts SET clinic_firstname=?, clinic_lastname=?, clinic_email=?, clinic_role=?";
-        $sql .= " WHERE zep_acc=?";
+        $sql .= " WHERE id=?";
 
         $stmt = mysqli_prepare($conn, $sql);
         mysqli_stmt_bind_param($stmt, "sssss", $edit_fname, $edit_lname, $edit_email, $edit_role, $edit_id);
@@ -146,7 +189,7 @@ if (isset($_POST['edit_submit'])) {
 }
 function generateAccountID() {
     include "../../db_connect/config.php";
-    $sql = "SELECT MAX(SUBSTRING_INDEX(zep_acc, '-', -1)) AS max_counter FROM zp_accounts";
+    $sql = "SELECT MAX(SUBSTRING_INDEX(id, '-', -1)) AS max_counter FROM zp_accounts";
     $result = mysqli_query($conn, $sql);
     $row = mysqli_fetch_assoc($result);
     $max_counter = intval($row['max_counter']);
@@ -154,11 +197,11 @@ function generateAccountID() {
     return $accountID;
 }
 
-function deactivateAccount($zep_acc) {
+function deactivateAccount($id) {
     include "../../db_connect/config.php";
-    $sql = "UPDATE zp_accounts SET account_status = 'deactivated' WHERE zep_acc = ?";
+    $sql = "UPDATE zp_accounts SET account_status = 'deactivated' WHERE id = ?";
     $stmt = mysqli_prepare($conn, $sql);
-    mysqli_stmt_bind_param($stmt, "s", $zep_acc);
+    mysqli_stmt_bind_param($stmt, "s", $id);
 
     if (mysqli_stmt_execute($stmt)) {
         mysqli_stmt_close($stmt);
@@ -225,7 +268,7 @@ function deactivateAccount($zep_acc) {
                                     ?>
                                     <tr>
                                         <td>
-                                            <img src="<?php echo $row['image']; ?>" alt="User Image" width="100">
+                                        <img src="<?php echo $row['image']; ?>" alt="Image Description" width="100">
                                         </td>
                                         <td><?php echo $row['clinic_firstname'] ?></td>
                                         <td><?php echo $row['clinic_email'] ?></td>
@@ -234,12 +277,12 @@ function deactivateAccount($zep_acc) {
                                             <div class="add-btn">
                                                 <?php
                                                 if ($row['account_status'] == 'active') {
-                                                    echo '<button onclick="statusAccount(\'' . $row['zep_acc'] . '\', \'deactivate\')" class="btn btn-success bg-success text-white">Active</button>';
+                                                    echo '<button onclick="statusAccount(\'' . $row['id'] . '\', \'deactivate\')" class="btn btn-success bg-success text-white">Active</button>';
                                                 } else {
-                                                    echo '<button onclick="statusAccount(\'' . $row['zep_acc'] . '\', \'reactivate\')" class="btn btn-danger bg-danger text-white">Deactivated</button>';
+                                                    echo '<button onclick="statusAccount(\'' . $row['id'] . '\', \'reactivate\')" class="btn btn-danger bg-danger text-white">Deactivated</button>';
                                                 }
                                                 ?>
-                                                <button onclick="showData('<?php echo $row['zep_acc']; ?>')" class="btn btn-purple bg-purple text-white" data-zep-acc="<?php echo $row['zep_acc']; ?>">Edit</button>
+                                                <button onclick="showData('<?php echo $row['id']; ?>')" class="btn btn-purple btn-outline-purple" data-zep-acc="<?php echo $row['id']; ?>">Edit</button>
                                             </div>
                                         </td>
                                     </tr>

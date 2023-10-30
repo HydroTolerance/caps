@@ -1,6 +1,6 @@
 <?php 
 include "../function.php";
-checklogin();
+checklogin('Derma');
 $userData = $_SESSION['id'];
 ?>
 <!DOCTYPE html>
@@ -18,24 +18,25 @@ $userData = $_SESSION['id'];
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 </head>
-
+<style>
+    .page-item.active .page-link {
+    background-color: #6537AE !important;
+    color: #fff !important;
+    border: #6537AE;
+}
+.page-link {
+    color: black !important;
+}
+</style>
 <body>
         <div id="wrapper">
             <?php include "../sidebar.php"; ?>
                 <section id="content-wrapper">
-                    <div class="row mx-1">
-                        <div class="col-lg-12">
-                            <div class="mx-3 text-center">
-                                <div class="row">
-                                    <div>
-                                        <h1 class=" mb-1 text-center" style="color:6537AE;">Client Record</h1>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="row">
+                        <h1 class="text-center mt-3" style="color:6537AE;">Client Record</h1>
                     <div>
-                    <div class="bg-white p-3 rounded-3 border w-100">
-                        <table id="clientTable" class="table table-striped nowrap" style="width:100%">
+                    <div class="bg-white p-3 rounded-3 border mt-3 w-100">
+                        <table id="clientTable" class="table table-bordered  table-striped nowrap" style="width:100%">
                             <thead>
                                 <tr>
                                     <th>First Name</th>
@@ -61,9 +62,9 @@ $userData = $_SESSION['id'];
                                         <td><?php echo $row['client_birthday']?></td>
                                         <td><?php echo $row['client_number']?></td>
                                         <td><?php echo $row['client_email']?></td>
-                                        <td class="action-buttons">
-                                            <a href="view.php?id=<?php echo $row['id']?>" class="btn btn-primary text-white"> View Data</a>
-                                            <a href="edit_client_record.php?id=<?php echo $row['id']?>" class="btn btn-warning">Edit Data</a>
+                                        <td class="action-buttons text-center">
+                                            <a href="view.php?id=<?php echo $row['id']?>" class="btn bg-purple text-white"> View</a>
+                                            <a href="edit_client_record.php?id=<?php echo $row['id']?>" class="btn btn-outline-purple">Edit</a>
                                         </td>
                                     </tr>
                                 <?php
@@ -85,11 +86,14 @@ $userData = $_SESSION['id'];
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         $(document).ready(function() {
-            $('#clientTable').DataTable({
+            var table = $('#clientTable').DataTable({
                 responsive: true,
-                rowReorder: {
-                    selector: 'td:nth-child(2)'
-                }
+                scrollY: 500,
+                scrollX: true,
+                scrollCollapse: true,
+                paging: true,
+                fixedColumns: true,
+                select: true,
             });
         });
     </script>

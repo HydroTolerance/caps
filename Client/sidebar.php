@@ -88,11 +88,6 @@ background-color: #6537AE;
                     <span class="d-none d-sm-inline mx-1"><b> Hello!</b> <?php echo $userData['client_firstname']; ?></span>
                   </a>
                 <ul class="dropdown-menu text-small shadow dropdown-menu-end" aria-labelledby="dropdownUser1">
-                  <li><a class="dropdown-item" >Settings</a></li>
-                  <li><a class="dropdown-item" href="../profile/account.php">Profile</a></li>
-                  <li>
-                    <hr class="dropdown-divider">
-                  </li>
                   <li><a class="dropdown-item" href="../logout.php">Sign out</a></li>
                 </ul>
             </div>

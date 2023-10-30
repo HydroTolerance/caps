@@ -48,8 +48,12 @@ if (isset($_POST['update'])) {
             $mail->Body = "Your appointment has been rescheduled:<br><br>New Date: $date<br>New Time: $time<br>Reason: $reason";
 
             $mail->send();
-            header("Location: home.php");
-            exit;
+            echo '<div class="alert alert-success alert-dismissible fade show" role="alert">
+            Your appointment has been rescheduled.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>';
+        header("Location: success.php");
+        exit;
         } catch (Exception $e) {
             echo "Email could not be sent. Mailer Error: {$mail->ErrorInfo}";
         }
@@ -102,8 +106,8 @@ if (!isset($_POST['secret_key']) || $_POST['secret_key'] !== $secret_key) {
     <?php if (isset($_POST['id'])) : ?>
         <input type="hidden" name="id" value="<?php echo $_POST['id']; ?>">
     <?php endif; ?>
-    <div class="text-right">
-        <button type="submit" name="<?php echo isset($_POST['id']) ? 'update' : 'save'; ?>"><?php echo isset($_POST['id']) ? 'Update' : 'Save'; ?></button>
+    <div class="modal-footer">
+        <button style="background-color: #6537AE;" class="text-white btn" type="submit" name="<?php echo isset($_POST['id']) ? 'update' : 'save'; ?>"><?php echo isset($_POST['id']) ? 'Update' : 'Save'; ?></button>
     </div>
 </form>
 

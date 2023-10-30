@@ -32,7 +32,7 @@ $userData = $_SESSION['id'];
                 <div class="row">
                     <div class="col-lg-12">
                     <div class="mx-3">
-                        <h2 style="color:6537AE;" class="text-center">Client Record</h2>
+                        <h2 style="color:6537AE;" class="text-center">Client Profile</h2>
                         <form method="post" >
                             <div class="container">
                                 <div class="row mb-3">
@@ -101,26 +101,71 @@ $userData = $_SESSION['id'];
                                 </div>
                             </div>
                         </form>
-                    <div class="bg-white p-3 rounded-3 border">
-                            <ul class="nav nav-tabs" >
-                                <li class="nav-item">
-                                    <a class="nav-link active" id="appointmentTab" href="#">Appointment</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" id="sessionTab" href="#">Session</a>
-                                </li>
-                            </ul>
-                            <div id="appointmentContainer" >
-                            <div class="d-flex justify-content-between align-items-center m-3">
-                                <h2>Appointments</h2>
+                        <nav>
+                        <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                            <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">Client Diagnosis</button>
+                            <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Appointment Schedule</button>
+                        </div>
+                        </nav>
+                        <div class="tab-content" id="nav-tabContent">
+                            <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
+                            <div id="diagnosisContainer" class="bg-white p-3 rounded-3">
+                        
+                            <div>
+                            <div class="text-dark border rounded p-3 mb-3">
+                                <h2 style="color: 6537AE;" class="text-center">Diagnosis of the Patient</h2>
+                                    <table id="clientTable" class="table table table-bordered table-striped nowrap" style="width:100%">
+                                        <thead>
+                                                    <tr>
+                                                        <th>Date:</th>
+                                                        <th>Management:</th>
+                                                    </tr>
+                                                </thead>
+                                        <tbody>
+                                        <?php
+                                            if (isset($_GET['id'])) {
+                                                include "../../db_connect/config.php";
+                                                $id = $_GET['id'];
+                                                $stmt = mysqli_prepare($conn, "SELECT * FROM zp_derma_record WHERE patient_id=? AND archive != '1'");
+                                                mysqli_stmt_bind_param($stmt, "i", $id);
+                                                mysqli_stmt_execute($stmt);
+                                                $info_result = mysqli_stmt_get_result($stmt);
+                                                while ($info_row = mysqli_fetch_assoc($info_result)) {
+                                                ?>
+                                                        <tr>
+                                                            <td><?php echo date('M d, Y', strtotime($info_row['date_diagnosis']))?></td>
+                                                            <td><?php echo $info_row['management']?></td>
+                                                        </tr>
+                                                        <?php
+                                            }           mysqli_stmt_close($stmt);
+                                                mysqli_close($conn);
+                                            }
+                                            ?>
+                                    </tbody>
+                                </table>
+                            </div>     
+                        </div>
+                        </div>
                             </div>
-                            <div class="row">
-                                    <div class="col-md-6"> <!-- Calendar column -->
-                                        <div class="d-flex justify-content-center">
-                                            <div id="calendar"></div>
-                                        </div>
-                                    </div>
-                                <div class="col-md-6">
+                            <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+                            <div id="appointmentContainer" class="bg-white p-3 rounded-3">
+                            
+                            <div class="border rounded p-3 my-3">
+                            
+                                <div class="d-flex justify-content-center mb-3">
+                                    <div id="calendar"></div>
+                                </div>
+
+                                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">Upcomming Appointment</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab" aria-controls="profile" aria-selected="false">Past Appoinment</button>
+                                    </li>
+                                </ul>
+                                <div class="tab-content" id="myTabContent">
+                                <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
                                     <table class="table table-bordered my-3">
                                         <tr><th colspan='3' class='text-center' style='background-color: #f2f2f2;'>Upcoming Appointment</th></tr>
                                         <tr>
@@ -129,16 +174,15 @@ $userData = $_SESSION['id'];
                                             <th>Service</th>
                                         </tr>
                                         <?php
-
+                                        if (isset($_GET['id'])) {
+                                            $id = $_GET['id'];
                                             include "../../db_connect/config.php";
+                                            
+                                            // Fetch upcoming appointments (assuming the date is in the future)
                                             $currentDate = date("Y-m-d");
-                                            $upcomingAppointmentsQuery = "SELECT * FROM zp_appointment WHERE client_id = ? AND date >= ?";
-                                            $stmt = mysqli_prepare($conn, $upcomingAppointmentsQuery);
-                                            mysqli_stmt_bind_param($stmt, "ss", $userData['id'], $currentDate);
-                                            mysqli_stmt_execute($stmt);
-                                            $result = mysqli_stmt_get_result($stmt);
-
-                                            while ($appointmentRow = mysqli_fetch_assoc($result)) {
+                                            $upcomingAppointmentsQuery = "SELECT * FROM zp_appointment WHERE client_id = '$id' AND date >= '$currentDate'";
+                                            $upcomingAppointmentsResult = mysqli_query($conn, $upcomingAppointmentsQuery);
+                                            while ($appointmentRow = mysqli_fetch_assoc($upcomingAppointmentsResult)) {
                                                 $appointmentDate = $appointmentRow['date'];
                                                 $appointmentTime = $appointmentRow['time'];
                                                 $appointmentService = $appointmentRow['services'];
@@ -148,124 +192,51 @@ $userData = $_SESSION['id'];
                                                 echo "<td>$appointmentService</td>";
                                                 echo "</tr>";
                                             }
-
-                                            // Add a header for past appointments
-                                            echo "<tr><th colspan='3' class='text-center' style='background-color: #f2f2f2;'>Past Appointments</th></tr>";
-                                            echo "<th>Date</th>";
-                                            echo "<th>Time</th>";
-                                            echo "<th>Service</th>";
-
-                                            $pastAppointmentsQuery = "SELECT * FROM zp_appointment WHERE client_id = ? AND date < ?";
-                                            $stmt = mysqli_prepare($conn, $pastAppointmentsQuery);
-                                            mysqli_stmt_bind_param($stmt, "ss", $userData['id'], $currentDate);
-                                            mysqli_stmt_execute($stmt);
-                                            $result = mysqli_stmt_get_result($stmt);
-
-                                            while ($appointmentRow = mysqli_fetch_assoc($result)) {
-                                                $appointmentDate = $appointmentRow['date'];
-                                                $appointmentTime = $appointmentRow['time'];
-                                                $appointmentService = $appointmentRow['services'];
-                                                echo "<tr>";
-                                                echo "<td>$appointmentDate</td>";
-                                                echo "<td>$appointmentTime</td>";
-                                                echo "<td>$appointmentService</td>";
-                                                echo "</tr>";
-                                            }
-
-                                            // Close the prepared statement and database connection
-                                            mysqli_stmt_close($stmt);
+                                            
                                             mysqli_close($conn);
-                                        ?>
-                                    </table>
-                                </div>
-
-                                </div>
-                            </div>
-                            <div id="sessionContainer" class="bg-white p-3" style="display: none;">
-                        <div class="container border rounded p-3">
-                        <div class="border rounded p-3 my-3">
-            <h2 class="my-3 text-center" style="color:#6537AE;">Session of the Client</h2>
-        </div>
-        <?php
-            include "../../db_connect/config.php";
-            $sessionsQuery = "SELECT * FROM zp_sessions WHERE client_id = ?";
-            $stmt = mysqli_prepare($conn, $sessionsQuery);
-            mysqli_stmt_bind_param($stmt, "i", $userData['id']);
-            mysqli_stmt_execute($stmt);
-            $sessionsResult = mysqli_stmt_get_result($stmt);
-
-            if ($sessionsResult) {
-                while ($sessionRow = mysqli_fetch_assoc($sessionsResult)) {
-                    $sessionId = $sessionRow['id'];
-                    $sessionName = $sessionRow['session_name'];
-                    ?>
-
-                    <div class="container rounded border my-3">
-                        <div class="row my-3">
-                            <div>
-                                <h2>Services: <?= $sessionName ?></h2>
-                                <div>
-                                    <table class="table table-bordered">
-                                        <tr>
-                                            <th>Number of Session</th>
-                                            <th>Time Start of Session</th>
-                                            <th>Time end of Session</th>
-                                            <th>Date of Session</th>
-                                        </tr>
-                                        <?php
-                                        $diagnosesQuery = "SELECT * FROM zp_diagnoses WHERE session_id = ?";
-                                        $stmt = mysqli_prepare($conn, $diagnosesQuery);
-                                        mysqli_stmt_bind_param($stmt, "i", $sessionId);
-                                        mysqli_stmt_execute($stmt);
-                                        $diagnosesResult = mysqli_stmt_get_result($stmt);
-
-                                        if ($diagnosesResult) {
-                                            $sessionNumber = 1; // Initialize session number
-                                            while ($diagnosisRow = mysqli_fetch_assoc($diagnosesResult)) {
-                                                $diagnosisText = $diagnosisRow['diagnosis_text'];
-                                                $sessionDate = $diagnosisRow['diagnosis_date'];
-                                                $sessionStart = $diagnosisRow['session_time_start'];
-                                                $sessionEnd = $diagnosisRow['session_end_time'];
-                                                ?>
-                                                <tr>
-                                                    <td><?= $sessionNumber ?></td>
-                                                    <td><?= date('F d, Y', strtotime($sessionDate)) ?></td>
-                                                    <td><?= date('h:i A', strtotime($sessionStart)) ?></td>
-                                                    <td><?= date('h:i A', strtotime($sessionEnd)) ?></td>
-                                                </tr>
-                                                <?php
-                                                $sessionNumber++;
-                                            }
-                                        } else {
-                                            echo "Error fetching diagnoses: " . mysqli_error($conn);
                                         }
                                         ?>
                                     </table>
                                 </div>
+                                <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+                                <table class="table table-bordered my-3">
+                                        <tr><th colspan='3' class='text-center' style='background-color: #f2f2f2;'>Past Appointment</th></tr>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Time</th>
+                                            <th>Service</th>
+                                        </tr>
+                                        <?php
+                                        if (isset($_GET['id'])) {
+                                            $id = $_GET['id'];
+                                            include "../../db_connect/config.php";
+                                            
+                                            // Fetch upcoming appointments (assuming the date is in the future)
+                                            $currentDate = date("Y-m-d");
+                                            $pastAppointmentsQuery = "SELECT * FROM zp_appointment WHERE client_id = '$id' AND date < '$currentDate'";
+                                            $pastAppointmentsResult = mysqli_query($conn, $pastAppointmentsQuery);
+                                            while ($appointmentRow = mysqli_fetch_assoc($pastAppointmentsResult)) {
+                                                $appointmentDate = $appointmentRow['date'];
+                                                $appointmentTime = $appointmentRow['time'];
+                                                $appointmentService = $appointmentRow['services'];
+                                                echo "<tr>";
+                                                echo "<td>$appointmentDate</td>";
+                                                echo "<td>$appointmentTime</td>";
+                                                echo "<td>$appointmentService</td>";
+                                                echo "</tr>";
+                                            }
+                                            
+                                            mysqli_close($conn);
+                                        }
+                                        ?>
+                                    </table>
                             </div>
-                        </div>
-                    </div>
-                    <?php
-                }
-            } else {
-                echo "Error fetching sessions: " . mysqli_error($conn);
-            }
+                                
 
-            // Close the prepared statement and database connection
-            mysqli_stmt_close($stmt);
-            mysqli_close($conn);
-        ?>
-    </div>
-                        </div>
-                        
+                            </div>
+                            </div>
                             
-                        </div>
-                        
-                        </div>
-                        
-                        <!-- Container for Appointment -->
-
-
+                            </div>
                 </div>
             </div>
         </div>

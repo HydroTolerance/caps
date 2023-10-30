@@ -12,11 +12,11 @@ if (!$result) {
 
 $events = array();
 while ($row = mysqli_fetch_assoc($result)) {
-    $color = ($row['appointment_status'] === 'Completed') ? '#6537AE' :
+    $color = ($row['appointment_status'] === 'Completed') ? '#28a745' :
     (($row['appointment_status'] === 'Cancelled') ? 'red' :
     (($row['appointment_status'] === 'Rescheduled') ? 'blue' :
     (($row['appointment_status'] === 'Did not show') ? 'orange' :
-    (($row['appointment_status'] === 'Acknowledged') ? 'Yellow' : 'grey'))));
+    (($row['appointment_status'] === 'Acknowledged') ? '#6537AE' : 'grey'))));
 
     $event = array(
         'title' => $row['firstname'] . ' ' . $row['lastname'],

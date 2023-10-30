@@ -13,7 +13,7 @@ $result = mysqli_stmt_get_result($stmt);
 $events = array();
 while ($row = mysqli_fetch_assoc($result)) {
     $event = array(
-        'title' => $row['time'],
+        'title' => $row['time'] . " " . date('F d, Y', strtotime($row['date'])),
         'start' => $row['date'],
         'time' => $row['time'],
     );

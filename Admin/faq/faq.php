@@ -1,6 +1,6 @@
 <?php
 include "../function.php";
-checklogin();
+checklogin('Admin');
 $userData = $_SESSION['id'];
 ?>
 <?php
@@ -38,23 +38,67 @@ if (isset($_POST['submit'])) {
     <style>
     </style>
 </head>
-    
+    <style>
+        .page-item.active .page-link {
+    background-color: #6537AE !important;
+    color: #fff !important;
+    border: #6537AE;
+}
+.page-link {
+    color: black !important;
+}
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .status-cancelled {
+    color: red !important;
+}
+
+.status-approved {
+    color: green !important;
+}
+
+.status-rescheduled {
+    color: blue !important;
+}
+.status-completed {
+    color: green !important;
+}
+.status-did-not-show {
+    color: #F9A603 !important;
+}
+.status-acknowledged {
+    color: orange !important;
+}
+    </style>
 </head>
 <body>
 <div id="wrapper">
             <?php include "../sidebar.php"; ?>
             <section id="content-wrapper">
                 <div class="row">
+                <div class="col-lg-12">
+                    <div class="mx-3 text-center">
+                        <div class="row">
+                            <div class="col-xl-3">
+                                <button class="create_patients btn text-white ms-3 mb-3 mt-2" style="background-color: #6537AE;" onclick="addFaqModal()">CREATE</button>
+                            </div>
+                            <div class="col-xl-6">
+                                <h1 class=" mb-1" style="color:6537AE;">FAQ</h1>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                     <div class="col-lg-12">
-            <button type="button" class="btn btn-primary" onclick="addFaqModal()">Insert</button>
             <div class="bg-white p-3 rounded-3 border mx-5">
-                <table id="faqTable">
+                <table id="faqTable" class="table table-bordered text-center" style="width: 100%;">
                     <thead>
                     <tr>
-                        <th>#</th>
-                        <th>Question</th>
-                        <th>Answer</th>
-                        <th>Action</th>
+                        <th class="text-center">Question</th>
+                        <th  class="text-center">Answer</th>
+                        <th  class="text-center">Action</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -64,12 +108,11 @@ if (isset($_POST['submit'])) {
                     while ($row = mysqli_fetch_array($result)) {
                         ?>
                         <tr>
-                            <td><?php echo $row['id'] ?></td>
                             <td><?php echo $row['question'] ?></td>
                             <td><?php echo strlen($row['answer']) > 50 ? substr($row['answer'], 0, 50) . '...' : $row['answer']; ?></td>
                             <td class="action-buttons">
                                 <button onclick="showRescheduleModal('<?php echo $row['id']; ?>')" class="btn btn-purple bg-purple text-white">Edit</button>
-                                <a href="#" onclick="deleteFAQ(<?php echo $row['id']; ?>)" class="link-dark"><span class="las la-trash" style="font-size: 20px; color:#222; margin-left:40px;"></span></a>
+                                <a href="#" onclick="deleteFAQ(<?php echo $row['id']; ?>)" class="btn-outline-purple text-decoration-none btn" >Delete</a>
                             </td>
                         </tr>
                         <?php
@@ -115,9 +158,6 @@ if (isset($_POST['submit'])) {
     $(document).ready(function() {
         $('#faqTable').DataTable({
             responsive: true,
-            rowReorder: {
-                selector: 'td:nth-child(2)'
-            }
         });
     });
 
@@ -143,10 +183,6 @@ if (isset($_POST['submit'])) {
             }
         });
     }
-
-    $('#rescheduleModal').on('hidden.bs.modal', function (e) {
-        $('.summernote').summernote('destroy');
-    });
     function deleteFAQ(id) {
         Swal.fire({
             title: 'Are you sure?',

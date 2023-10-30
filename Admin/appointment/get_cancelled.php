@@ -58,7 +58,7 @@ if (isset($_POST['id'])) {
 }
 ?>
 
-<form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
+<form id="signUpForm" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
     <div>
         <label for="">User's Email</label>
         <input type="text" class="form-control" name="email" readonly value="<?php echo ($email)?>">
@@ -75,7 +75,17 @@ if (isset($_POST['id'])) {
         
     <?php endif; ?>
 </form>
-
+<script>
+$(document).ready(function() {
+  $("#signUpForm").on("submit", function(e) {
+    if (this.checkValidity()) {
+      $("#pageloader").fadeIn();
+    } else {
+      e.preventDefault();
+    }
+  });
+});
+    </script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 </body>
 </html>

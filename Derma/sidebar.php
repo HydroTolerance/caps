@@ -99,11 +99,18 @@ a:focus {
 .bg-purple {
 background-color: #6537AE;
 }
-.btn-purple:hover{
+.btn-outline-purple{
+  border-color: #6537AE;
+  color: #6537AE;
+}
+.bg-purple:hover{
             background-color: purple;
             color: white;
         }
-
+        .btn-outline-purple:hover{
+  border-color: purple;
+color: purple;
+      }
 #navbar-wrapper {
     width: 100%;
     position: absolute;
@@ -267,12 +274,13 @@ background-color: #6537AE;
 
 }
 
+
 </style>
 <body>
 
 <aside id="sidebar-wrapper">
   <div class="sidebar-brand">
-    <h2>Logo</h2>
+  <img src="../../t/images/zephy.png" alt="" height="38px" width="160px">
   </div>
   <ul class="sidebar-nav">
     <li class="nav-item">
@@ -348,8 +356,6 @@ background-color: #6537AE;
               <span class="d-none d-sm-inline mx-1"><b> Hello!</b> <?php echo $userData['clinic_firstname']; ?></span>
             </a>
             <ul class="dropdown-menu text-small shadow dropdown-menu-end" aria-labelledby="dropdownUser1">
-              <li><a class="dropdown-item" >Settings</a></li>
-              <li><a class="dropdown-item" href="../profile/account.php">Profile</a></li>
               <li>
                 <hr class="dropdown-divider">
               </li>

@@ -1,6 +1,6 @@
 <?php 
 include "../function.php";
-checklogin();
+checklogin('Admin');
 $userData = $_SESSION['id'];
 ?>
 <?php
@@ -106,7 +106,7 @@ while ($rowService = mysqli_fetch_assoc($resultServices)) {
                             <th>Service Label</th>
                             <th>Yearly Report</th>
                             <th>Montly Report</th>
-                            <th>Service Count</th>
+                            <th>Service Rendered</th>
                         </tr>
                     </thead>
                     <tbody>

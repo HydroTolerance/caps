@@ -1,13 +1,24 @@
 <?php
 include "../function.php";
-checklogin();
+checklogin('Admin');
 $userData = $_SESSION['id'];
 ?>
-<?php 
+
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+        <title>Dashboard</title>
+        <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
+        <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
+        <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400&display=swap" rel="stylesheet">
+    </head>
+    <body>
+    <?php 
 if (isset($_POST['submit'])) {
     include "../../db_connect/config.php";
-
-    // Handle image upload
     if (isset($_FILES['image'])) {
         $uploadDir = "../../img/services/";
         $fileExtension = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
@@ -15,7 +26,6 @@ if (isset($_POST['submit'])) {
         $uploadedFile = $uploadDir . $uniqueFilename;
 
         if (move_uploaded_file($_FILES['image']['tmp_name'], $uploadedFile)) {
-            // File uploaded successfully.
         } else {
             echo "Error uploading the image.";
         }
@@ -42,25 +52,22 @@ if (isset($_POST['submit'])) {
 }
 
 ?>
-
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-        <title>Dashboard</title>
-        <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
-        <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
-        <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400&display=swap" rel="stylesheet">
-        <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.css" rel="stylesheet">
-        <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.0/dist/sweetalert2.min.css" rel="stylesheet">
-    </head>
-    <body>
     <div id="wrapper">
     <?php include "../sidebar.php"; ?>
         <section id="content-wrapper">
             <div class="row mx-1">
-            <button type="button" class="btn btn-primary mb-3" onclick="addServiceModal()">Add Services</button>
+                <div class="col-lg-12">
+                    <div class="mx-3 text-center">
+                        <div class="row">
+                            <div class="col-xl-3">
+                                <button class="create_patients btn text-white ms-3 mb-3 mt-2" style="background-color: #6537AE;" onclick="addServiceModal()">CREATE</button>
+                            </div>
+                            <div class="col-xl-6">
+                                <h1 class=" mb-1" style="color:6537AE;">Services</h1>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             <div class="bg-white p-3 rounded-3 border w-100">
                 <table id="clientTable" class="table table-striped nowrap">
                     <thead>
@@ -86,10 +93,8 @@ if (isset($_POST['submit'])) {
                                 <td><img src="../../img/services/<?php echo $image;?>" alt="" width="50px" height="50px"></td>
                                 <td><?php echo $description; ?></td>
                                 <td class="action-buttons">
-                                    <button onclick="showRescheduleModal('<?php echo $id; ?>')" class="btn btn-primary">Edit</button>
-                                    <a href="#" onclick="deleteFAQ(<?php echo $id; ?>)" class="text-decoration-none btn btn-danger">
-                                        Delete
-                                    </a>
+                                <button type="button" onclick="showRescheduleModal('<?php echo $id; ?>')" class="btn text-white edit-button" style="background-color: #6537AE;">Edit</button>
+                                    <a href="#" onclick="deleteFAQ(<?php echo $id; ?>)" class="text-decoration-none btn btn-outline-purple">Delete</a>
                                 </td>
                             </tr>
                             <?php
@@ -106,7 +111,7 @@ if (isset($_POST['submit'])) {
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="rescheduleModalLabel">Edit FAQ Entry</h5>
+                <h5 class="modal-title" id="rescheduleModalLabel">Edit Services Entry</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -119,7 +124,7 @@ if (isset($_POST['submit'])) {
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="rescheduleModalLabel">Edit FAQ Entry</h5>
+                <h5 class="modal-title" id="rescheduleModalLabel">Add Services Entry</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -129,7 +134,13 @@ if (isset($_POST['submit'])) {
     </div>
 </div> 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.0/dist/sweetalert2.min.js"></script>
-<script>
+<script> $(document).ready(function() {
+    $('#clientTable').DataTable({
+        responsive: true,
+    });
+});
+
+
     function showRescheduleModal(id) {
         $.ajax({
             url: 'edit_service.php',
@@ -137,10 +148,11 @@ if (isset($_POST['submit'])) {
             data: { id: id },
             success: function (response) {
                 $('#rescheduleModal .modal-body').html(response);
-                $('#rescheduleModal').modal('show');
+                var myModal = new bootstrap.Modal(document.getElementById('rescheduleModal'));
+                myModal.show();
             }
         });
-    }
+    };
     function addServiceModal(id) {
         $.ajax({
             url: 'add_service.php',
@@ -148,14 +160,11 @@ if (isset($_POST['submit'])) {
             data: { id: id },
             success: function (response) {
                 $('#addFaqModal .modal-body').html(response);
-                $('#addFaqModal').modal('show');
+                var myModal = new bootstrap.Modal(document.getElementById('addFaqModal'));
+                myModal.show();
             }
         });
-    }
-
-    $('#rescheduleModal').on('hidden.bs.modal', function (e) {
-        $('.summernote').summernote('destroy');
-    });
+    };
     function deleteFAQ(id) {
         Swal.fire({
             title: 'Are you sure?',
@@ -188,18 +197,6 @@ if (isset($_POST['submit'])) {
 
         return false;
     }
-</script>
-<script>
-        $(document).ready(function() {
-        $('#clientTable').DataTable({
-                responsive: true,
-                rowReorder: {
-                    selector: 'td:nth-child(2)'
-                }
-            });
-        // Initialize Summernote on the textarea
-        $('.summernote').summernote();
-    });
 </script>
     </body>
 </html>

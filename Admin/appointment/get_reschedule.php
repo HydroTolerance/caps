@@ -72,12 +72,7 @@ if (!isset($_POST['secret_key']) || $_POST['secret_key'] !== $secret_key) {
 }
 
 ?>
-<div class="overlay loader-wrapper">
-        <div class="loader">
-            <div class="loader-inner"></div>
-        </div>
-    </div>
-<form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
+<form id="signUpForm" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
 <div>
         <label for="">Email of User</label>
         <input type="text" class="form-control"  name="email" required readonly value="<?php echo ($email)?>">
@@ -160,17 +155,15 @@ if (!isset($_POST['secret_key']) || $_POST['secret_key'] !== $secret_key) {
     
 </script>
 <script>
-    $(document).ready(function () {
-        // Show the loading overlay when the form submits
-        $("form").on("submit", function () {
-            $(".overlay").css("display", "flex");
-        });
-
-        // Hide the loading overlay when updates are complete
-        $(window).on("load", function () {
-            $(".overlay").fadeOut("slow");
-        });
-    });
-</script>
+$(document).ready(function() {
+  $("#signUpForm").on("submit", function(e) {
+    if (this.checkValidity()) {
+      $("#pageloader").fadeIn();
+    } else {
+      e.preventDefault();
+    }
+  });
+});
+    </script>
 </body>
 </html>

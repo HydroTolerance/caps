@@ -45,19 +45,20 @@ if (isset($_POST['edit_submit'])) {
 </head>
 
 <body>
-<form method="post" action="<?php echo $_SERVER['PHP_SELF'] . '?id=' . $id; ?>">
-    <label class="" for="edit_question">Question:</label>
-    <input class="form-control" type="text" name="edit_question" value="<?php echo $row['question']; ?>">
-    <label for="edit_answer">Answer:</label>
-    <div name="edit_answer" class="summernote"><?php echo $row['answer']; ?></div>
-        <input type="submit" name="edit_submit" value="Submit">
-</form>
-    <script>
-        $(document).ready(function() {
-            $('.summernote').summernote({
-                
-            });
-        });
-    </script>
+<div class="container mt-5">
+        <form method="post" action="<?php echo $_SERVER['PHP_SELF'] . '?id=' . $id; ?>">
+            <div class="mb-3">
+                <label for="edit_question" class="form-label">Question:</label>
+                <input type="text" class="form-control" name="edit_question" value="<?php echo $row['question']; ?>">
+            </div>
+            <div class="mb-3">
+                <label for="edit_answer" class="form-label">Answer:</label>
+                <input type="text" class="form-control" name="edit_answer" value="<?php echo $row['answer']; ?>">
+            </div>
+            <div class="modal-footer">
+                <button type="submit" name="edit_submit" class="btn text-white" style="background-color: #6537AE;">Submit</button>
+            </div>
+        </form>
+    </div>
 </body>
 </html>

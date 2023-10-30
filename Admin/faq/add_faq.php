@@ -7,13 +7,22 @@
     <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
 </head>
 <body>
-    <form method="post" action="faq.php">
-        <label>Question:</label>
-        <input type="text" name="question" required><br><br>
-        <label>Answer:</label>
-        <input type="text" name="answer" required><br><br>
-        <input type="submit" name="submit" value="Submit">
-        <a href="faq.php">Cancel</a>
-    </form>
+    <div class="container mt-5">
+        <form method="post" action="faq.php">
+            <div class="mb-3">
+                <label for="question" class="form-label">Question:</label>
+                <input type="text" class="form-control" name="question" required>
+            </div>
+            <div class="mb-3">
+                <label for="answer" class="form-label">Answer:</label>
+                <input type="text" class="form-control" name="answer" required>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" name="submit" class="btn text-white" style="background-color: #6537AE;">Submit</button>
+                <a href="faq.php" class="btn btn-secondary">Cancel</a>
+            </div>
+
+        </form>
+    </div>
 </body>
 </html>

@@ -1,21 +1,25 @@
-
 <?php
 include "../../db_connect/config.php";
 
-if (isset($_POST['zep_acc'])) {
-    $id = $_POST['zep_acc'];
-    $sql = "SELECT * FROM zp_accounts WHERE zep_acc = ?";
+if (isset($_POST['id'])) {
+    $id = $_POST['id'];
+    $sql = "SELECT * FROM zp_accounts WHERE id = ?";
     $stmt = mysqli_prepare($conn, $sql);
     mysqli_stmt_bind_param($stmt, "s", $id);
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
-    $rows = mysqli_fetch_assoc($result);
+    if ($result) {
+        $rows = mysqli_fetch_assoc($result);
+    } else {
+        echo "Error: " . mysqli_error($conn);
+    }
     mysqli_stmt_close($stmt);
 }
 ?>
+
 <div class="modal-body">
     <form method="post"  enctype="multipart/form-data">
-        <input type="hidden" name="edit_id" value="<?php echo $rows['zep_acc']; ?>">
+        <input type="hidden" name="edit_id" value="<?php echo $rows['id']; ?>">
         <div class="mb-3">
             <label for="image">Upload Image (Max 5MB):</label>
             <input type="file" name="image" accept="image/*" id="image">

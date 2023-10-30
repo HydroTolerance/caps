@@ -70,7 +70,7 @@ if (isset($_POST['id'])) {
     <?php if (isset($_POST['id'])) : ?>
         <input type="hidden" name="id" value="<?php echo $_POST['id']; ?>">
         <div class="modal-footer">
-        <button class="btn bg-purple text-white ml-auto" type="submit" name="update">Cancel Appointment</button>
+            <button class="btn bg-purple text-white ml-auto" type="submit" name="update">Cancel Appointment</button>
         </div>
         
     <?php endif; ?>

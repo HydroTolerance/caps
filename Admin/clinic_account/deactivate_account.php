@@ -2,22 +2,22 @@
 include "../function.php";
 checklogin();
 
-if (isset($_POST['zep_acc'])) {
-    $zep_acc = $_POST['zep_acc'];
+if (isset($_POST['id'])) {
+    $id = $_POST['id'];
     $action = $_POST['action']; // Action will be either 'deactivate' or 'reactivate'
     
     if ($action === 'deactivate') {
-        deactivateAccount($zep_acc);
+        deactivateAccount($id);
     } elseif ($action === 'reactivate') {
-        reactivateAccount($zep_acc);
+        reactivateAccount($id);
     }
 }
 
-function deactivateAccount($zep_acc) {
+function deactivateAccount($id) {
     include "../../db_connect/config.php";
-    $sql = "UPDATE zp_accounts SET account_status = 'deactivated' WHERE zep_acc = ?";
+    $sql = "UPDATE zp_accounts SET account_status = 'deactivated' WHERE id = ?";
     $stmt = mysqli_prepare($conn, $sql);
-    mysqli_stmt_bind_param($stmt, "s", $zep_acc);
+    mysqli_stmt_bind_param($stmt, "s", $id);
 
     if (mysqli_stmt_execute($stmt)) {
         mysqli_stmt_close($stmt);
@@ -32,11 +32,11 @@ function deactivateAccount($zep_acc) {
     mysqli_close($conn);
 }
 
-function reactivateAccount($zep_acc) {
+function reactivateAccount($id) {
     include "../../db_connect/config.php";
-    $sql = "UPDATE zp_accounts SET account_status = 'active' WHERE zep_acc = ?";
+    $sql = "UPDATE zp_accounts SET account_status = 'active' WHERE id = ?";
     $stmt = mysqli_prepare($conn, $sql);
-    mysqli_stmt_bind_param($stmt, "s", $zep_acc);
+    mysqli_stmt_bind_param($stmt, "s", $id);
 
     if (mysqli_stmt_execute($stmt)) {
         mysqli_stmt_close($stmt);

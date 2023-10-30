@@ -12,6 +12,7 @@ function logStatusChange(id, status) {
 
 // Function to update the appointment status with confirmation
 function updateStatus(id, status) {
+  var statusSelect = $('.form-select[data-id="' + id + '"]');
   if (status === 'Completed') {
     Swal.fire({
       title: 'Confirmation',
@@ -26,6 +27,9 @@ function updateStatus(id, status) {
       if (result.isConfirmed) {
         performStatusUpdate(id, status);
         logStatusChange(id, status);
+        
+        // Disable the select element for "Completed" status
+        statusSelect.prop('disabled', true);
       }
     });
   } else if (status === 'Did not show') {
@@ -38,12 +42,16 @@ function updateStatus(id, status) {
       confirmButtonText: 'Yes',
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
-    }).then((result) => {
+  }).then((result) => {
       if (result.isConfirmed) {
-        performStatusUpdate(id, status);
-        logStatusChange(id, status);
+          performStatusUpdate(id, status);
+          logStatusChange(id, status);
+
+          // Disable the select element
+          statusSelect.prop('disabled', true);
       }
-    });
+  });
+    
   } else if (status === 'Acknowledged') {
     Swal.fire({
       title: 'Confirmation',
@@ -103,29 +111,32 @@ function acknowledgeAppointment(id) {
 
 function performStatusUpdate(id, status) {
   $.ajax({
-  url: 'update_status.php',
-  type: 'POST',
-  data: {
-    id: id,
-    status: status
-  },
-  success: function(response) {
-    var statusCell = $('#status_' + id);
-    statusCell.text(response);
-    statusCell.removeClass().addClass('status-' + status.toLowerCase().replace(' ', '-'));
-    if (status === 'Completed') {
-      var toastrMessage = 'Appointment status is now ' + status + '! The appointment is on the <a href="completed.php">Completed Appointment page</a>. Please check it.';
-    } else {
+    url: 'update_status.php',
+    type: 'POST',
+    data: {
+      id: id,
+      status: status
+    },
+    success: function(response) {
+      var statusCell = $('#status_' + id);
+      statusCell.text(response);
+      statusCell.removeClass().addClass('status-' + status.toLowerCase().replace(' ', '-'));
       var toastrMessage = 'Appointment status is now ' + status + '!';
+      toastr.success(toastrMessage, '', {
+        progressBar: true,
+        timeOut: 3000,
+        positionClass: 'toast-top-right'
+      });
+
+      if (status === 'Did not show') {
+        // Disable the select element for "Did not show" status
+        var statusSelect = $('.form-select[data-id="' + id + '"]');
+        statusSelect.prop('disabled', true);
+      }
     }
-    toastr.success(toastrMessage, '', {
-      progressBar: true,
-      timeOut: 3000,
-      positionClass: 'toast-top-right'
-    });
-  }
   });
-  }
+}
+
 function showRescheduleModal(id) {
 $.ajax({
     url: 'get_reschedule.php',

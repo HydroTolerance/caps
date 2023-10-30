@@ -34,7 +34,7 @@ $(document).ready(function() {
       eventLimit: 6
     }
   },
-      editable: true,
+      editable: false,
       header: {
           left: 'prev,next today',
           center: 'title',
@@ -58,7 +58,7 @@ $(document).ready(function() {
                   tooltip.enable(); // Enable tooltips for rendered events
               }
           });
-      }
+      },
   });
 });
 

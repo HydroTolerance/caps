@@ -3,13 +3,6 @@ include "../function.php";
 checklogin();
 $userData = $_SESSION['id'];
 ?>
-<?php
-    if(!$_SERVER['HTTP_X_REQUESTED_WITH'])
-    {
-    header("HTTP/1.0 403 Forbidden");
-    exit;
-    }
-?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -29,15 +22,15 @@ $userData = $_SESSION['id'];
             <label>Services:</label>
             <select name="services" id="" class="form-control">
                 <option value="Skin">Skin</option>
+                <option value="Face">Face</option>
                 <option value="Nail">Nail</option>
-                <option value="Hair">Hair</option>
             </select>
         </div>
         <div>
             <label>Description:</label>
             <input type="text" name="description" class="form-control" required>
         </div>
-        <div>
+        <div class="modal-footer">
             <input type="submit" name="submit" value="Submit">
             <a href="faq.php">Cancel</a>
         </div>

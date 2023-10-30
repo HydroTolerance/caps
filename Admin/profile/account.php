@@ -1,6 +1,6 @@
 <?php
 include "../function.php";
-checklogin();
+checklogin('Admin');
 $userData = $_SESSION['id'];
 $target_file = ""; // Define a default value for $target_file
 
@@ -12,7 +12,7 @@ if (isset($_POST['edit_submit'])) {
         if ($_SESSION['id']['image']) {
             unlink($_SESSION['id']['image']);
         }
-        $target_dir = "../clinic_account/img/";
+        $target_dir = "../../img/img/";
         $file_name = basename($_FILES["image"]["name"]);
         $file_extension = pathinfo($file_name, PATHINFO_EXTENSION);
         $unique_filename = uniqid() . '_' . time() . '.' . $file_extension;
@@ -138,7 +138,7 @@ if (isset($_POST['edit_submit'])) {
                             <div class="mb-3">
                                 <label for="edit_gender" class="form-label">Gender</label>
                                 <select name="edit_gender" id="edit_gender" class="form-select" required>
-                                    <option selected disabled>-- Select Role --</option>
+                                    <option selected disabled>-- Select Gender --</option>
                                     <option value="Male" <?php echo ($userData['clinic_gender'] === 'Male') ? 'selected' : ''; ?>>Male</option>
                                     <option value="Female" <?php echo ($userData['clinic_gender'] === 'Female') ? 'selected' : ''; ?>>Female</option>
                                 </select>

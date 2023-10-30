@@ -1,7 +1,7 @@
 <?php
-    include "../function.php";
-    checklogin();
-    $userData = $_SESSION['id'];
+include "../function.php";
+checklogin('Admin');
+$userData = $_SESSION['id'];
     ?>
     <?php
         include "../../db_connect/config.php";
@@ -20,6 +20,21 @@
         $resultReschedule = mysqli_query($conn, $queryReschedule);
         $rowReschedule = mysqli_fetch_assoc($resultReschedule);
         $totalReschedule = $rowReschedule['total_reschedule'];
+
+        $queryCancelled = "SELECT COUNT(*) as total_cancelled FROM zp_appointment WHERE appointment_status = 'Cancelled' AND MONTH(date) = $currentYear";
+        $resultCancelled = mysqli_query($conn, $queryCancelled);
+        $rowCancelled = mysqli_fetch_assoc($resultCancelled);
+        $totalCancelled = $rowCancelled['total_cancelled'];
+
+        $queryAcknowledged= "SELECT COUNT(*) as total_Acknowledged FROM zp_appointment WHERE appointment_status = 'Acknowledged' AND MONTH(date) = $currentYear";
+        $resultAcknowledged= mysqli_query($conn, $queryAcknowledged);
+        $rowAcknowledged= mysqli_fetch_assoc($resultAcknowledged);
+        $totalAcknowledged= $rowAcknowledged['total_Acknowledged'];
+
+        $queryDidnotshow= "SELECT COUNT(*) as total_Didnotshow FROM zp_appointment WHERE appointment_status = 'Did not show' AND MONTH(date) = $currentYear";
+        $resultDidnotshow= mysqli_query($conn, $queryDidnotshow);
+        $rowDidnotshow= mysqli_fetch_assoc($resultDidnotshow);
+        $totalDidnotshow = $rowDidnotshow['total_Didnotshow'];
 
         $queryMale = "SELECT COUNT(*) as total_male FROM zp_client_record WHERE client_gender = 'Male'";
         $resultMale = mysqli_query($conn, $queryMale);
@@ -45,14 +60,14 @@
             SELECT services FROM zp_appointment WHERE MONTH(date) = $currentYear
         ) AS combined_services
         GROUP BY services";
-$resultServices = mysqli_query($conn, $queryServices);
-$serviceLabels = [];
-$serviceCounts = [];
+        $resultServices = mysqli_query($conn, $queryServices);
+        $serviceLabels = [];
+        $serviceCounts = [];
 
-while ($rowService = mysqli_fetch_assoc($resultServices)) {
-$serviceLabels[] = $rowService['services'];
-$serviceCounts[] = $rowService['service_count'];
-}
+        while ($rowService = mysqli_fetch_assoc($resultServices)) {
+        $serviceLabels[] = $rowService['services'];
+        $serviceCounts[] = $rowService['service_count'];
+        }
         if ($resultTotalPatients) {
             $rowTotalPatients = mysqli_fetch_assoc($resultTotalPatients);
             $totalPatient = $rowTotalPatients['total_patient'];
@@ -76,10 +91,11 @@ $serviceCounts[] = $rowService['service_count'];
         </head>
         <style>
             .status-indicator { display: inline-block; margin-right: 10px; width: 20px; height: 20px; border-radius: 50%; }
-    .bg-purple { background-color: #6f42c1; } /* Violet for Completed */
-    .bg-blue { background-color: #007bff; } /* Blue for Rescheduled */
-    .bg-grey { background-color: #6c757d; } /* Grey for Pending */
-    .bg-yellow { background-color: #ffc107; } /* Yellow for Did Not Show */
+    .bg-purple { background-color: #6f42c1; }
+    .bg-blue { background-color: #007bff; }
+    .bg-grey { background-color: #6c757d; } 
+    .bg-yellow { background-color: #ffc107; } 
+    .bg-green { background-color: #28a745; }
             .dropdown-menu {
             margin-left: -2rem;
         }
@@ -97,7 +113,6 @@ $serviceCounts[] = $rowService['service_count'];
                 opacity: 0;
                 animation-fill-mode: forwards;
             }
-
             @keyframes fadeIn {
                 0% {
                     opacity: 0;
@@ -112,127 +127,106 @@ $serviceCounts[] = $rowService['service_count'];
             <?php include "../sidebar.php"; ?>
             <section id="content-wrapper">
                     <div class="row">
-                        <div class="container">
-                            <div class="row ">
-                                <div class="col-md-3 mb-2">
-                                    <div class="card h-100 fade-in ">
-                                        <div class="card-body ">
-                                            <div style="text-align: center;"> <!-- Center align the content -->
-                                                <img src="<?php echo $userData['image']; ?>" class="rounded-circle mb-3" height="80px" width="80px" class="card-img-top" alt="...">
+                        
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-lg-3 mb-2">
+                                <div class="card bg-white p-4 fade-in rounded h-100 d-flex flex-column justify-content-between">
+                                    <p>Total of Patients</p>
+                                    <span class="badge bg-purple fs-4 p-3 ms-auto rounded" style="padding: 10px;"><?php echo $totalPatient; ?></span>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 mb-2">
+                                <div class="card bg-white p-4 fade-in rounded h-100 d-flex flex-column justify-content-between">
+                                    <p>Today's Appointment</p>
+                                    <span class="badge bg-purple fs-4 p-3 ms-auto rounded" style="padding: 10px;"><?php echo $totalAppointments; ?></span>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 mb-2">
+                                <div class="card bg-white p-4 fade-in rounded h-100  flex-column justify-content-between">
+                                    
+                                    <p>This Month's Appointment</p>
+                                    <span class="badge bg-purple fs-4 p-3 ms-auto rounded" style="padding: 10px;"><?php echo $totalApproved + $totalPending + $totalReschedule + $totalCancelled + $totalAcknowledged + $totalDidnotshow; ?></span>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 mb-2">
+                                <div class="card bg-white p-4 fade-in rounded h-100 d-flex flex-column justify-content-between">
+                                    <p>This Month's Completed Appointments</p>
+                                    <span class="badge bg-purple fs-4 p-3 rounded ms-auto" style="padding: 10px;"><?php echo $totalApproved; ?></span>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                    <div>
+                                <div class="row">
+                                    <div class=" col-xxl-6 col-l-6  mt-2 fade-in">
+                                        <div class="border bg-body rounded pt-3 h-100">
+                                            <div class=" text-center">
+                                                <h5>Services for this Month</h5>
+                                                <div class="chart-container ">
+                                                    <canvas id="serviceChart" width="550" height="250"></canvas>
+                                                </div>
                                             </div>
-                                            <h4 class="text-center"><?php echo $userData['clinic_firstname'] . " " . $userData['clinic_lastname']; ?></h4>
-                                            <p class="card-text text-center"><?php echo $userData['clinic_role'];?></p>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="col-md-9 mb-2">
-                                    <div class="fade-in ">
-                                        <!-- Purple Box -->
-                                        <div class="bg-purple p-3 rounded mb-3 h-100">
-                                            <!-- Container for Text and Picture  -->
-                                            <div class="d-flex justify-content-between">
-                                                <div>
-                                                    <h2 class="text-white">Hello Arola</h2>
-                                                    <div>
-                                                        <div>
-                                                            <span class="text-white">Total of appointment Today Are!: ></span>
-                                                        </div>
-                                                        <br>
-                                                        <div>
-                                                            <h1 class="text-white counter" ><?php echo $totalAppointments; ?></h1>
+                                    <div class=" col-xxl-6  col-l-6">
+                                        <div class="row justify-content-center">
+                                            <div class="col-md-6 mt-2 fade-in ">
+                                                <div class="border bg-body rounded pt-3 h-100">
+                                                <div class="text-center">
+                                                        <h5>Total Appointments: <?php echo $totalApproved + $totalPending + $totalReschedule + $totalCancelled + $totalAcknowledged + $totalDidnotshow; ?></h5>
+                                                        <div >
+                                                        <canvas id="appointmentChart" width="250" height="250"></canvas>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="col-auto">
-                                                    <img src="../image/dashboard.png" alt="" height="160px" class="w-100 ">
+                                            </div>
+                                            <!-- Total Patients Chart -->
+                                            <div class="col-md-6 mt-2 fade-in">
+                                                    <div class="border bg-body rounded pt-3 pb-3 h-100">
+                                                    <div class=" text-center">
+                                                            <h5>Total Patients: <?php echo $totalPatient; ?></h5>
+                                                            <div >
+                                                                <canvas id="patientChart" width="200" height="200"></canvas>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="container">
-                            <div class="row">
-                                <div class="col-lg-6">
-                                    <div class="bg-white p-4 fade-in text-center rounded">
-                                        Total of Appointment for this Month: <span class="bg-purple p-3 m-3 rounded text-white"><?php echo $totalApproved + $totalPending + $totalReschedule; ?></span>
-                                    </div>
-                                </div>
-                                <div class="col-lg-6">
-                                    <div class="bg-white p-4 fade-in text-center rounded">
-                                        Total of Completed Appointment for this Month: <span class="bg-purple p-3 m-3 rounded text-white"><?php echo $totalApproved?></span>
-                                    </div>
-                                </div>
-                            </div>
+                        
                             <div class="bg-white p-4 fade-in my-3 text-center rounded">
-                                <h2 class="text-center mb-3" style="color:#6f42c1;">Color Calendar Appointment Indicator</h2>
-                                <div class="status-indicator-container d-flex justify-content-between">
-                                    <div class="text-center">
-                                        <span class="status-indicator bg-purple"></span> Completed 
+                                <h2 class="text-center mb-3" style="color: #6f42c1;">Color Calendar Appointment Indicator</h2>
+                                <div class="status-indicator-container d-flex flex-wrap justify-content-center">
+                                    <div class="text-center mx-2">
+                                        <span class="status-indicator bg-green"></span> Completed
                                     </div>
-                                    <div class="text-center">
-                                        <span class="status-indicator bg-blue"></span> Rescheduled 
+                                    <div class="text-center mx-2">
+                                        <span class="status-indicator bg-blue"></span> Rescheduled
                                     </div>
-                                    <div class="text-center">
-                                        <span class="status-indicator bg-grey"></span> Pending 
+                                    <div class="text-center mx-2">
+                                        <span class="status-indicator bg-grey"></span> Pending
                                     </div>
-                                    <div class="text-center">
-                                        <span class="status-indicator bg-red"></span> Cancelled
+                                    <div class="text-center mx-2">
+                                        <span class="status-indicator bg-danger"></span> Cancelled
                                     </div>
-                                    <div class="text-center">
-                                        <span class="status-indicator bg-"></span> Acknowledged
+                                    <div class="text-center mx-2">
+                                        <span class="status-indicator bg-purple"></span> Acknowledged
                                     </div>
-                                    <div class="text-center">
-                                        <span class="status-indicator bg-yellow"></span> Did Not Show 
+                                    <div class="text-center mx-2">
+                                        <span class="status-indicator bg-yellow"></span> Did Not Show
                                     </div>
                                 </div>
                             </div>
-
                                         <div class="text-center  bg-white border rounded fade-in">
                                         <div class="p-4" id="calendar"></div>
                                         </div>
                                     </div>
                                     
-                            <div class="container-fluid">
-                                <div class="row justify-content-center">
-                                    <div class="col-md-6 mt-2 fade-in">
-                                        <div class="border bg-body rounded pt-3 justify-content-center pb-3 d-flex  h-100">
-                                        <div class="mx-2 text-center">
-                                                <h5>Total Appointments: <?php echo $totalApproved + $totalPending + $totalReschedule; ?></h5>
-                                                <div style="margin: -50px;">
-                                                <canvas id="appointmentChart" width="300" height="300"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!-- Total Patients Chart -->
-                                    <div class="col-md-6 mt-2 fade-in">
-                                            <div class="border bg-body rounded pt-3 pb-3 d-flex justify-content-center align-items-center flex-shrink-0 h-100">
-                                            <div class="mx-2 text-center">
-                                                    <h5>Total Patients: <?php echo $totalPatient; ?></h5>
-                                                    <div style="margin: -50px;">
-                                                        <canvas id="patientChart" width="300" height="300"></canvas>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="container-fluid">
-                                <div class="row justify-content-center">
-                                    <div class="col-md-12 mt-2 fade-in">
-                                        <div class="border bg-body rounded pt-3 pb-3 d-flex justify-content-center align-items-center">
-                                            <div class="mx-2 text-center">
-                                                <h5>Services for this Month</h5>
-                                                <div class="chart-container" style="position: relative; height:40vh; width:80vw">
-                                                    <canvas id="serviceChart"  width="1000" height="200"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            
                             </div>
                         </div>
                         
@@ -254,12 +248,13 @@ $serviceCounts[] = $rowService['service_count'];
         <script>
             $(document).ready(function() {
             // Data for the pie charts
+
             var appointmentChartData = {
                 datasets: [{
-                    data: [<?php echo $totalApproved; ?>, <?php echo $totalPending; ?>, <?php echo $totalReschedule; ?>],
-                    backgroundColor: ['#28a745', '#ffc107', '#dc3545'],
+                    data: [<?php echo $totalPending; ?>,  <?php echo $totalAcknowledged; ?>, <?php echo $totalApproved; ?>,  <?php echo $totalDidnotshow; ?>, <?php echo $totalReschedule; ?>, <?php echo $totalCancelled; ?>],
+                    backgroundColor: ['#6c757d', '#6f42c1', '#28a745',  '#ffc107', '#007bff', '#dc3545'],
                 }],
-                labels: ['Completed', 'Pending', 'Rescheduled',],
+                labels: ['Pending', 'Acknowledged', 'Completed', 'Did Not Show', 'Rescheduled', 'Cancelled'],
             };
 
             var patientChartData = {
@@ -276,9 +271,10 @@ $serviceCounts[] = $rowService['service_count'];
                 data: appointmentChartData,
                 options: {
                     responsive: true,
+                    maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            position: 'right',
+                            position: 'bottom',
                         },
                     },
                     cutout: '60%',
@@ -291,9 +287,11 @@ $serviceCounts[] = $rowService['service_count'];
                 data: patientChartData,
                 options: {
                     responsive: true,
+                    maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            position: 'right',
+                            position: 'bottom',
+                            
                         },
                     },
                     cutout: '60%',

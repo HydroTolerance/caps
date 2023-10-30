@@ -99,11 +99,18 @@ a:focus {
 .bg-purple {
 background-color: #6537AE;
 }
-.btn-purple:hover{
+.btn-outline-purple{
+  border-color: #6537AE;
+  color: #6537AE;
+}
+.bg-purple:hover{
             background-color: purple;
             color: white;
         }
-
+        .btn-outline-purple:hover{
+  border-color: purple;
+color: purple;
+      }
 #navbar-wrapper {
     width: 100%;
     position: absolute;
@@ -130,7 +137,6 @@ background-color: #6537AE;
 #content-wrapper {
   width: 100%;
   position: absolute;
-  padding: 15px;
   top: 100px;
 }
 #wrapper.toggled #content-wrapper {
@@ -271,7 +277,7 @@ background-color: #6537AE;
 <body>
 <aside id="sidebar-wrapper">
   <div class="sidebar-brand">
-    <h2>Logo</h2>
+    <img src="../../t/images/zephy.png" alt="" height="35px" width="160px">
   </div>
   <ul class="sidebar-nav">
     <li class="nav-item">
@@ -284,23 +290,9 @@ background-color: #6537AE;
             <i class="fs-4 bi-people"></i> <span class="ms-3">Client Record</span></a>
     </li>
     <li>
-        <a href="#submenu3" data-bs-toggle="collapse" data-bs-target="#appointment-submenu">
-            <i class="fs-4 bi-calendar-week"></i> <span class="ms-3">Appointment</span>
-        </a>
-        <ul class="collapse nav flex-column ms-1" id="appointment-submenu" data-bs-parent="#sidebar-wrapper">
-            <li class="w-100">
-                <a href="../appointment/appointment.php">
-                    <span class="ms-3"> - <i class="bi bi-calendar-week-fill me-2"></i> Appointment List</span>
-                </a>
-            </li>
-            <li>
-                <a href="../appointment/completed.php">
-                    <span class="ms-3"> - <i class="bi bi-calendar-check-fill me-2"></i> Completed</span>
-                </a>
-            </li>
-        </ul>
+        <a href="../appointment/appointment.php" >
+            <i class="fs-4 bi-calendar-week"></i> <span class="ms-3">Appointment</span></a>
     </li>
-
     <li>
         <a href="../clinic_account/clinic_account.php" >
             <i class="fs-4 bi-person-add"></i> <span class="ms-3">Clinic Account</span></a>
@@ -312,12 +304,17 @@ background-color: #6537AE;
         <ul class="collapse nav flex-column ms-1" id="website-settings-submenu" data-bs-parent="#sidebar-wrapper">
             <li class="w-100">
                 <a href="../faq/faq.php">
-                    <span class="ms-3"> - <i class="bi-question-circle-fill"></i> Frequently Ask</span>
+                    <span class="ms-3"> - <i class="bi-question-circle"></i> Frequently Ask</span>
                 </a>
             </li>
             <li>
                 <a href="../service/service.php">
                     <span class="ms-3"> - <i class="bi-collection"></i> Services</span>
+                </a>
+            </li>
+            <li class="w-100">
+                <a href="../slot/settings.php">
+                    <span class="ms-3"> - <i class="bi-gear"></i> Settings</span>
                 </a>
             </li>
         </ul>
@@ -350,7 +347,7 @@ background-color: #6537AE;
             if ($stmt) {
                 mysqli_stmt_execute($stmt);
                 $result = mysqli_stmt_get_result($stmt);
-                $notificationCount = mysqli_num_rows($result); // Count notifications
+                $notificationCount = mysqli_num_rows($result);
             }
             ?>
 
@@ -382,11 +379,10 @@ background-color: #6537AE;
           </div>
           <div class="dropdown">
             <a href="#" class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
-              <img src="../img/<?php echo $userData['image']; ?>" class="rounded-circle" height="30px" width="30px">
+              <img src="<?php echo $userData['image']; ?>" class="rounded-circle" height="30px" width="30px">
               <span class="d-none d-sm-inline mx-1"><b> Hello!</b> <?php echo $userData['clinic_firstname']; ?></span>
             </a>
             <ul class="dropdown-menu text-small shadow dropdown-menu-end" aria-labelledby="dropdownUser1">
-              <li><a class="dropdown-item" href="../slot/settings.php">Settings</a></li>
               <li><a class="dropdown-item" href="../profile/account.php">Profile</a></li>
               <li>
                 <hr class="dropdown-divider">
