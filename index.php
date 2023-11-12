@@ -199,7 +199,7 @@ if ($isDermaLoggedIn) {
           <a class="nav-link text-white fs-5" href="./t/contact.php">Contact</a>
         </li>
       </ul>
-      <?php if ($isClientLoggedIn): ?> <!-- Client -->
+      <?php if ($isClientLoggedIn): ?> <!-- Client --> 
         <div class="dropdown">
             <a href="#" class="d-flex align-items-center text-dark text-decoration-none" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
                 <img src="img/avatar/<?php echo $userData['client_avatar']; ?>" class="rounded-circle me-3" height="40px" width="40px">
