@@ -15,41 +15,6 @@
 <?php
 
 include "../../db_connect/config.php";
-if (isset($_POST['update'])) {
-    $id = $_POST['id'];
-    $email = mysqli_real_escape_string($conn, $_POST['email']);
-    $date = mysqli_real_escape_string($conn, $_POST['date']);
-    $time = mysqli_real_escape_string($conn, $_POST['time']);
-    $reason = mysqli_real_escape_string($conn, $_POST['apt_reason']);
-    $query = "UPDATE zp_appointment SET email = ?, date = ?, `time` = ?, apt_reason = ?, appointment_status = 'Rescheduled' WHERE id = ?";
-    $stmt = mysqli_prepare($conn, $query);
-    mysqli_stmt_bind_param($stmt, 'ssssi', $email, $date, $time, $reason, $id);
-    $result = mysqli_stmt_execute($stmt);
-    if ($result) {
-        require 'phpmailer/PHPMailerAutoload.php';
-        $mail = new PHPMailer(true);
-        try {
-            $mail->isSMTP(); 
-            $mail->Host = 'smtp.gmail.com';
-            $mail->SMTPAuth = true;         
-            $mail->Username = 'blazered098@gmail.com';
-            $mail->Password = 'nnhthgjzjbdpilbh';
-            $mail->SMTPSecure = 'tls';       
-            $mail->Port = 587;              
-            $mail->setFrom('blazered098@gmail.com', 'Rogen');
-            $mail->addAddress($email);
-            $mail->isHTML(true); 
-            $mail->Subject = 'Appointment Rescheduled';
-            $mail->Body = "Your appointment has been rescheduled:<br><br>New Date: $date<br>New Time: $time<br>Reason: $reason";
-
-            $mail->send();
-            header("Location: appointment.php");
-            exit;
-        } catch (Exception $e) {
-            echo "Email could not be sent. Mailer Error: {$mail->ErrorInfo}";
-        }
-    }
-}
 if (isset($_POST['id'])) {
     $id = $_POST['id'];
     $query = "SELECT * FROM zp_appointment WHERE id = $id";
@@ -72,7 +37,7 @@ if (!isset($_POST['secret_key']) || $_POST['secret_key'] !== $secret_key) {
 }
 
 ?>
-<form id="signUpForm" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
+<form id="signUpForm" action="appointment.php" method="post">
 <div>
         <label for="">Email of User</label>
         <input type="text" class="form-control"  name="email" required readonly value="<?php echo ($email)?>">

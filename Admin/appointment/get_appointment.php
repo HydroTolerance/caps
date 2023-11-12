@@ -11,42 +11,30 @@ if (isset($_POST['id'])) {
         $fullName = $row['firstname'] . ' ' . $row['lastname'];
         $formattedDate = date('M d, Y', strtotime($row['date']));
         $output = '
-            <table class="table">
-                <tbody>
-                    <tr>
-                        <th>Full Name</th>
-                        <td>' . $fullName . '</td>
-                    </tr>
-                    <tr>
-                        <th>Number</th>
-                        <td>' . $row['number'] . '</td>
-                    </tr>
-                    <tr>
-                        <th>Email</th>
-                        <td>' . $row['email'] . '</td>
-                    </tr>
-                    <tr>
-                        <th>Message</th>
-                        <td>' . $row['health_concern'] . '</td>
-                    </tr>
-                    <tr>
-                        <th>Services</th>
-                        <td>' . $row['services'] . '</td>
-                    </tr>
-                    <tr>
-                        <th>Date</th>
-                        <td>' . $formattedDate . '</td>
-                    </tr>
-                    <tr>
-                        <th>Time</th>
-                        <td>' . $row['time'] . '</td>
-                    </tr>
-                    <tr>
-                        <th>Status</th>
-                        <td>' . $row['appointment_status'] . '</td>
-                    </tr>
-                </tbody>
-            </table>
+                        <label class="fw-bold">Full Name</label><br>
+                        <label>' . $fullName . '</label><br>
+                        <hr>
+                        <label class="fw-bold">Number</label><br>
+                        <label>' . $row['number'] . '</label><br>
+                        <hr>
+                        <label class="fw-bold">Email</label><br>
+                        <label>' . $row['email'] . '</label><br>
+                        <hr>
+                        <label class="fw-bold">Message</label><br>
+                        <label>' . $row['health_concern'] . '</label><br>
+                        <hr>
+                        <label class="fw-bold">Services</label><br>
+                        <label>' . $row['services'] . '</label><br>
+                        <hr>
+                        <label class="fw-bold">Date</label><br>
+                        <label>' . $formattedDate . '</label><br>
+                        <hr>
+                        <label class="fw-bold">Time</label><br>
+                        <label>' . $row['time'] . '</label><br>
+                        <hr>
+                        <label class="fw-bold">Status</label><br>
+                        <label>' . $row['appointment_status'] . '</label><br>
+                        <hr>
         ';
     } else {
         $output = "No data found for the provided ID.";

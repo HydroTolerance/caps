@@ -1,3 +1,8 @@
+<?php 
+include "../function.php";
+checklogin('Admin');
+$userData = $_SESSION['id'];
+?>
 <?php
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     include "../../db_connect/config.php";
@@ -20,8 +25,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $city = $_POST['client_city'];
     $province = $_POST['client_province'];
     $postalCode = $_POST['client_postal_code'];
-
-    // Perform the database update
     $sql_update = "UPDATE zp_client_record SET client_firstname = ?, client_lastname = ?, client_middle = ?, client_suffix = ?, client_birthday = ?, client_gender = ?, client_number = ?, client_email = ?, client_emergency_person = ?, client_relation = ?, client_emergency_contact_number = ?, client_house_number = ?, client_street_name = ?, client_barangay = ?, client_city = ?, client_province = ?, client_postal_code = ? WHERE id = ?";
     $stmt_update = mysqli_prepare($conn, $sql_update);
     mysqli_stmt_bind_param($stmt_update, "sssssssssssssssssi",
@@ -29,7 +32,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $houseNumber, $streetName, $barangay, $city, $province, $postalCode, $id);
 
     if ($stmt_update->execute()) {
-        echo json_encode(['success' => true]);
+        // Log the activity
+        $userData = $_SESSION['id'];
+        $clinicRole = $userData['clinic_role'];
+        $actionDescription = "Client information updated: " . $fname . " " . $lname;
+        $insertLogQuery = "INSERT INTO activity_log (user_id, action_type, role, action_description) 
+                           VALUES (?, 'Client Update', ?, ?)";
+        $stmt = mysqli_prepare($conn, $insertLogQuery);
+        
+        if ($stmt) {
+            mysqli_stmt_bind_param($stmt, 'iss', $userData['id'], $clinicRole, $actionDescription);
+            
+            if (mysqli_stmt_execute($stmt)) {
+                echo json_encode(['success' => true]);
+            } else {
+                echo json_encode(['success' => false]);
+            }
+
+            mysqli_stmt_close($stmt);
+        } else {
+            echo "Error in preparing the log insertion statement: " . mysqli_error($conn);
+        }
     } else {
         echo json_encode(['success' => false]);
     }

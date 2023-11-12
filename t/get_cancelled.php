@@ -4,48 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="shortcut icon" href="images/icon1.png" type="image/x-icon">
     <title>Cancel Appointment</title>
 </head>
 <body>
 <?php
 include "../db_connect/config.php";
-if (isset($_POST['update'])) {
-    $id = $_POST['id'];
-    $email = $_POST['email'];
-    $reason = $_POST['apt_reason'];
-    $stmt = mysqli_prepare($conn, "UPDATE zp_appointment SET email=?, apt_reason = ?, appointment_status = 'Cancelled', schedule_status = 'Cancel' WHERE id =?");
-    mysqli_stmt_bind_param($stmt, "ssi", $email, $reason, $id);
-    $result = mysqli_stmt_execute($stmt);
-    if ($result) {
-        require 'phpmailer/PHPMailerAutoload.php';
-        $mail = new PHPMailer(true);
-        try {
-            //Server settings
-            $mail->isSMTP(); 
-            $mail->Host = 'smtp.gmail.com'; 
-            $mail->SMTPAuth = true;         
-            $mail->Username = 'blazered098@gmail.com';
-            $mail->Password = 'nnhthgjzjbdpilbh'; // Your SMTP password
-            $mail->SMTPSecure = 'tls';       
-            $mail->Port = 587;              
-
-            //Recipients
-            $mail->setFrom('blazered098@gmail.com', 'ROgen');
-            $mail->addAddress($email);
-
-            //Content
-            $mail->isHTML(true); 
-            $mail->Subject = 'Appointment Cancelled';
-            $mail->Body = "Your appointment has been cancelled:<br><br>Reason: $reason";
-
-            $mail->send();
-            header("Location: home.php");
-            exit();
-        } catch (Exception $e) {
-            echo "Email could not be sent. Mailer Error: {$mail->ErrorInfo}";
-        }
-    }
-}
 if (isset($_POST['id'])) {
     $id = $_POST['id'];
     $stmt = mysqli_prepare($conn, "SELECT * FROM zp_appointment WHERE id = ?");
@@ -58,7 +22,7 @@ if (isset($_POST['id'])) {
 }
 ?>
 
-<form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
+<form action="reschedule.php?reference_code=<?php echo $row['reference_code']; ?>" id="signUpForm" method="post">
     <div>
         <label for="">User's Email</label>
         <input type="text" class="form-control" name="email" readonly value="<?php echo ($email)?>">
@@ -70,11 +34,22 @@ if (isset($_POST['id'])) {
     <?php if (isset($_POST['id'])) : ?>
         <div class="modal-footer">
         <input type="hidden" name="id" value="<?php echo $_POST['id']; ?>">
-        <button class="btn text-white" style="background-color: #6537AE;" type="submit" name="update">Cancel Appointment</button>
+        <button class="btn text-white" style="background-color: #6537AE;" type="submit" name="cancell">Cancel Appointment</button>
         </div>
     <?php endif; ?>
 </form>
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+$(document).ready(function() {
+  $("#signUpForm").on("submit", function(e) {
+    if (this.checkValidity()) {
+      $("#pageloader").fadeIn();
+    } else {
+      e.preventDefault();
+    }
+  });
+});
+    </script>
 </body>
 </html>

@@ -19,7 +19,6 @@
             </div>
             <div class="modal-footer">
                 <button type="submit" name="submit" class="btn text-white" style="background-color: #6537AE;">Submit</button>
-                <a href="faq.php" class="btn btn-secondary">Cancel</a>
             </div>
 
         </form>

@@ -277,7 +277,7 @@ color: purple;
 <body>
 <aside id="sidebar-wrapper">
   <div class="sidebar-brand">
-    <img src="../../t/images/zephy.png" alt="" height="35px" width="160px">
+    <img src="../../t/images/zephy.png" height="38px" width="160px" style="margin-bottom: 20px;">
   </div>
   <ul class="sidebar-nav">
     <li class="nav-item">
@@ -339,10 +339,10 @@ color: purple;
       <div>
       <nav class="navbar navbar-light">
         <div class="container-fluid d-flex justify-content-end">
-          <div class="dropdown mx-4 width">
+          <div class="dropdown mx-4 width" >
             <?php
             include "../../db_connect/config.php";
-            $stmt = mysqli_prepare($conn, "SELECT * FROM zp_appointment WHERE schedule_status IN ('Sched', 'Cancel');");
+            $stmt = mysqli_prepare($conn, "SELECT * FROM zp_appointment");
             $notificationCount = 0;
             if ($stmt) {
                 mysqli_stmt_execute($stmt);
@@ -350,27 +350,25 @@ color: purple;
                 $notificationCount = mysqli_num_rows($result);
             }
             ?>
-
-<a href="#" class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle" id="dropdownNotification" data-bs-toggle="dropdown" aria-expanded="false">
-    <i class="fs-5 bi bi-bell"></i>
-    <span id="notification-count" class="badge bg-danger"><?php echo $notificationCount; ?></span>
-</a>
-            <ul class="dropdown-menu text-small shadow dropdown-menu-end p-1" aria-labelledby="dropdownNotification">
+            <a href="#" class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle" id="dropdownNotification" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fs-5 bi bi-bell"></i>
+                <span id="notification-count" class="badge bg-danger"><?php echo $notificationCount; ?></span>
+            </a>
+            <ul class="dropdown-menu text-small shadow dropdown-menu-end p-1" aria-labelledby="dropdownNotification" style="max-height: 200px; overflow-y: auto;">
               <?php
               include "../../db_connect/config.php";
-              $stmt = mysqli_prepare($conn, "SELECT * FROM zp_appointment WHERE schedule_status IN ('Sched', 'Cancel');");
-              $notificationCount = 0;
-
+              $stmt = mysqli_prepare($conn, "SELECT * FROM zp_appointment ORDER BY created DESC");
               if ($stmt) {
                   mysqli_stmt_execute($stmt);
                   $result = mysqli_stmt_get_result($stmt);
                   while ($row = mysqli_fetch_assoc($result)) {
-                      $dataRead = 'false';
                       if ($row['schedule_status'] == 'Sched') {
-                          echo '<li data-read="' . $dataRead . '"><a class="dropdown-item" href="#">The client has rescheduled the appointment: ' . $row['firstname'] . ' ' . $row['lastname'] . '</a></li>';
-                      } elseif ($row['schedule_status'] == 'Cancel') {
-                          echo '<li data-read="' . $dataRead . '"><a class="dropdown-item" href="#">The client has canceled the appointment: ' . $row['firstname'] . ' ' . $row['lastname'] . '</a></li>';
-                      }
+                        echo '<li><a class="dropdown-item" href="../appointment/appointment.php?appointment_id=' . $row['id'] . '">The client has rescheduled the appointment: ' . $row['firstname'] . ' ' . $row['lastname'] . '</a></li>';
+                    } elseif ($row['schedule_status'] == 'Cancel') {
+                        echo '<li><a class="dropdown-item" href="../appointment/appointment.php?appointment_id=' . $row['id'] . '">The client has canceled the appointment: ' . $row['firstname'] . ' ' . $row['lastname'] . '</a></li>';
+                    } else {
+                      echo '<li><a class="dropdown-item" href="../appointment/appointment.php?appointment_id=' . $row['id'] . '">Appointment is Created: ' . $row['firstname'] . ' ' . $row['lastname'] . '</a></li>';
+                  }
                   }
                   mysqli_stmt_close($stmt);
               }
@@ -383,7 +381,6 @@ color: purple;
               <span class="d-none d-sm-inline mx-1"><b> Hello!</b> <?php echo $userData['clinic_firstname']; ?></span>
             </a>
             <ul class="dropdown-menu text-small shadow dropdown-menu-end" aria-labelledby="dropdownUser1">
-              <li><a class="dropdown-item" href="../profile/account.php">Profile</a></li>
               <li>
                 <hr class="dropdown-divider">
               </li>

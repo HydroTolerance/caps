@@ -193,7 +193,6 @@ function DisableDaysModal(id) {
                     },
                     error: function (xhr, status, error) {
                         console.log(xhr.responseText);
-                        // Show an error alert using SweetAlert2
                         Swal.fire({
                             icon: 'error',
                             title: 'Oops...',
@@ -203,8 +202,6 @@ function DisableDaysModal(id) {
                 });
             }
         });
-
-        // Prevent the default behavior of the link
         return false;
     }
 

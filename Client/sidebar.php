@@ -74,29 +74,7 @@ background-color: #6537AE;
 
 </style>
 <body>
-<div id="navbar-wrapper">
-  <nav class="navbar navbar-inverse">
-    <div class="container-fluid">
-      <div class="navbar-header">
-      </div>
-      <div>
-      <nav class="navbar navbar-light">
-        <div class="container-fluid d-flex justify-content-end">
-            <div class="dropdown">
-                  <a href="#" class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
-                    <img src="<?php echo $userData['client_avatar']; ?>" class="rounded-circle" height="30px" width="30px">
-                    <span class="d-none d-sm-inline mx-1"><b> Hello!</b> <?php echo $userData['client_firstname']; ?></span>
-                  </a>
-                <ul class="dropdown-menu text-small shadow dropdown-menu-end" aria-labelledby="dropdownUser1">
-                  <li><a class="dropdown-item" href="../logout.php">Sign out</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-      </div>
-    </div>
-  </nav>
-</div>
+
 
 </body>
 </html>

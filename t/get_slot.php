@@ -1,11 +1,19 @@
 <?php
 include "../db_connect/config.php";
 $d = $_GET['d'];
-$query = "SELECT appointment_slots.slots, COUNT(total_bookings.time) AS total_bookings FROM appointment_slots
+$query = "SELECT appointment_slots.slots, COUNT(zp_appointment.time) AS total_bookings
+          FROM appointment_slots
           LEFT JOIN (
-              SELECT time FROM zp_appointment WHERE date = '$d'
-          ) AS total_bookings ON appointment_slots.slots = total_bookings.time
+              SELECT time
+              FROM zp_appointment
+              WHERE date = '$d'
+              AND appointment_status IN ('rescheduled', 'completed', 'pending', 'acknowledged')
+              AND appointment_status NOT IN ('Cancelled', 'did not show')
+          ) AS zp_appointment
+          ON appointment_slots.slots = zp_appointment.time
           GROUP BY appointment_slots.slots";
+
+
 
 $result = mysqli_query($conn, $query);
 $slots = array();

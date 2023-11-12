@@ -2,10 +2,8 @@
 include "../../db_connect/config.php";
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $success = true; // Assume success by default
-
+    $success = true;
     foreach ($_POST['availability'] as $id => $value) {
-        // Perform the database update here
         $sql = "UPDATE availability SET is_available = ? WHERE id = ?";
         $stmt = $conn->prepare($sql);
         if ($stmt) {

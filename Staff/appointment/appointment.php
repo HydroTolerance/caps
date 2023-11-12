@@ -3,6 +3,7 @@ include "../function.php";
 checklogin('Staff');
 $userData = $_SESSION['id'];
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -90,9 +91,10 @@ $userData = $_SESSION['id'];
             border-bottom: 1px solid #ddd;
         }
 
-        th {
-            background-color: #f2f2f2;
-        }
+        th{
+   background-color:#6537AE  !important;
+   color: #fff  !important;
+}
 
         .action-buttons a {
             margin-right: 10px;
@@ -132,31 +134,167 @@ $userData = $_SESSION['id'];
 .custom-width {
     width: 150px;
 }
+div.dataTables_filter input {  width: 300px !important;}
+#statusFilter::-webkit-select-button {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filter" viewBox="0 0 16 16"><path d="M2 3a1 1 0 011-1h10a1 1 0 110 2H3a1 1 0 01-1-1z"/><path d="M2 7a1 1 0 011-1h10a1 1 0 010 2H3a1 1 0 01-1-1z"/><path d="M2 11a1 1 0 011-1h10a1 1 0 010 2H3a1 1 0 01-1-1z"/></svg>');
+  }
     </style>
 </head>
 
 <body>
+    <?php
+    include "../../db_connect/config.php";
+    if (isset($_POST['update'])) {
+        $id = $_POST['id'];
+        $email = mysqli_real_escape_string($conn, $_POST['email']);
+        $date = mysqli_real_escape_string($conn, $_POST['date']);
+        $time = mysqli_real_escape_string($conn, $_POST['time']);
+        $reason = mysqli_real_escape_string($conn, $_POST['apt_reason']);
+        $query = "UPDATE zp_appointment SET email = ?, date = ?, `time` = ?, apt_reason = ?, appointment_status = 'Rescheduled' WHERE id = ?";
+        $stmt = mysqli_prepare($conn, $query);
+        mysqli_stmt_bind_param($stmt, 'ssssi', $email, $date, $time, $reason, $id);
+        $result = mysqli_stmt_execute($stmt);
+        if ($result) {
+            require 'phpmailer/PHPMailerAutoload.php';
+            $mail = new PHPMailer(true);
+            try {
+                $mail->isSMTP(); 
+                $mail->Host = 'smtp.gmail.com';
+                $mail->SMTPAuth = true;         
+                $mail->Username = 'blazered098@gmail.com';
+                $mail->Password = 'nnhthgjzjbdpilbh';
+                $mail->SMTPSecure = 'tls';       
+                $mail->Port = 587;              
+                $mail->setFrom('blazered098@gmail.com', 'Rogen');
+                $mail->addAddress($email);
+                $mail->isHTML(true); 
+                $mail->Subject = 'Appointment Rescheduled';
+                $mail->Body = "Your appointment has been rescheduled:<br><br>New Date: $date<br>New Time: $time<br>Reason: $reason";
+    
+                $mail->send();
+    
+        if ($mail->Send()) {
+            // Email sent successfully
+            echo '<script>
+                Swal.fire({
+                    icon: "success",
+                    title: "Success",
+                    text: "Appointment rescheduled successfully!"
+                }).then(function() {
+                    window.location = "appointment.php"; // Redirect after user clicks OK
+                });
+            </script>';
+        } else {
+            echo '<script>
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: "Email could not be sent. Mailer Error: ' . $mail->ErrorInfo . '"
+                });
+            </script>';
+        }
+            } catch (Exception $e) {
+                echo "Email could not be sent. Mailer Error: {$mail->ErrorInfo}";
+            }
+        }
+    }
+    ?>
+    <?php
+include "../../db_connect/config.php";
+if (isset($_POST['cancel'])) {
+    $id = $_POST['id'];
+    $email = $_POST['email'];
+    $reason = $_POST['apt_reason'];
+    $stmt = mysqli_prepare($conn, "UPDATE zp_appointment SET email=?, apt_reason = ?, appointment_status = 'Cancelled' WHERE id =?");
+    mysqli_stmt_bind_param($stmt, "ssi", $email, $reason, $id);
+    $result = mysqli_stmt_execute($stmt);
+    if ($result) {
+        require 'phpmailer/PHPMailerAutoload.php';
+        $mail = new PHPMailer(true);
+        try {
+            //Server settings
+            $mail->isSMTP(); 
+            $mail->Host = 'smtp.gmail.com'; 
+            $mail->SMTPAuth = true;         
+            $mail->Username = 'blazered098@gmail.com';
+            $mail->Password = 'nnhthgjzjbdpilbh'; // Your SMTP password
+            $mail->SMTPSecure = 'tls';       
+            $mail->Port = 587;              
+
+            //Recipients
+            $mail->setFrom('blazered098@gmail.com', 'ROgen');
+            $mail->addAddress($email);
+
+            //Content
+            $mail->isHTML(true); 
+            $mail->Subject = 'Appointment Cancelled';
+            $mail->Body = "Your appointment has been cancelled:<br><br>Reason: $reason";
+
+            $mail->send();
+
+            // Send a success message using SweetAlert2
+            echo '<script>
+                Swal.fire({
+                    icon: "success",
+                    title: "Success",
+                    text: "Appointment cancelled successfully!"
+                }).then(function() {
+                    window.location = "appointment.php"; // Redirect after user clicks OK
+                });
+            </script>';
+        } catch (Exception $e) {
+            // Show an error message with SweetAlert2
+            echo '<script>
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: "Email could not be sent. Mailer Error: ' . $mail->ErrorInfo . '"
+                });
+            </script>';
+        }
+    }
+}
+?>
+
 <div id="pageloader">
     <div class="custom-loader"></div>
 </div>
 <div id="wrapper">
     <?php include "../sidebar.php"; ?>
         <section id="content-wrapper">
+            <div class="bg-white py-3 mb-3 border border-bottom">
+                <div class="d-flex justify-content-between mx-3">
+                    <div>
+                        <h2 style="color:6537AE;" class="fw-bold">APPOINTMENT</h2>
+                    </div>
+                </div>
+            </div>
             <div class="row mx-1">
                 <div class="col-lg-12">
-                <h1 class="text-purple" style="color:6537AE;">Appointment</h1>
                 <div class="bg-white p-3 rounded-3 border mb-1" >
                 <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <label for="yearFilter">Filter Date:</label>
                     <div id="reportrange" class="form-control">
                         <i class="bi bi-calendar"></i>&nbsp;
-                        <span></span> <i class="fa fa-caret-down"></i>
+                        <span class="text-secondary"> Start - End Range of Date</span> <i class="fa fa-caret-down"></i>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <label for="statusFilter">Filter Status:</label>
-                    <select id="statusFilter" class="form-control">
+            </div>
+            <table id="example" class="table table-bordered  table-striped nowrap" cellspacing="0" style="width: 100%;" >
+            <thead>
+                <tr>
+                    <th>Full Name</th>
+                    <th>Services</th>
+                    <th class="text-nowrap" data-bs-toggle="popover" data-bs-placement="Right" data-bs-content="Sort Date">Appointment Date</th>
+                    <th class="text-nowrap" data-bs-toggle="popover" data-bs-placement="Right" data-bs-content="Sort Time">Appointment Time</th>
+                    <th class="text-nowrap">Reference Code</th>
+                    <th>Health Concern</th>
+                    <th>Health Concern</th>
+                    <th>Status</th>
+                    <th>
+                    <select id="statusFilter" class=" form-select-sm">
+                        <option selected="true" disabled>Status</option>
                         <option value="">All</option>
                         <option value="Pending">Pending</option>
                         <option value="Completed">Completed</option>
@@ -165,41 +303,68 @@ $userData = $_SESSION['id'];
                         <option value="Cancelled">Cancelled</option>
                         <option value="Did not show">Did not Show</option>
                     </select>
-                </div>
-            </div>
-            <table id="example" class="table table-bordered  table-striped nowrap" cellspacing="0" style="width: 100%;" >
-            <thead>
-                <tr>
-                    <th>Full Name</th>
-                    <th>Services</th>
-                    <th class="text-nowrap">Appointment Date</th>
-                    <th class="text-nowrap">Appointment Time</th>
-                    <th class="text-nowrap">Reference Code</th>
-                    <th>Status</th>
+                    </th>
                     <th>All Info</th>
                 </tr>
             </thead>
             <tbody>
             <?php
 include "../../db_connect/config.php";
-$stmt = mysqli_prepare($conn, "SELECT * FROM zp_appointment");
-mysqli_stmt_execute($stmt);
-$result = mysqli_stmt_get_result($stmt);
-while ($row = mysqli_fetch_array($result)) {
-    $isCompleted = ($row['appointment_status'] === 'Completed' || $row['appointment_status'] === 'Cancelled');
-    ?>
-    <tr>
-        <td><?php echo $row['firstname']. ' ' .$row['lastname']?></td>
-        <td><?php echo $row['services']?></td>
-        <td><?php echo date('F d, Y', strtotime($row['date'])); ?></td>
-        <td><?php echo $row['time']?></td>
-        <td class="text-center"><?php echo $row['reference_code']?></td>
-        <td id="status_<?php echo $row['id']; ?>" class="status-<?php echo strtolower(str_replace(' ', '-', $row['appointment_status'])); ?>">
-            <?php echo $row['appointment_status']; ?>
-        </td>
-        <td class="text-center"><button class="btn bg-purple text-white status-select" onclick="showData('<?php echo $row['id']; ?>')">View</button></td>
-    </tr>
-    <?php
+if (isset($_GET['appointment_id'])) {
+    $appointmentId = $_GET['appointment_id'];
+    $stmt = mysqli_prepare($conn, "SELECT * FROM zp_appointment WHERE id = ? ORDER BY date DESC");
+    mysqli_stmt_bind_param($stmt, "i", $appointmentId);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    if ($row = mysqli_fetch_array($result)) {
+        $isCompleted = ($row['appointment_status'] === 'Completed' || $row['appointment_status'] === 'Cancelled' || $row['appointment_status'] === 'Did not show');
+?>
+        <tr>
+            <td><?= $row['firstname'] . ' ' . $row['lastname'] ?></td>
+            <td><?= $row['services'] ?></td>
+            <td data-order="<?= date('Y-m-d', strtotime($row['date'])) ?>"><?= date('F d, Y', strtotime($row['date'])) ?></td>
+            <td><?= $row['time'] ?></td>
+            <td class="text-center"><?= $row['reference_code'] ?></td>
+            <td><?php echo $row['health_concern']?></td>
+        <td><?php echo strlen($row['health_concern']) > 50 ? substr($row['health_concern'], 0, 50) . '...' : $row['health_concern']; ?></td>
+            <td id="status_<?= $row['id'] ?>" class="status-<?= strtolower(str_replace(' ', '-', $row['appointment_status'])) ?>">
+                <?= $row['appointment_status'] ?>
+            </td>
+            <td id="status_<?= $row['id'] ?>" class="status-<?= strtolower(str_replace(' ', '-', $row['appointment_status'])) ?>">
+                <?= $row['appointment_status'] ?>
+            </td>
+            <td class="text-center"><button class="btn bg-purple text-white status-select" onclick="showData(<?= $row['id'] ?>)">View</button></td>
+        </tr>
+<?php
+    } else {
+        echo "Appointment not found.";
+    }
+} else {
+    $stmt = mysqli_prepare($conn, "SELECT * FROM zp_appointment ORDER BY date DESC");
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
+    while ($row = mysqli_fetch_array($result)) {
+        $isCompleted = ($row['appointment_status'] === 'Completed' || $row['appointment_status'] === 'Cancelled' || $row['appointment_status'] === 'Did not show');
+?>
+        <tr>
+            <td><?= $row['firstname'] . ' ' . $row['lastname'] ?></td>
+            <td><?= $row['services'] ?></td>
+            <td data-order="<?= date('Y-m-d', strtotime($row['date'])) ?>"><?= date('F d, Y', strtotime($row['date'])) ?></td>
+            <td><?= $row['time'] ?></td>
+            <td class="text-center"><?= $row['reference_code'] ?></td>
+            <td><?php echo $row['health_concern']?></td>
+        <td><?php echo strlen($row['health_concern']) > 50 ? substr($row['health_concern'], 0, 50) . '...' : $row['health_concern']; ?></td>
+        <td id="status_<?= $row['id'] ?>" class="status-<?= strtolower(str_replace(' ', '-', $row['appointment_status'])) ?>">
+                <?= $row['appointment_status'] ?>
+            </td>
+            <td id="status_<?= $row['id'] ?>" class="status-<?= strtolower(str_replace(' ', '-', $row['appointment_status'])) ?>">
+                <?= $row['appointment_status'] ?>
+            </td>
+            <td class="text-center"><button class="btn bg-purple text-white status-select" onclick="showData(<?= $row['id'] ?>)">View</button></td>
+        </tr>
+<?php
+    }
 }
 mysqli_close($conn);
 ?>
@@ -209,7 +374,7 @@ mysqli_close($conn);
         </div>
 </div>
 <div class="modal fade" id="dataModal" tabindex="-1" aria-labelledby="dataModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="dataModalLabel">Full Data</h5>
@@ -262,8 +427,8 @@ mysqli_close($conn);
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 $(document).ready(function() {
+
     var table = $('#example').DataTable({
-        order: [[2, 'desc']],
         responsive: true,
         dom: "<'row'<'col-sm-1 mt-2'B><'col-md-1 mt-2' l><'col-md-10'f>>" +
      "<'row'<'col-md-12'tr>>" +
@@ -277,17 +442,50 @@ $(document).ready(function() {
                 extend: 'pdfHtml5',
                 text: 'PDF',
                 title: 'Z-Skin Care Report',
-                customize: function (doc) {
+                orientation: 'landscape',
 
-                            doc.content[1].table.widths = ['auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'];
-                            doc.content[1].table.body.forEach(function(row) {
-                                row.splice(7, 2);
+                exportOptions: {
+                    columns: [0, 1, 2, 3, 4, 5, 7], // Specify the columns to include in the export
+                },
+                customize: function(doc) {
+                            doc.styles.title = {
+                                color: '#2D1D10',
+                                fontSize: '16',
+                                alignment: 'center'
+                            };
+                            doc.content[1].table.headerRows = 1;
+                            doc.content[1].table.body[0].forEach(function(cell) {
+                                cell.fillColor = '#6537AE';
+                                cell.color = '#fff';
                             });
-                        }
+                            for (var row = 0; row < doc.content[1].table.body.length; row++) {
+                                var rowData = doc.content[1].table.body[row];
+                                for (var col = 0; col < rowData.length; col++) {
+                                    var cell = rowData[col];
+                                    cell.border = [0, 0, 0, 1];
+                                }
+                            }
+                        },
                     },
             'copy',
-            'excel',
-            'print'
+            {
+                extend: 'excelHtml5',
+                text: 'Excel',
+                title: 'Z-Skin Care Report',
+                orientation: 'landscape',
+                exportOptions: {
+                    columns: [0, 1, 2, 3, 4, 5, 7],
+                }
+            },
+            {
+                    extend: 'print',
+                    text: 'Print',
+                    customize: function (win) {
+                        $(win.document.body)
+                            .find('table')
+                            .addClass('compact-print-table');
+                    }
+                }
         ]
     }
 ],
@@ -296,7 +494,14 @@ $(document).ready(function() {
         scrollCollapse: true,
         paging: true,
         fixedColumns: true,
+        order: [[2, 'desc']],
         select: true,
+        "columnDefs": [
+            {"targets": [5],"visible": false, "searchable": false},
+            {"targets": [7],"visible": false, "searchable": false},
+        { "orderable": false, "targets": [0, 1, 4, 5, 6, 7, 8, 9] },
+        { "orderable": true, "targets": [2, 3] }
+    ],
         initComplete: function () {
             var dateRangePicker = $('#reportrange');
             dateRangePicker.daterangepicker({
@@ -319,6 +524,7 @@ $(document).ready(function() {
         },
         
     });
+    
     var minDateFilter = null;
     var maxDateFilter = null;
     $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
@@ -330,6 +536,7 @@ $(document).ready(function() {
     }
     return false;
 });
+
     $('#reportrange').on('apply.daterangepicker', function() {
         table.draw();
     });
@@ -342,9 +549,17 @@ $(document).ready(function() {
 // Apply the status filter on change
 statusFilter.on('change', function() {
     var selectedStatus = $(this).val();
-    table.column(5).search(selectedStatus).draw();
+    table.column(8).search(selectedStatus).draw();
 });
 });
+
+var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+  return new bootstrap.Popover(popoverTriggerEl)
+})
+
+
 </script>
+
 </body>
 </html>

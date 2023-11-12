@@ -8,7 +8,7 @@ $userData = $_SESSION['id'];
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-        <title>Dashboard</title>
+        <title>View Record</title>
         <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
         <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
         <link rel="stylesheet" href="../css/style.css">
@@ -84,8 +84,8 @@ $userData = $_SESSION['id'];
                     <div class="mx-3">
                         <form method="post" >
                             <div class="container">
-                            <a class="btn btn-secondary" href="client_record.php"><i class="bi bi-arrow-left"></i> Go Back</a>
-                            <h2 style="color:6537AE;" class="text-center">View Client Record</h2>
+                            <a class="btn btn-secondary" href="client_record.php"><i class="bi bi-arrow-left"></i></a>
+                            <h2 style="color:6537AE;" class="text-center fw-bold">View Client Record</h2>
                                 <div class="row mb-3">
                                     <input class="form-label" type="hidden" name="id" value="<?php echo $id; ?>">
                                 </div>
@@ -99,29 +99,29 @@ $userData = $_SESSION['id'];
                                         <div class="bg-white px-5 py-3 border rounded">
                                             <div class="row mb-3">
                                                 <div class="row">
-                                                    <strong><label class="mb-2">CLIENT INFORMATION:</label></strong>
+                                                    <strong><label class="mb-2">CLIENT INFORMATION</label></strong>
                                                     <hr>
                                                 </div>
                                                 <div class="col-md-4">
-                                                    <strong><p>Full Name: </p></strong>
-                                                    <p><?php echo ($fname. ", " .$lname. " " .$mname. " " .$sname); ?></p>
+                                                    <strong><p>Full Name </p></strong>
+                                                    <p><?php echo ($lname. ", " .$fname. " " .$mname. " " .$sname); ?></p>
                                                 </div>
                                                 <div class="col-md-4">
-                                                    <strong><label class="mb-3">Email:</label></strong>
+                                                    <strong><label class="mb-3">Email</label></strong>
                                                     <p><?php echo $email ?></p>
                                                 </div>
                                                 <div class="col-md-4">
-                                                    <strong><label class="mb-3">Contact Number:</label></strong>
+                                                    <strong><label class="mb-3">Contact Number</label></strong>
                                                     <p><?php echo $contact ?></p>
                                                 </div>
                                             </div>
                                             <div class="row">
                                                 <div class="col-md-4">
-                                                    <strong><p>Gender: </p></strong>
+                                                    <strong><p>Gender </p></strong>
                                                     <p><?php echo $gender; ?></p>
                                                 </div>
                                                 <div class="col-md-6">
-                                                    <strong><p>Date of Birth: </p></strong>
+                                                    <strong><p>Date of Birth </p></strong>
                                                     <p><?php echo $dob; ?></p>
                                                 </div>
                                             </div>
@@ -130,7 +130,7 @@ $userData = $_SESSION['id'];
                                 </div>
                             <div class="col-md-12 bg-white p-5 border rounded mb-3" style="padding: 20px;">
                                 <div class="row mb-3">
-                                    <strong><label class="mb-2">ADDRESS:</label></strong>
+                                    <strong><label class="mb-2">ADDRESS</label></strong>
                                     <hr>
                                 </div>
                                 <div class="row mb-3">
@@ -164,7 +164,7 @@ $userData = $_SESSION['id'];
                             </div>
                             <div class="col-md-12 bg-white p-5 border rounded mb-3" style="padding: 20px;">
                                 <div class="row mb-3">
-                                    <strong><label class="mb-2">EMERGENCY CONTACT PERSON:</label></strong>
+                                    <strong><label class="mb-2">EMERGENCY CONTACT PERSON</label></strong>
                                     <hr>
                                 </div>
                                 <div class="row mb-3">
@@ -173,11 +173,11 @@ $userData = $_SESSION['id'];
                                         <p><?php echo $econtact ?></p>
                                     </div>
                                     <div class="col-md-3">
-                                        <strong><label class="mb-3">Relation:</label></strong>
+                                        <strong><label class="mb-3">Relation</label></strong>
                                         <p><?php echo $relation ?></p>
                                     </div>
                                     <div class="col-md-5">
-                                        <strong><label class="mb-3">Relation:</label></strong>
+                                        <strong><label class="mb-3">Contact Person Number</label></strong>
                                         <p><?php echo $econtactno ?></p>
                                     </div>
                                 </div>
@@ -196,31 +196,44 @@ $userData = $_SESSION['id'];
                             <div>
                             <div class="text-dark border rounded p-3 mb-3">
                                 <h2 style="color: 6537AE;" class="text-center">Diagnosis of the Patient</h2>
-                                    <table id="clientTable" class="table table table-bordered table-striped nowrap" style="width:100%">
+                                <table id="clientTable" class="table table table-bordered table-striped nowrap" style="width:100%">
                                         <thead>
-                                                    <tr>
-                                                        <th>Date:</th>
-                                                        <th>History:</th>
-                                                        <th>Diagnosis:</th>
-                                                        <th>Management:</th>
-                                                    </tr>
-                                                </thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>History</th>
+                                                <th>Diagnosis</th>
+                                                <th>Diagnosis</th>
+                                                <th>Management</th>
+                                                <th>Notes</th>
+                                                <th>All Information</th>
+                                            </tr>
+                                        </thead>
                                         <tbody>
                                         <?php
                                             if (isset($_GET['id'])) {
                                                 include "../../db_connect/config.php";
                                                 $id = $_GET['id'];
-                                                $stmt = mysqli_prepare($conn, "SELECT * FROM zp_derma_record WHERE patient_id=? AND archive != '1'");
+                                                $stmt = mysqli_prepare($conn, "SELECT * FROM zp_derma_record WHERE patient_id=?");
                                                 mysqli_stmt_bind_param($stmt, "i", $id);
                                                 mysqli_stmt_execute($stmt);
                                                 $info_result = mysqli_stmt_get_result($stmt);
                                                 while ($info_row = mysqli_fetch_assoc($info_result)) {
                                                 ?>
                                                         <tr>
-                                                            <td><?php echo date('M d, Y', strtotime($info_row['date_diagnosis']))?></td>
-                                                            <td><?php echo $info_row['history']?></td>
-                                                            <td><?php echo $info_row['diagnosis']?></td>
+                                                            <td><?php echo date('F d, Y', strtotime($info_row['date_diagnosis']))?></td>
+                                                            <td><?php echo $info_row['history'], 0, 60?></td>
+                                                            <td><?php echo substr($info_row['diagnosis'], 0, 60) . "..." ?></td>
+                                                            <td><?php echo $info_row['diagnosis']; ?></td>
                                                             <td><?php echo $info_row['management']?></td>
+                                                            <td><?php echo strlen($info_row['notes']) > 50 ? substr($info_row['notes'], 0, 50) . '...' : $info_row['notes']; ?></td>
+                                                            <td>
+                                                                <div style="display: flex; gap: 10px;">
+                                                                    <button type="button" onclick="showData('<?php echo $info_row['id']; ?>')" class="btn btn-purple bg-purple text-white btn-sm" data-zep-acc="<?php echo $info_row['id']; ?>">View</button>
+                                                                    <form method="post" action="">
+                                                                        <input type="hidden" name="id" value="<?php echo $info_row['id']; ?>">
+                                                                    </form>
+                                                                </div>
+                                                            </td>
                                                         </tr>
                                                         <?php
                                             }           mysqli_stmt_close($stmt);
@@ -252,7 +265,7 @@ $userData = $_SESSION['id'];
                                 </ul>
                                 <div class="tab-content" id="myTabContent">
                                 <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
-                                    <table class="table table-bordered my-3">
+                                    <table class="table table-bordered my-3" >
                                         <tr><th colspan='3' class='text-center' style='background-color: #f2f2f2;'>Upcoming Appointment</th></tr>
                                         <tr>
                                             <th>Date</th>
@@ -327,8 +340,192 @@ $userData = $_SESSION['id'];
                 </div>
             </div>
         </div>
+
+    <div class="modal fade" id="dataModal" tabindex="-1" aria-labelledby="dataModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered ">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="dataModalLabel">Full Data</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Data will be dynamically inserted here -->
+            </div>
+        </div>
+    </div>
+</div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">
+
+    
+<!-- DataTables Buttons Extension -->
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.colVis.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/datetime/1.1.5/css/dataTables.dateTime.min.css">
+<script src="https://cdn.datatables.net/datetime/1.1.5/js/dataTables.dateTime.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <script>
+         $(document).ready(function() {
+    var table = $('#clientTable').DataTable({
+        order: [[0, 'desc']],
+        responsive: true,
+        dom: "<'row'<'col-sm-1 mt-2 text-center'B><'col-md-1 mt-2 ' l><'col-md-10'f>>" +
+     "<'row'<'col-md-12'tr>>" +
+     "<'row'<'col-md-12'i><'col-md-12'p>>",
+     buttons: [
+    {
+        extend: 'collection',
+        text: '<i class="bi bi-funnel"></i>',
+        buttons: [
+            {
+                header: {
+                    image: 'https://i.kym-cdn.com/photos/images/newsfeed/002/440/417/671'
+                },
+                extend: 'pdfHtml5',
+                text: 'PDF',
+                title: 'Z-Skin Care Report (<?php echo $fname . " " . $mname . " " . $lname . " " . $sname; ?>)',
+                exportOptions: {
+                    columns: [0, 1, 3, 4]
+                },
+                customize: function(doc) {
+            doc.content[1].table.widths = ['25%', '25%', '25%', '25%'];
+            doc.styles.title = {
+                color: '#2D1D10',
+                fontSize: '16',
+                alignment: 'center'
+            };
+            doc.content[1].table.headerRows = 1;
+            doc.content[1].table.body[0].forEach(function(cell) {
+                cell.fillColor = '#6537AE';
+                cell.color = '#fff';
+            });
+            for (var row = 0; row < doc.content[1].table.body.length; row++) {
+                var rowData = doc.content[1].table.body[row];
+                for (var col = 0; col < rowData.length; col++) {
+                    var cell = rowData[col];
+                    cell.border = [0, 0, 0, 1];
+                }
+            }
+            doc.content.splice(1, 0, {
+  layout: 'noBorders',
+  table: {
+    widths: ['*', '*'],
+    body: [
+      [
+        {
+          text: 'Name: ' + '<?php echo $fname . " " . $mname . " " . $lname . " " . $sname; ?>',
+          margin: [10, 0, 0, 5],
+          alignment: 'left'
+        },
+        {
+          text: 'DOB: ' + '<?php echo $dob; ?>',
+          margin: [0, 0, 10, 5],
+          alignment: 'right'
+        }
+      ],
+      [
+        {
+          text: 'Gender: ' + '<?php echo $gender; ?>',
+          margin: [10, 0, 0, 5],
+          alignment: 'left'
+        },
+        {
+          text: 'Contact: ' + '<?php echo $contact; ?>',
+          margin: [0, 0, 10, 5],
+          alignment: 'right'
+        }
+      ],
+      [
+        {
+          text: 'Email: ' + '<?php echo $email; ?>',
+          margin: [10, 0, 0, 5],
+          alignment: 'left'
+        },
+        {
+          text: 'Emergency Contact: ' + '<?php echo $econtact; ?>',
+          margin: [0, 0, 10, 5],
+          alignment: 'right'
+        }
+      ],
+      [
+        {
+          text: 'Relation: ' + '<?php echo $relation; ?>',
+          margin: [10, 0, 0, 5],
+          alignment: 'left'
+        },
+        {
+          text: 'Emergency Contact No: ' + '<?php echo $econtactno; ?>',
+          margin: [0, 0, 10, 5],
+          alignment: 'right'
+        }
+      ],
+      [
+        {
+          text: 'Address: ' + '<?php echo $houseNumber . " " . $streetName  . " " . $barangay . " " . $city . " " . $province; ?>',
+          margin: [10, 0, 0, 5],
+          alignment: 'left'
+        },
+        {
+          text: 'Postal Code: ' + '<?php echo $postalCode; ?>',
+          margin: [0, 0, 10, 5],
+          alignment: 'right'
+        }
+      ],
+    ]
+  }
+});
+
+
+
+        },
+    },
+            'copy',
+            {
+                extend: 'excelHtml5',
+                text: 'Excel',
+                title: 'Z-Skin Care Report',
+                orientation: 'landscape',
+                exportOptions: {
+                    columns: [0, 1, 3, 4,],
+                }
+            },
+            {
+                    extend: 'print',
+                    text: 'Print',
+                    customize: function (win) {
+                        $(win.document.body)
+                            .find('table')
+                            .addClass('compact-print-table');
+                    }
+                }
+        ]
+    }
+],
+
+        scrollY: 500,
+        scrollX: true,
+        scrollCollapse: true,
+        paging: true,
+        fixedColumns: true,
+        select: true,
+        columnDefs: [
+        {
+            target: 3,
+            visible: false,
+            searchable: false
+        },
+    ],
+    });
+})
+    </script>
     <script>
                     // Initialize Summernote on the textarea
                     $(document).ready(function() {
@@ -344,12 +541,6 @@ $userData = $_SESSION['id'];
                             // Handle event click here
                             alert('Event clicked: ' + event.title);
                         }
-                    });
-                    $('#clientTable').DataTable({
-                        responsive: true,
-                        rowReorder: {
-                            selector: 'td:nth-child(2)'
-                        },
                     });
                 });
     </script>
@@ -369,6 +560,18 @@ $userData = $_SESSION['id'];
     document.getElementById('diagnosisTab').addEventListener('click', showDiagnosisSection);
     document.getElementById('appointmentTab').addEventListener('click', showAppointmentSection);
 </script>
-
+<script>
+    function showData(id) {
+    $.ajax({
+        url: 'get_diagnosis.php',
+        type: 'POST',
+        data: {id: id, secret_key: 'helloimjaycearon' },
+        success: function(response) {
+            $('#dataModal .modal-body').html(response);
+            $('#dataModal').modal('show');
+        }
+    });
+}
+</script>
     </body>
     </html>

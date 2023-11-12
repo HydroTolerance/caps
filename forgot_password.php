@@ -1,44 +1,66 @@
 <?php
 include "db_connect/config.php";
-require 'CapDev/phpmailer/PHPMailerAutoload.php';
+require 't/phpmailer/PHPMailerAutoload.php';
 
 if (isset($_POST["send_otp"])) {
     $email = mysqli_real_escape_string($conn, trim($_POST['clinic_email']));
-    $otp = sprintf('%06d', mt_rand(0, 999999));
-    $expiration_time = time() + 6000;
-    mysqli_query($conn, "UPDATE zp_accounts SET otp = '$otp', expiration_time = $expiration_time WHERE clinic_email = '$email'");
-    $mail = new PHPMailer();
+    
+    // Check if the email exists in zp_accounts table
+    $clinicSql = mysqli_query($conn, "SELECT * FROM zp_accounts WHERE clinic_email = '$email'");
+    $clinicCount = mysqli_num_rows($clinicSql);
 
-    $smtpHost = 'smtp.gmail.com';
-    $smtpPort = 587;
-    $smtpUsername = 'blazered098@gmail.com';
-    $smtpPassword = 'nnhthgjzjbdpilbh';
+    // Check if the email exists in zp_client_record table
+    $clientSql = mysqli_query($conn, "SELECT * FROM zp_client_record WHERE client_email = '$email'");
+    $clientCount = mysqli_num_rows($clientSql);
 
-    $mail->SMTPDebug = 0;
-    $mail->isSMTP();
-    $mail->Host = $smtpHost;
-    $mail->Port = $smtpPort;
-    $mail->SMTPSecure = 'tls';
-    $mail->SMTPAuth = true;
-    $mail->Username = $smtpUsername;
-    $mail->Password = $smtpPassword;
+    if ($clinicCount > 0 || $clientCount > 0) {
+        // Email exists in either table, proceed with OTP generation and sending
+        $otp = sprintf('%06d', mt_rand(0, 999999));
+        $expiration_time = time() + 6000;
+        
+        // Update the OTP and expiration time in the appropriate table
+        if ($clinicCount > 0) {
+            mysqli_query($conn, "UPDATE zp_accounts SET otp = '$otp', expiration_time = $expiration_time WHERE clinic_email = '$email'");
+        } else {
+            mysqli_query($conn, "UPDATE zp_client_record SET otp = '$otp', expiration_time = $expiration_time WHERE client_email = '$email'");
+        }
 
-    $mail->setFrom($smtpUsername, 'Zephyris Skin Care');
-    $mail->addAddress($email);
-    $mail->Subject = 'OTP Code';
-    $mail->isHTML(true);
-    $mail->Body = "Your OTP code is: $otp";
-    $mailSent = $mail->send();
+        $mail = new PHPMailer();
 
-    if ($mailSent) {
-        $success_message = "OTP code sent to your email. Check your inbox (and spam folder) for the code.";
-        header("Location: verified_otp.php?email=" . urlencode($email));
-        exit();
+        $smtpHost = 'smtp.gmail.com';
+        $smtpPort = 587;
+        $smtpUsername = 'blazered098@gmail.com';
+        $smtpPassword = 'nnhthgjzjbdpilbh';
+
+        $mail->SMTPDebug = 0;
+        $mail->isSMTP();
+        $mail->Host = $smtpHost;
+        $mail->Port = $smtpPort;
+        $mail->SMTPSecure = 'tls';
+        $mail->SMTPAuth = true;
+        $mail->Username = $smtpUsername;
+        $mail->Password = $smtpPassword;
+
+        $mail->setFrom($smtpUsername, 'Zephyris Skin Care');
+        $mail->addAddress($email);
+        $mail->Subject = 'OTP Code';
+        $mail->isHTML(true);
+        $mail->Body = "Your OTP code is: $otp";
+        $mailSent = $mail->send();
+
+        if ($mailSent) {
+            $success_message = "OTP code sent to your email. Check your inbox (and spam folder) for the code.";
+            header("Location: verified_otp.php?email=" . urlencode($email));
+            exit();
+        } else {
+            $error_message = "Email sending failed. Please try again later.";
+        }
     } else {
-        $error_message = "Email sending failed. Please try again later.";
+        $error_message = "Email does not exist. Please enter a valid email address.";
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -72,7 +94,6 @@ if (isset($_POST["send_otp"])) {
             </div>
         </div>
     </div>
-</div>
 </div>
 </body>
 </html>

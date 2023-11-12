@@ -84,7 +84,7 @@ $userData = $_SESSION['id'];
                     <div class="mx-3">
                         <form method="post" >
                             <div class="container">
-                            <a class="btn btn-secondary" href="client_record.php"><i class="bi bi-arrow-left"></i> Go Back</a>
+                            <a class="btn btn-secondary" href="client_record.php"><i class="bi bi-arrow-left"></i> </a>
                             <h2 style="color:6537AE;" class="text-center">View Client Record</h2>
                                 <div class="row mb-3">
                                     <input class="form-label" type="hidden" name="id" value="<?php echo $id; ?>">

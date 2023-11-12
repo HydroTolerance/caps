@@ -15,8 +15,22 @@ $userData = $_SESSION['id'];
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css">
-            <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+        <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">
 
+    
+<!-- DataTables Buttons Extension -->
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.colVis.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/datetime/1.1.5/css/dataTables.dateTime.min.css">
+<script src="https://cdn.datatables.net/datetime/1.1.5/js/dataTables.dateTime.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
         <style>
         </style>
     </head>
@@ -220,6 +234,7 @@ $userData = $_SESSION['id'];
                                                         <th>Date:</th>
                                                         <th>History:</th>
                                                         <th>Diagnosis:</th>
+                                                        <th>Diagnosis:</th>
                                                         <th>Management:</th>
                                                         <th>Notes:</th>
                                                         <th>All Information</th>
@@ -237,11 +252,12 @@ $userData = $_SESSION['id'];
                                                 while ($info_row = mysqli_fetch_assoc($info_result)) {
                                                 ?>
                                                         <tr>
-                                                            <td><?php echo date('M d, Y', strtotime($info_row['date_diagnosis']))?></td>
-                                                            <td><?php echo substr($info_row['history'], 0, 60) . "..." ?></td>
+                                                            <td><?php echo date('F d, Y', strtotime($info_row['date_diagnosis']))?></td>
+                                                            <td><?php echo $info_row['history'], 0, 60?></td>
                                                             <td><?php echo substr($info_row['diagnosis'], 0, 60) . "..." ?></td>
+                                                            <td><?php echo $info_row['diagnosis']; ?></td>
                                                             <td><?php echo $info_row['management']?></td>
-                                                            <td><?php echo substr($info_row['diagnosis'], 0, 60) . "..." ?></td>
+                                                            <td><?php echo strlen($info_row['notes']) > 50 ? substr($info_row['notes'], 0, 50) . '...' : $info_row['notes']; ?></td>
                                                             <td>
                                                                 <div style="display: flex; gap: 10px;">
                                                                     <button type="button" onclick="showData('<?php echo $info_row['id']; ?>')" class="btn btn-purple bg-purple text-white btn-sm" data-zep-acc="<?php echo $info_row['id']; ?>">View</button>
@@ -323,8 +339,6 @@ $userData = $_SESSION['id'];
                                         if (isset($_GET['id'])) {
                                             $id = $_GET['id'];
                                             include "../../db_connect/config.php";
-                                            
-                                            // Fetch upcoming appointments (assuming the date is in the future)
                                             $currentDate = date("Y-m-d");
                                             $pastAppointmentsQuery = "SELECT * FROM zp_appointment WHERE client_id = '$id' AND date < '$currentDate'";
                                             $pastAppointmentsResult = mysqli_query($conn, $pastAppointmentsQuery);
@@ -475,7 +489,129 @@ function showData(id) {
     {
         extend: 'collection',
         text: '<i class="bi bi-funnel"></i>',
-        buttons: ['copy', 'excel', 'pdf', 'csv', 'print']
+        buttons: [
+            {
+                header: {
+                    image: 'https://i.kym-cdn.com/photos/images/newsfeed/002/440/417/671'
+                },
+                extend: 'pdfHtml5',
+                text: 'PDF',
+                title: 'Z-Skin Care Report',
+                exportOptions: {
+                    columns: [0, 1, 3, 4]
+                },
+                customize: function(doc) {
+            doc.content[1].table.widths = ['25%', '25%', '25%', '25%'];
+            doc.styles.title = {
+                color: '#2D1D10',
+                fontSize: '16',
+                alignment: 'center'
+            };
+            doc.content[1].table.headerRows = 1;
+            doc.content[1].table.body[0].forEach(function(cell) {
+                cell.fillColor = '#6537AE';
+                cell.color = '#fff';
+            });
+            for (var row = 0; row < doc.content[1].table.body.length; row++) {
+                var rowData = doc.content[1].table.body[row];
+                for (var col = 0; col < rowData.length; col++) {
+                    var cell = rowData[col];
+                    cell.border = [0, 0, 0, 1];
+                }
+            }
+            doc.content.splice(1, 0, {
+  layout: 'noBorders',
+  table: {
+    widths: ['*', '*'],
+    body: [
+      [
+        {
+          text: 'Name: ' + '<?php echo $fname . " " . $mname . " " . $lname . " " . $sname; ?>',
+          margin: [10, 0, 0, 5],
+          alignment: 'left'
+        },
+        {
+          text: 'DOB: ' + '<?php echo $dob; ?>',
+          margin: [0, 0, 10, 5],
+          alignment: 'right'
+        }
+      ],
+      [
+        {
+          text: 'Gender: ' + '<?php echo $gender; ?>',
+          margin: [10, 0, 0, 5],
+          alignment: 'left'
+        },
+        {
+          text: 'Contact: ' + '<?php echo $contact; ?>',
+          margin: [0, 0, 10, 5],
+          alignment: 'right'
+        }
+      ],
+      [
+        {
+          text: 'Email: ' + '<?php echo $email; ?>',
+          margin: [10, 0, 0, 5],
+          alignment: 'left'
+        },
+        {
+          text: 'Emergency Contact: ' + '<?php echo $econtact; ?>',
+          margin: [0, 0, 10, 5],
+          alignment: 'right'
+        }
+      ],
+      [
+        {
+          text: 'Relation: ' + '<?php echo $relation; ?>',
+          margin: [10, 0, 0, 5],
+          alignment: 'left'
+        },
+        {
+          text: 'Emergency Contact No: ' + '<?php echo $econtactno; ?>',
+          margin: [0, 0, 10, 5],
+          alignment: 'right'
+        }
+      ],
+      [
+        {
+          text: 'Address: ' + '<?php echo $houseNumber . " " . $streetName  . " " . $barangay . " " . $province; ?>',
+          margin: [10, 0, 0, 5],
+          alignment: 'left'
+        },
+        {
+          text: 'Postal Code: ' + '<?php echo $postalCode; ?>',
+          margin: [0, 0, 10, 5],
+          alignment: 'right'
+        }
+      ],
+    ]
+  }
+});
+
+
+
+        },
+    },
+            'copy',
+            {
+                extend: 'excelHtml5',
+                text: 'Excel',
+                title: 'Z-Skin Care Report',
+                orientation: 'landscape',
+                exportOptions: {
+                    columns: [0, 1, 3, 4,],
+                }
+            },
+            {
+                    extend: 'print',
+                    text: 'Print',
+                    customize: function (win) {
+                        $(win.document.body)
+                            .find('table')
+                            .addClass('compact-print-table');
+                    }
+                }
+        ]
     }
 ],
 

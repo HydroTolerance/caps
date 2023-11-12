@@ -14,7 +14,7 @@ $option = $_GET['services'];
 $d = $_GET['date'];
 $time = $_GET['time'];
 $reference = $_GET['reference_code'];
-$currentTimestamp = $_GET['created'];
+$currentdate = $_GET['created'];
 $to = $email;
 $subject = "Appointment Summary";
 $body = "<html><body style='color: #000000;'>";
@@ -74,6 +74,8 @@ $mailSent = $mail->send();
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.3.2/html2canvas.min.js"></script>
   <link rel="stylesheet" href="css/style.css">
+  <link rel="shortcut icon" href="images/icon1.png" type="image/x-icon">
+
   <style>
     .center-content {
       position: relative;
@@ -137,11 +139,7 @@ $mailSent = $mail->send();
     </div>
   </div>
 </nav>
-
-  <div class="center-content">
-    <div class="background-container"></div>
-    
-    <div class="container my-5">
+    <div class="container-fluid my-5">
       <div class="row justify-content-center">
         <div class="col-lg-7">
           <div class="bg-white p-4 rounded shadow-sm border">
@@ -174,11 +172,11 @@ $mailSent = $mail->send();
               <p><strong>Reference Code:</strong> <?php echo $reference; ?></p>
             </div>
             <div class="col-lg-12">
-              <p><strong>Created: </strong> <?php echo date("F j, Y, g:i A", strtotime($currentTimestamp)); ?></p>
+              <p><strong>Created: </strong> <?php echo date("F j, Y, g:i a", strtotime($currentdate)); ?></p>
             </div>
             <div class="row">
   <div class="col-lg-12 context">
-    <p>Thank you for your transaction! You can check your email for instructions on how to reschedule or cancel your appointment. Please note that rescheduling or cancelling of appointment will only be possible within 2 weeks upon creating the appointment</p>
+    <p class="fst-italic">Thank you for your transaction! You can check your email for instructions on how to reschedule or cancel your appointment. Please note that rescheduling or cancelling of appointment will only be possible within 2 weeks upon creating the appointment</p>
   </div>
 </div>
 
@@ -187,6 +185,8 @@ $mailSent = $mail->send();
           
         </div>
       </div>
+  </div>
+  
       <div class="mt-4 text-center">
           <button id="downloadButton" class="btn text-white" style="background-color: #6537AE;">Download Summary as Image</button>
         </div>
@@ -200,7 +200,7 @@ $mailSent = $mail->send();
 <script>
     document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('downloadButton').addEventListener('click', function () {
-        const summaryContainer = document.querySelector('.col-lg-7'); // Update the selector to target the container you want to capture
+        const summaryContainer = document.querySelector('.col-lg-7');
         html2canvas(summaryContainer).then(function (canvas) {
           const link = document.createElement('a');
           link.href = canvas.toDataURL('image/png');

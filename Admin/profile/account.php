@@ -93,7 +93,8 @@ if (isset($_POST['edit_submit'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Profile Settings</title>
+    
 </head>
 </head>
 <body>
@@ -174,6 +175,41 @@ if (isset($_POST['edit_submit'])) {
                 currentImageContainer.innerHTML = '<p>No Image Available</p>';
             }
         }
+
+        function checkForChanges() {
+        const edit_fname = document.getElementById('edit_fname').value;
+        const edit_lname = document.getElementById('edit_lname').value;
+        const edit_email = document.getElementById('edit_email').value;
+        const edit_gender = document.getElementById('edit_gender').value;
+        const imageInput = document.getElementById('image');
+
+        // Check if any changes are made
+        if (
+            edit_fname === '<?php echo $userData['clinic_firstname']; ?>' &&
+            edit_lname === '<?php echo $userData['clinic_lastname']; ?>' &&
+            edit_email === '<?php echo $userData['clinic_email']; ?>' &&
+            edit_gender === '<?php echo $userData['clinic_gender']; ?>' &&
+            (!imageInput.files || imageInput.files.length === 0)
+        ) {
+            Swal.fire({
+                icon: 'error',
+                title: 'No Changes Made',
+                text: 'Please make changes before saving.',
+            });
+            return false; // Prevent the form from submitting
+        }
+        return true; // Allow the form to submit
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.querySelector('form');
+
+        form.addEventListener('submit', function (e) {
+            if (!checkForChanges()) {
+                e.preventDefault(); // Prevent form submission
+            }
+        });
+    });
     </script>
 </body>
 </html>

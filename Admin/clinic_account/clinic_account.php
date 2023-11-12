@@ -3,7 +3,44 @@ include "../function.php";
 checklogin('Admin');
 $userData = $_SESSION['id'];
 ?>
-<?php
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>Clinic Account</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-pro@latest/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/additional-methods.min.js"></script>
+</head>
+<style>
+    .page-item.active .page-link {
+    background-color: #6537AE !important;
+    color: #fff !important;
+    border: #6537AE;
+}   
+
+#pageloader {
+    background: rgba(255, 255, 255, 0.8);
+    display: none;
+    height: 100%;
+    position: fixed;
+    width: 100%;
+    z-index: 9999;
+}
+th{
+   background-color:#6537AE  !important;
+   color: #fff  !important;
+}
+</style>
+<body>
+    <?php
 if (isset($_POST['submit'])) {
     include "../../db_connect/config.php";
     $fname = $_POST['fname'];
@@ -82,10 +119,20 @@ if (isset($_POST['submit'])) {
     mysqli_stmt_bind_param($stmt, "ssssssss", $account_id, $fname,  $lname, $email, $gender, $imageFileName, $password, $role);
 
     if (mysqli_stmt_execute($stmt)) {
-        mysqli_stmt_close($stmt);
-        mysqli_close($conn);
-        header("Location: clinic_account.php");
-        exit();
+        $userData = $_SESSION['id'];
+        $clinicRole = $userData['clinic_role'];
+        $actionDescription = "Created a clinic account for: " . $fname . " " . $lname;
+        logActivity($conn, $userData['id'], $clinicRole, $actionDescription);
+         echo '<script>
+                    Swal.fire({
+                        icon: "success",
+                        title: "Success",
+                        text: "Account updated successfully!",
+                    }).then(function() {
+                        window.location.href = "clinic_account.php"; // Redirect after user clicks OK
+                    });
+                </script>';
+                exit();
     } else {
         echo "Error: " . mysqli_error($conn);
     }
@@ -134,6 +181,7 @@ if (isset($_POST['edit_submit'])) {
         </script>";
         exit();
     }
+
     if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
         $getOldImageSql = "SELECT image FROM zp_accounts WHERE id=?";
         $getOldImageStmt = mysqli_prepare($conn, $getOldImageSql);
@@ -157,9 +205,20 @@ if (isset($_POST['edit_submit'])) {
             mysqli_stmt_bind_param($stmt, "ssssss", $edit_fname, $edit_lname, $edit_email, $edit_role, $imageName, $edit_id);
 
             if (mysqli_stmt_execute($stmt)) {
-                mysqli_stmt_close($stmt);
-                mysqli_close($conn);
-                header("Location: clinic_account.php");
+                $userData = $_SESSION['id'];
+                $clinicRole = $userData['clinic_role'];
+                $actionDescription = "Updated clinic account for: " . $edit_fname . " " . $edit_lname;
+                logActivity($conn, $userData['id'], $clinicRole, $actionDescription);
+
+                echo '<script>
+                    Swal.fire({
+                        icon: "success",
+                        title: "Success",
+                        text: "Account updated successfully!",
+                    }).then(function() {
+                        window.location.href = "clinic_account.php"; // Redirect after user clicks OK
+                    });
+                </script>';
                 exit();
             } else {
                 echo "Error: " . mysqli_error($conn);
@@ -175,10 +234,21 @@ if (isset($_POST['edit_submit'])) {
         mysqli_stmt_bind_param($stmt, "sssss", $edit_fname, $edit_lname, $edit_email, $edit_role, $edit_id);
 
         if (mysqli_stmt_execute($stmt)) {
-            mysqli_stmt_close($stmt);
-            mysqli_close($conn);
-            header("Location: clinic_account.php");
-            exit();
+            $userData = $_SESSION['id'];
+            $clinicRole = $userData['clinic_role'];
+            $actionDescription = "Updated clinic account for: " . $edit_fname . " " . $edit_lname;
+            logActivity($conn, $userData['id'], $clinicRole, $actionDescription);
+
+            echo '<script>
+                    Swal.fire({
+                        icon: "success",
+                        title: "Success",
+                        text: "Account updated successfully!",
+                    }).then(function() {
+                        window.location.href = "clinic_account.php"; // Redirect after user clicks OK
+                    });
+                </script>';
+                exit();
         } else {
             echo "Error: " . mysqli_error($conn);
         }
@@ -187,6 +257,7 @@ if (isset($_POST['edit_submit'])) {
     mysqli_stmt_close($stmt);
     mysqli_close($conn);
 }
+
 function generateAccountID() {
     include "../../db_connect/config.php";
     $sql = "SELECT MAX(SUBSTRING_INDEX(id, '-', -1)) AS max_counter FROM zp_accounts";
@@ -197,6 +268,18 @@ function generateAccountID() {
     return $accountID;
 }
 
+function logActivity($conn, $userId, $role, $actionDescription) {
+    $sql = "INSERT INTO activity_log (user_id, action_type, role, action_description) VALUES (?, 'Clinic Account', ?, ?)";
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, 'iss', $userId, $role, $actionDescription);
+
+    if (mysqli_stmt_execute($stmt)) {
+        mysqli_stmt_close($stmt);
+    } else {
+        echo "Error: " . mysqli_error($conn);
+    }
+}
+
 function deactivateAccount($id) {
     include "../../db_connect/config.php";
     $sql = "UPDATE zp_accounts SET account_status = 'deactivated' WHERE id = ?";
@@ -204,8 +287,10 @@ function deactivateAccount($id) {
     mysqli_stmt_bind_param($stmt, "s", $id);
 
     if (mysqli_stmt_execute($stmt)) {
-        mysqli_stmt_close($stmt);
-        mysqli_close($conn);
+        $userData = $_SESSION['id'];
+        $clinicRole = $userData['clinic_role'];
+        $actionDescription = "Changing Account: " . $fname . " " . $lname;
+        logActivity($conn, $userData['id'], $clinicRole, $actionDescription);
         header("Location: clinic_account.php");
         exit();
     } else {
@@ -215,42 +300,29 @@ function deactivateAccount($id) {
     mysqli_stmt_close($stmt);
     mysqli_close($conn);
 }
+
 ?>
-
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <title>Clinic Account</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-pro@latest/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="../css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/additional-methods.min.js"></script>
-</head>
-<body>
 <div id="wrapper">
             <?php include "../sidebar.php"; ?>
             <section id="content-wrapper">
-                <div class="row mx-1">
-                    <div class="col-lg-12">
-                        <div class="text-center">
-                            <div class="row">
-                                <div class="col-xl-2 mb-3">
-                                        <button class="create_patients btn btn-purple bg-purple text-white mb-4 mt-2" onclick="showInsertModal()">CREATE ACCOUNT</button>
-                                </div>
-                                <div class="col-xl-9">
-                                    <h1 class=" mb-1" style="color:6537AE;">Account Settings</h1>
-                                </div>
+                <div class="text-center">
+                        <div class="bg-white py-3 mb-3 border border-bottom">
+                        <div class="d-flex justify-content-between mx-4">
+                            <div>
+                                <h2 style="color:6537AE;" class="fw-bold">CLIENT ACCOUNT</h2>
+                            </div>
+                            <div class="align-items-center">
+                                <a class="btn bg-purple text-white" onclick="showInsertModal()">CREATE</a>
                             </div>
                         </div>
                     </div>
+                <div class="row mx-1">
+                    <div class="col-lg-12">
+                        </div>
+                    </div>
                 <div>
-                    <div class="bg-white p-3 rounded-3 border w-100 mb-1" >
-                        <table id="table_clinic" class="table table-striped nowra" style="width:100%">
+                    <div class="bg-white p-3 rounded-3 border mx-3 mb-1" >
+                        <table id="clientTable" class="table table-striped" style="width:100%">
                             <thead>
                                 <tr>
                                     <th>Profile Image</th>
@@ -326,15 +398,18 @@ function deactivateAccount($id) {
     </div>
 </div>
 <script>
-        $(document).ready(function() {
-            $('#clientTable').DataTable({
-                responsive: true,
-                rowReorder: {
-                    selector: 'td:nth-child(2)'
-                }
-            });
+    $(document).ready(function() {
+        $('#clientTable').DataTable({
+            responsive: true,
+            scrollY: 500,
+            scrollX: true,
+            scrollCollapse: true,
+            paging: true,
+            fixedColumns: true,
+            select: true,
         });
-    </script>
+    });
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.10.2/umd/popper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.all.min.js"></script>
 <script src="js/clinic.js"></script>

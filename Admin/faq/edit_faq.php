@@ -16,24 +16,6 @@ if (isset($_GET['id'])) {
         echo "Invalid request.";
         exit;
     }
-
-if (isset($_POST['edit_submit'])) {
-    $question = $_POST['edit_question'];
-    $answer = $_POST['edit_answer'];
-
-    $sql = "UPDATE faq SET question=?, answer=? WHERE id=?";
-    $stmt = mysqli_prepare($conn, $sql);
-    mysqli_stmt_bind_param($stmt, "sss", $question, $answer, $id);
-    if(mysqli_stmt_execute($stmt)){
-        mysqli_stmt_close($stmt);
-        mysqli_close($conn);
-        header("Location: faq.php");
-        exit();
-    }
-    else {
-        echo "Error Updating Error: " . mysqli_error($conn);
-    }
-}
 ?>
 
 <!DOCTYPE html>
@@ -46,7 +28,8 @@ if (isset($_POST['edit_submit'])) {
 
 <body>
 <div class="container mt-5">
-        <form method="post" action="<?php echo $_SERVER['PHP_SELF'] . '?id=' . $id; ?>">
+        <form method="post" action="faq.php">
+        <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
             <div class="mb-3">
                 <label for="edit_question" class="form-label">Question:</label>
                 <input type="text" class="form-control" name="edit_question" value="<?php echo $row['question']; ?>">

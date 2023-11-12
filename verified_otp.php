@@ -4,10 +4,12 @@ include "db_connect/config.php";
 if (isset($_POST["verify_otp"])) {
     $email = mysqli_real_escape_string($conn, trim($_POST['clinic_email']));
     $entered_otp = mysqli_real_escape_string($conn, trim($_POST['otp']));
-    $result = mysqli_query($conn, "SELECT otp, expiration_time FROM zp_accounts WHERE clinic_email = '$email'");
-    if ($row = mysqli_fetch_assoc($result)) {
-        $stored_otp = $row['otp'];
-        $expiration_time = $row['expiration_time'];
+
+    // Check zp_accounts table
+    $resultClinic = mysqli_query($conn, "SELECT otp, expiration_time FROM zp_accounts WHERE clinic_email = '$email'");
+    if ($rowClinic = mysqli_fetch_assoc($resultClinic)) {
+        $stored_otp = $rowClinic['otp'];
+        $expiration_time = $rowClinic['expiration_time'];
         if ($entered_otp === $stored_otp && time() <= $expiration_time) {
             header("Location: reset_password.php?email=" . urlencode($email));
             exit();
@@ -15,11 +17,23 @@ if (isset($_POST["verify_otp"])) {
             $error_message = "Invalid OTP. Please try again.";
         }
     } else {
-        $error_message = "Email not found. Please try again.";
+        // Check zp_client_record table
+        $resultClient = mysqli_query($conn, "SELECT otp, expiration_time FROM zp_client_record WHERE client_email = '$email'");
+        if ($rowClient = mysqli_fetch_assoc($resultClient)) {
+            $stored_otp_client = $rowClient['otp'];
+            $expiration_time_client = $rowClient['expiration_time'];
+            if ($entered_otp === $stored_otp_client && time() <= $expiration_time_client) {
+                header("Location: reset_password.php?email=" . urlencode($email));
+                exit();
+            } else {
+                $error_message = "Invalid OTP. Please try again.";
+            }
+        } else {
+            $error_message = "Email not found. Please try again.";
+        }
     }
 }
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">

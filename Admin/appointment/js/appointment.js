@@ -85,28 +85,46 @@ function updateStatus(id, status) {
 
 
 function acknowledgeAppointment(id) {
+  // Show a loading indicator while the request is being processed
+  Swal.fire({
+    title: 'Acknowledging Appointment',
+    html: 'Please wait...',
+    allowOutsideClick: false,
+    showConfirmButton: false,
+    onBeforeOpen: () => {
+      Swal.showLoading();
+    },
+  });
+
   $.ajax({
-    url: 'acknowledge_appointment.php', // Replace with your PHP script for acknowledgment
+    url: 'acknowledge_appointment.php',
     type: 'POST',
     data: {
       id: id,
     },
     success: function (response) {
+      Swal.close(); // Close the loading indicator
+
       if (response === 'Acknowledged') {
         var statusCell = $('#status_' + id);
         statusCell.text('Acknowledged');
         statusCell.removeClass().addClass('status-acknowledged');
         $('.status-select[data-id="' + id + '"]').prop('disabled', true);
+
+        // Show a success message
+        Swal.fire('Success', 'Appointment has been acknowledged', 'success');
       } else {
         Swal.fire('Success', 'Appointment has been acknowledged', 'success');;
       }
     },
     error: function (xhr, status, error) {
       console.error(xhr.responseText);
+      Swal.close(); // Close the loading indicator
       Swal.fire('Error', 'Failed to acknowledge appointment', 'error');
     },
   });
 }
+
 
 
 function performStatusUpdate(id, status) {

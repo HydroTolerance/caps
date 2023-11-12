@@ -14,7 +14,7 @@ $stmt = mysqli_prepare($conn, "SELECT * FROM activity_log");
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <title>Generate Report</title>
+    <title>Activity Log</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
     <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
@@ -47,80 +47,21 @@ $stmt = mysqli_prepare($conn, "SELECT * FROM activity_log");
 .page-link {
     color: black !important;
 }
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
+th{
+        background-color:#6537AE  !important;
+        color: #fff  !important;
+        text-align: center !important;
         }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th, td {
-            padding: 8px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-
-        th {
-            background-color: #f2f2f2;
-        }
-
-        .action-buttons a {
-            margin-right: 10px;
-            color: #222;
-            text-decoration: none;
-        }
-
-        .action-buttons a:hover {
-            color: #777;
-        }
-
-        .dataTables_filter input {
-            margin-top: 10px;
-            margin-right: 10px;
-            margin-bottom: 20px;
-        }
-        .status-cancelled {
-    color: red !important;
-}
-
-.status-approved {
-    color: green !important;
-}
-
-.status-rescheduled {
-    color: blue !important;
-}
-.status-completed {
-    color: green !important;
-}
-.status-did-not-show {
-    color: #F9A603 !important;
-}
-.status-acknowledged {
-    color: orange !important;
-}
 </style>
 <body>
 <div id="wrapper">
     <?php include "../sidebar.php"; ?>
     <section id="content-wrapper">
-        <div class="row mx-1">
-            <div class="col-lg-12">
-                <div class="mx-3 text-center">
-                    <div class="row">
-                        <div class="col-xl-3">
-                        </div>
-                        <div class="col-xl-6">
-                            <h1 class=" mb-1" style="color:6537AE;">Activity Log</h1>
-                        </div>
+        <div class="row">
+            <div class="bg-white py-3 mb-3 border border-bottom">
+                <div class="d-flex justify-content-between mx-3">
+                    <div>
+                        <h2 style="color:6537AE;" class="fw-bold">ACTIVITY LOG</h2>
                     </div>
                 </div>
             </div>
@@ -180,6 +121,7 @@ $(document).ready(function() {
         paging: true,
         fixedColumns: true,
         select: true,
+        "ordering": false,
     });
 });
 </script>

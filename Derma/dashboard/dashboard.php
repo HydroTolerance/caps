@@ -1,6 +1,7 @@
 <?php
+session_start();
 include "../function.php";
-checklogin('Derma');
+checklogin3('Derma');
 $userData = $_SESSION['id'];
     ?>
     <?php
@@ -55,19 +56,19 @@ $userData = $_SESSION['id'];
         $queryTotalPatients = "SELECT COUNT(*) as total_patient FROM zp_client_record";
         $resultTotalPatients = mysqli_query($conn, $queryTotalPatients);
 
-        $queryServices = "SELECT services, COUNT(*) as service_count 
+        $queryServices = "SELECT management, COUNT(*) as service_count 
         FROM (
-            SELECT services FROM zp_appointment WHERE MONTH(date) = $currentYear
+            SELECT management FROM zp_derma_record WHERE MONTH(date_diagnosis) = $currentYear
         ) AS combined_services
-        GROUP BY services";
-$resultServices = mysqli_query($conn, $queryServices);
-$serviceLabels = [];
-$serviceCounts = [];
+        GROUP BY management";
+        $resultServices = mysqli_query($conn, $queryServices);
+        $serviceLabels = [];
+        $serviceCounts = [];
 
-while ($rowService = mysqli_fetch_assoc($resultServices)) {
-$serviceLabels[] = $rowService['services'];
-$serviceCounts[] = $rowService['service_count'];
-}
+        while ($rowService = mysqli_fetch_assoc($resultServices)) {
+        $serviceLabels[] = $rowService['management'];
+        $serviceCounts[] = $rowService['service_count'];
+        }
         if ($resultTotalPatients) {
             $rowTotalPatients = mysqli_fetch_assoc($resultTotalPatients);
             $totalPatient = $rowTotalPatients['total_patient'];
@@ -125,6 +126,15 @@ $serviceCounts[] = $rowService['service_count'];
         <body> 
         <div id="wrapper">
             <?php include "../sidebar.php"; ?>
+                <div class="bg-white py-3 mb-3 border border-bottom">
+                    <div class="d-flex justify-content-between mx-4">
+                        <div>
+                            <h2 style="color:6537AE;" class="fw-bold">DASHBOARD</h2>
+                        </div>
+                    </div>
+                </div>
+            <div class="mx-3">
+
             <section id="content-wrapper">
                     <div class="row mt-3">
                         
@@ -138,7 +148,7 @@ $serviceCounts[] = $rowService['service_count'];
                             </div>
                             <div class="col-lg-3 mb-2">
                                 <div class="card bg-white p-4 fade-in rounded h-100 d-flex flex-column justify-content-between">
-                                    <p>Total of Patients</p>
+                                    <p>Total of Appointment Today</p>
                                     <span class="badge bg-purple fs-4 p-3 ms-auto rounded" style="padding: 10px;"><?php echo $totalAppointments; ?></span>
                                 </div>
                             </div>
@@ -236,7 +246,8 @@ $serviceCounts[] = $rowService['service_count'];
                             </div>
                         </div>
                     </div>
-                
+                                
+                </div>
             </section>
             </div>
         <script src="js/dashboard.js"></script>

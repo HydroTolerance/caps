@@ -6,17 +6,17 @@ $userData = $_SESSION['id'];
 <?php
 include "../../db_connect/config.php";
 $currentYear = date("Y");
-$queryServices = "SELECT services, YEAR(date) AS date_year, MONTHNAME(date) AS date_month, COUNT(*) as service_count FROM (SELECT services, date FROM zp_appointment) AS combined_services GROUP BY services, date_year, date_month";
-$resultServices = mysqli_query($conn, $queryServices);
+$querymanagement = "SELECT management, YEAR(date_diagnosis) AS date_year, MONTHNAME(date_diagnosis) AS date_month, COUNT(*) as service_count FROM (SELECT management, date_diagnosis FROM zp_derma_record) AS combined_management GROUP BY management, date_year, date_month";
+$resultmanagement = mysqli_query($conn, $querymanagement);
 $serviceData = [];
-while ($rowService = mysqli_fetch_assoc($resultServices)) {
-    $serviceLabel = $rowService['services'];
+while ($rowService = mysqli_fetch_assoc($resultmanagement)) {
+    $serviceLabel = $rowService['management'];
     $dateYear = $rowService['date_year'];
     $dateMonth = $rowService['date_month'];
 
     // Add the data to the serviceData array
     $serviceData[] = [
-        'services' => $serviceLabel,
+        'management' => $serviceLabel,
         'date_year' => $dateYear,
         'date_month' => $dateMonth,
         'service_count' => $rowService['service_count']
@@ -29,7 +29,7 @@ while ($rowService = mysqli_fetch_assoc($resultServices)) {
 <head>
 <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">
-
+<title>Generate Report</title>
     
 <!-- DataTables Buttons Extension -->
 <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
@@ -44,20 +44,33 @@ while ($rowService = mysqli_fetch_assoc($resultServices)) {
 <script src="https://cdn.datatables.net/datetime/1.1.5/js/dataTables.dateTime.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 </head>
-
+<style>
+    .page-item.active .page-link {
+    background-color: #6537AE !important;
+    color: #fff !important;
+    border: #6537AE;
+}
+.page-link {
+    color: black !important;
+}
+th{
+   background-color:#6537AE  !important;
+   color: #fff  !important;
+}
+table.child-dt thead {
+  background: blue;
+}
+</style>
 <body>
 <div id="wrapper">
     <?php include "../sidebar.php"; ?>
     <section id="content-wrapper">
-        <div class="row mx-1">
-            <div class="col-lg-12">
-                <div class="mx-3 text-center">
-                    <div class="row">
-                        <div class="col-xl-3">
-                        </div>
-                        <div class="col-xl-6">
-                            <h1 class="mb-1" style="color:6537AE;">Generate Report</h1>
-                        </div>
+        
+        <div class="row">
+        <div class="bg-white py-3 mb-3 border border-bottom">
+                <div class="d-flex justify-content-between mx-3">
+                    <div>
+                        <h2 style="color:6537AE;" class="fw-bold">GENERATE REPORT</h2>
                     </div>
                 </div>
             </div>
@@ -70,9 +83,8 @@ while ($rowService = mysqli_fetch_assoc($resultServices)) {
                     <label for="yearFilter">Filter by Year:</label>
                     <select id="yearFilter" class="form-select">
                         <option value="">All Years</option>
-                        <!-- Generate options dynamically based on available years -->
                         <?php
-                        $query = "SELECT DISTINCT YEAR(date) AS year FROM zp_appointment ORDER BY year DESC";
+                        $query = "SELECT DISTINCT YEAR(date_diagnosis) AS year FROM zp_derma_record ORDER BY year DESC";
                         $result = mysqli_query($conn, $query);
                         while ($row = mysqli_fetch_assoc($result)) {
                             $year = $row['year'];
@@ -85,9 +97,8 @@ while ($rowService = mysqli_fetch_assoc($resultServices)) {
                     <label for="monthFilter">Filter by Month:</label>
                     <select id="monthFilter" class="form-select">
                         <option value="">All Months</option>
-                        <!-- Generate options dynamically based on available months -->
                         <?php
-                        $query = "SELECT DISTINCT MONTHNAME(date) AS month FROM zp_appointment ORDER BY date";
+                        $query = "SELECT DISTINCT MONTHNAME(date_diagnosis) AS month FROM zp_derma_record ORDER BY date_diagnosis";
                         $result = mysqli_query($conn, $query);
                         while ($row = mysqli_fetch_assoc($result)) {
                             $month = $row['month'];
@@ -112,7 +123,7 @@ while ($rowService = mysqli_fetch_assoc($resultServices)) {
                     <tbody>
                     <?php
                         foreach ($serviceData as $service) {
-                            $serviceLabel = $service['services'];
+                            $serviceLabel = $service['management'];
                             $dateYear = $service['date_year'];
                             $dateMonth = $service['date_month'];
                             $serviceCount = $service['service_count'];
@@ -140,32 +151,59 @@ $(document).ready(function() {
         order: [[0, 'desc']],
         responsive: true,
         dom: "<'row'<'col-sm-1 mt-2'B><'col-md-1 mt-2' l><'col-md-10'f>>" +
-     "<'row'<'col-md-12'tr>>" +
-     "<'row'<'col-md-12'i><'col-md-12'p>>",
-     buttons: [
-    {
-        extend: 'collection',
-        text: '<i class="bi bi-box-arrow-up"></i>',
+            "<'row'<'col-md-12'tr>>" +
+            "<'row'<'col-md-12'i><'col-md-12'p>>",
         buttons: [
             {
-                extend: 'pdfHtml5',
-                text: 'PDF',
-                title: 'Z-Skin Care Report', // Add your custom title here
+                extend: 'collection',
+                text: '<i class="bi bi-box-arrow-up"></i>',
+                buttons: [
+                    {
+                        extend: 'pdfHtml5',
+                        text: 'PDF',
+                        title: 'Z-skin Care Report',
+                        orientation: 'landscape',
+                        customize: function(doc) {
+                            doc.content[1].table.widths = ['25%', '25%', '25%', '25%'];
+                            doc.styles.title = {
+                                color: '#2D1D10',
+                                fontSize: '16',
+                                alignment: 'center'
+                            };
+                            doc.content[1].table.headerRows = 1; // Add this line to target the header row
+                            doc.content[1].table.body[0].forEach(function(cell) {
+                                cell.fillColor = '#6537AE'; // Purple color
+                                cell.color = '#fff'; // White text color
+                            });
+                        },
                     },
-            'copy',
-            'excel',
-            'csv',
-            'print'
-        ]
-    }
-],
+                    'copy',
+                    {
+                        extend: 'excelHtml5',
+                        text: 'Excel',
+                        title: 'Z SKin Care Excel Report',
+                        orientation: 'landscape',
+                    },
+                    {
+                        extend: 'print',
+                        text: 'Print',
+                        customize: function (win) {
+                            $(win.document.body)
+                                .find('table')
+                                .addClass('compact-print-table'); // Apply custom CSS class for printing
+                        }
+                    }
+                ]
+            }
+        ],
     });
+
     // Filter by Year
     $('#yearFilter').on('change', function() {
         var selectedYear = $(this).val();
         table.column(1).search(selectedYear).draw();
     });
-    
+
     // Filter by Month
     $('#monthFilter').on('change', function() {
         var selectedMonth = $(this).val();
@@ -173,5 +211,6 @@ $(document).ready(function() {
     });
 });
 </script>
+
 </body>
 </html>

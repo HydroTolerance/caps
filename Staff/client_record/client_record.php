@@ -27,26 +27,24 @@ $userData = $_SESSION['id'];
 .page-link {
     color: black !important;
 }
+th{
+   background-color:#6537AE  !important;
+   color: #fff  !important;
+}
 </style>
 <body>
         <div id="wrapper">
             <?php include "../sidebar.php"; ?>
                 <section id="content-wrapper">
-                    <div class="row mx-1">
-                        <div class="col-lg-12">
-                            <div class="mx-3 text-center">
-                                <div class="row">
-                                    <div class="col-xl-3">
-                                    </div>
-                                    <div class="col-xl-6">
-                                        <h1 class=" mb-1" style="color:6537AE;">Client Record</h1>
-                                    </div>
-                                </div>
+                    <div class="bg-white py-3 mb-3 border border-bottom">
+                        <div class="d-flex justify-content-between mx-4">
+                            <div>
+                                <h2 style="color:6537AE;" class="fw-bold">CLIENT RECORD</h2>
                             </div>
                         </div>
-                    <div>
-                    <div class="bg-white p-3 rounded-3 border w-100">
-                        <table id="clientTable" class="table table-bordered  table-striped nowrap" style="width:100%">
+                    </div>
+                    <div class="bg-white p-3 rounded-3 border mx-3">
+                        <table id="clientTable" class="table table-bordered table-striped" style="width:100%">
                             <thead>
                                 <tr>
                                     <th>First Name</th>
@@ -54,7 +52,7 @@ $userData = $_SESSION['id'];
                                     <th>Day of Birth</th>
                                     <th>Contact Number</th>
                                     <th>Email Address</th>
-                                    <th class="no-sort">Action</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -69,7 +67,7 @@ $userData = $_SESSION['id'];
                                     <tr>
                                         <td><?php echo $row['client_firstname']?></td>
                                         <td><?php echo $row['client_lastname']?></td>
-                                        <td><?php echo $row['client_birthday']?></td>
+                                        <td><?php echo date('F, m Y', strtotime($row['client_birthday']))?></td>
                                         <td><?php echo $row['client_number']?></td>
                                         <td><?php echo $row['client_email']?></td>
                                         <td class="action-buttons">

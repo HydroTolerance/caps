@@ -3,33 +3,13 @@ include "../function.php";
 checklogin('Admin');
 $userData = $_SESSION['id'];
 ?>
-<?php
-if (isset($_POST['submit'])) {
-    include "../../db_connect/config.php";
-    $question =$_POST['question'];
-    $answer = $_POST['answer'];
-    $sql = "INSERT INTO faq (question, answer) VALUES (?, ?)";
-    $stmt = mysqli_prepare($conn, $sql);
 
-    mysqli_stmt_bind_param($stmt, "ss", $question, $answer);
-    if (mysqli_stmt_execute($stmt)) {
-        mysqli_stmt_close($stmt);
-        mysqli_close($conn);
-        header("Location: faq.php");
-        exit();
-    } else {
-        echo "Error: " . mysqli_error($conn);
-    }
-
-    mysqli_close($conn);
-}
-?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-    <title>Dashboard</title>
+    <title>FAQ Module</title>
     <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
     <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
     <!-- Include Summernote CSS -->
@@ -55,44 +35,94 @@ if (isset($_POST['submit'])) {
         .status-cancelled {
     color: red !important;
 }
-
-.status-approved {
-    color: green !important;
+.page-item.active .page-link {
+    background-color: #6537AE !important;
+    color: #fff !important;
+    border: #6537AE;
 }
-
-.status-rescheduled {
-    color: blue !important;
+.page-link {
+    color: black !important;
 }
-.status-completed {
-    color: green !important;
-}
-.status-did-not-show {
-    color: #F9A603 !important;
-}
-.status-acknowledged {
-    color: orange !important;
+th{
+   background-color:#6537AE  !important;
+   color: #fff  !important;
 }
     </style>
 </head>
 <body>
+<?php
+include "../../db_connect/config.php";
+if (isset($_POST['submit'])) {
+
+    $question =$_POST['question'];
+    $answer = $_POST['answer'];
+    $sql = "INSERT INTO faq (question, answer) VALUES (?, ?)";
+    $stmt = mysqli_prepare($conn, $sql);
+
+    mysqli_stmt_bind_param($stmt, "ss", $question, $answer);
+    if (mysqli_stmt_execute($stmt)) {
+        echo '<script>
+        Swal.fire({
+            icon: "success",
+            title: "Success",
+            text: "Added FAQ successfully!",
+        }).then(function() {
+            window.location.href = "faq.php"; // Redirect after user clicks OK
+        });
+    </script>';
+    exit();
+    } else {
+        echo "Error: " . mysqli_error($conn);
+    }
+
+    mysqli_close($conn);
+}
+
+include "../../db_connect/config.php";
+if (isset($_POST['edit_submit'])) {
+    $id = $_POST['id']; // Get the id from the form
+    $question = $_POST['edit_question'];
+    $answer = $_POST['edit_answer'];
+
+    $sql = "UPDATE faq SET question=?, answer=? WHERE id=?";
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, "ssi", $question, $answer, $id);
+    if(mysqli_stmt_execute($stmt)){
+        echo '<script>
+        Swal.fire({
+            icon: "success",
+            title: "Success",
+            text: "FAQ updated successfully!",
+        }).then(function() {
+            window.location.href = "faq.php"; // Redirect after user clicks OK
+        });
+    </script>';
+    exit();
+    }
+    else {
+        echo "Error Updating Error: " . mysqli_error($conn);
+    }
+}
+?>
 <div id="wrapper">
             <?php include "../sidebar.php"; ?>
             <section id="content-wrapper">
                 <div class="row">
-                <div class="col-lg-12">
-                    <div class="mx-3 text-center">
-                        <div class="row">
-                            <div class="col-xl-3">
-                                <button class="create_patients btn text-white ms-3 mb-3 mt-2" style="background-color: #6537AE;" onclick="addFaqModal()">CREATE</button>
+                    <div class="bg-white py-3 mb-3 border border-bottom">
+                        <div class="d-flex justify-content-between mx-4">
+                            <div>
+                                <h2 style="color:6537AE;" class="fw-bold">FAQ's</h2>
                             </div>
-                            <div class="col-xl-6">
-                                <h1 class=" mb-1" style="color:6537AE;">FAQ</h1>
+                            <div class="align-items-center">
+                                <a class="btn bg-purple text-white" onclick="addFaqModal()">CREATE</a>
                             </div>
                         </div>
                     </div>
+                <div class="col-lg-12">
+
                 </div>
                     <div class="col-lg-12">
-            <div class="bg-white p-3 rounded-3 border mx-5">
+            <div class="bg-white p-3 rounded-3 border mx-3">
                 <table id="faqTable" class="table table-bordered text-center" style="width: 100%;">
                     <thead>
                     <tr>
@@ -158,6 +188,7 @@ if (isset($_POST['submit'])) {
     $(document).ready(function() {
         $('#faqTable').DataTable({
             responsive: true,
+            "ordering": false,
         });
     });
 
@@ -184,39 +215,46 @@ if (isset($_POST['submit'])) {
         });
     }
     function deleteFAQ(id) {
-        Swal.fire({
-            title: 'Are you sure?',
-            text: 'This action cannot be undone!',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, delete it!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url: 'delete_faq.php',
-                    type: 'GET',
-                    data: { id: id },
-                    success: function (response) {
-                        window.location.href = 'faq.php';
-                    },
-                    error: function (xhr, status, error) {
-                        console.log(xhr.responseText);
-                        // Show an error alert using SweetAlert2
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Oops...',
-                            text: 'Error deleting FAQ: ' + xhr.responseText,
-                        });
-                    }
-                });
-            }
-        });
+    Swal.fire({
+        title: 'Are you sure?',
+        text: 'This action cannot be undone!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: 'delete_faq.php',
+                type: 'GET',
+                data: { id: id },
+                success: function (response) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Deleted Successfully',
+                        timer: 1500,
+                    }).then(function() {
+                        window.location.href = "faq.php";
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.log(xhr.responseText);
+                    // Show an error alert using SweetAlert2
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Error deleting FAQ: ' + xhr.responseText,
+                    });
+                }
+            });
+        }
+    });
 
-        // Prevent the default behavior of the link
-        return false;
-    }
+    // Prevent the default behavior of the link
+    return false;
+}
+
 </script>
 
 </script>

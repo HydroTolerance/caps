@@ -23,18 +23,25 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-
+<link rel="shortcut icon" href="../../t/images/icon1.png" type="image/x-icon">
 <?php
-function checklogin($requiredRole = null) {
-    session_start();
+function checklogin3($requiredRole = null) {
 
-    if (!isset($_SESSION['clinic_email'])) {
-        header("Location: login.php");
-        exit();
-    }
-    if ($requiredRole !== null && $_SESSION['clinic_role'] !== $requiredRole) {
-        header("Location: unauthorized.php");
-        exit();
+
+    // Check if the user is trying to access a restricted page
+    $restrictedPages = array("Client/client_record/view.php"); // Add other restricted pages here
+
+    $currentPage = $_SERVER['PHP_SELF'];
+
+    if (in_array($currentPage, $restrictedPages)) {
+        if (!isset($_SESSION['clinic_email'])) {
+            header("Location: ../../login.php");
+            exit();
+        }
+        if ($requiredRole !== null && $_SESSION['client_role'] !== $requiredRole) {
+            header("Location: unauthorized.php");
+            exit();
+        }
     }
 }
 ?>

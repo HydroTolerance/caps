@@ -1,52 +1,82 @@
 <?php
-session_start();
-
+include "../Client/client.php";
+checklogin('Client', true);
+$userData = [];
+$isClientLoggedIn = isset($_SESSION['client_email']);
+if ($isClientLoggedIn) {
+    $userData = $_SESSION['id'];
+}
+?>
+<?php
 if (isset($_POST['submit'])) {
-    $firstname = $_POST['firstname'];
-    $lastname = $_POST['lastname'];
-    $number = $_POST['number'];
+    $receivedOTP = $_POST['verificationCode'];
     $email = $_POST['email'];
-    $health = $_POST['health_concern'];
-    $services = $_POST['services'];
-    $date = $_POST['date'];
-    $time = $_POST['time'];
-
+    $currentTimestamp = time();
     include "../db_connect/config.php";
+    $sql = "SELECT * FROM otp_codes WHERE email = ? AND code = ? AND expiration_time >= ? AND is_used = 0";
 
-    $reference = generateReferenceCode();
-    $appointment_id = generateAppointmentID();
-    $currentTimestamp = date("Y-m-d H:i:s");
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, "sss", $email, $receivedOTP, $currentTimestamp);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
 
-    $insertSql = "INSERT INTO zp_appointment (appointment_id, reference_code, firstname, lastname, number, email, health_concern, services, date, time, appointment_status, created ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending', ?)";
-    $insertStmt = mysqli_prepare($conn, $insertSql);
-    mysqli_stmt_bind_param($insertStmt, "sssssssssss", $appointment_id, $reference, $firstname, $lastname, $number, $email, $health, $services, $date, $time, $currentTimestamp);
+    if (mysqli_num_rows($result) > 0) {
+        $updateSql = "UPDATE otp_codes SET is_used = 1 WHERE email = ? AND code = ?";
+        $updateStmt = mysqli_prepare($conn, $updateSql);
+        mysqli_stmt_bind_param($updateStmt, "ss", $email, $receivedOTP);
+        mysqli_stmt_execute($updateStmt);
 
-    if (mysqli_stmt_execute($insertStmt)) {
-        $_SESSION['authenticated'] = true; // Set a session variable
-        $redirectUrl = "display.php?" .
-    "reference_code=" . urlencode($reference) .
-    "&firstname=" . urlencode($firstname) .
-    "&lastname=" . urlencode($lastname) .
-    "&number=" . urlencode($number) .
-    "&email=" . urlencode($email) .
-    "&health_concern=" . urlencode($health) .
-    "&services=" . urlencode($services) .
-    "&date=" . urlencode($date) .
-    "&time=" . urlencode($time) .
-    "&created=" . urlencode($currentTimestamp);
+        $firstname = $_POST['firstname'];
+        $lastname = $_POST['lastname'];
+        $number = $_POST['number'];
+        $email = $_POST['email'];
+        $health = $_POST['health_concern'];
+        $services = $_POST['services'];
+        $date = $_POST['date'];
+        $time = $_POST['time'];
+        $currentdate = date("Y-m-d H:i:s");
 
-        header("Location: $redirectUrl");
-        exit;
+        $reference = generateReferenceCode();
+        $appointment_id = generateAppointmentID();
+        $insertSql = "INSERT INTO zp_appointment (appointment_id, reference_code, firstname, lastname, number, email, health_concern, services, date, time, appointment_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending')";
+        $insertStmt = mysqli_prepare($conn, $insertSql);
+        mysqli_stmt_bind_param($insertStmt, "ssssssssss", $appointment_id, $reference, $firstname, $lastname, $number, $email, $health, $services, $date, $time);
+
+        if (mysqli_stmt_execute($insertStmt)) {
+            $_SESSION['authenticated'] = true; // Set a session variable
+            $redirectUrl = "display.php?" .
+                "reference_code=" . urlencode($reference) .
+                "&firstname=" . urlencode($firstname) .
+                "&lastname=" . urlencode($lastname) .
+                "&number=" . urlencode($number) .
+                "&email=" . urlencode($email) .
+                "&health_concern=" . urlencode($health) .
+                "&services=" . urlencode($services) .
+                "&date=" . urlencode($date) .
+                "&time=" . urlencode($time) .
+                "&created=" . urlencode($currentdate);
+
+            header("Location: $redirectUrl");
+            exit;
+        } else {
+            echo '<script>
+                console.log("JavaScript code is executing"); // Add this line for debugging
+                alert("Error creating appointment. Please try again.");
+            </script>';
+        }
     } else {
-        echo "Error: " . mysqli_error($conn);
+        echo '<script>
+            console.log("JavaScript code is executing"); // Add this line for debugging
+            alert("Your OTP is incorrect or has already been used!");
+        </script>';
     }
 
-    // Close the database connection
-    mysqli_stmt_close($insertStmt);
+    mysqli_stmt_close($stmt);
     mysqli_close($conn);
 }
 
-function generateReferenceCode() {
+function generateReferenceCode()
+{
     $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     $reference = '';
     $length = 6;
@@ -59,7 +89,8 @@ function generateReferenceCode() {
     return $reference;
 }
 
-function generateAppointmentID() {
+function generateAppointmentID()
+{
     $counterFile = 'appointment_counter.txt';
     $counter = file_get_contents($counterFile);
     $counter++;
@@ -79,10 +110,9 @@ function generateAppointmentID() {
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
+    <link href="https://fonts.googleapis.com/css2?family=Lora&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
@@ -92,15 +122,91 @@ function generateAppointmentID() {
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0/css/select2.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/@loadingio/loading-bar@0.1.1/dist/loading-bar.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/css/select2.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<link rel="shortcut icon" href="images/icon1.png" type="image/x-icon">
+<!-- Stylesheets -->
+<link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
+<link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
+<link rel="stylesheet" href="../../bootstrap-icons/font/bootstrap-icons.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+<script src="https://unpkg.com/@popperjs/core@2.11.5/dist/umd/popper.min.js"></script>
+<script src="https://unpkg.com/tippy.js@6.3.1/dist/tippy-bundle.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- Styles -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+<!-- Or for RTL support -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.rtl.min.css" />
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.0/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="../js/appointment.js"></script>
-    <title>Document</title>
+    <title>Appoinment</title>
     <style>
-        .container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', serif;
+    font-size: 16px;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex: 1;
+    background-color: #eee;
+    /* Other main content styles */
+}
+.footer {
+    background-color: #6537AE;
+    color: #fff;
+
+}
+.footer-wave-svg {
+    background-color: transparent;
+    display: block;
+    height: 30px;
+    position: relative;
+    top: -1px;
+    width: 100%;
+}
+.footer-wave-path {
+    fill: #fffff2;
+}
+
+.fixed-text {
+  position: fixed;
+  top: 50%; /* Adjust the vertical position as needed */
+  left: 40%; /* Adjust the horizontal position as needed */
+  transform: translate(-50%, -50%);
+}
+.custom-toggler.navbar-toggler {
+    border-color: #fff;
+}
+.custom-toggler .navbar-toggler-icon {
+    background-image: url(
+"data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(255, 255, 255, 0.8)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 8h24M4 16h24M4 24h24'/%3E%3C/svg%3E");
+}
         option:disabled {
             color: red;
         }
@@ -110,13 +216,6 @@ function generateAppointmentID() {
         .error {
         color: #F00;
         font-size: 10px;
-        }
-
-        .header {
-        background-color: #eee;
-        color: white;
-        padding: 10px;
-        text-align: center;
         }
         #pageloader {
     background: rgba(255, 255, 255, 0.8);
@@ -147,7 +246,6 @@ function generateAppointmentID() {
 }
 
 
-
 .footer {
     background-color: #6537AE;
     color: #fff;
@@ -164,603 +262,12 @@ function generateAppointmentID() {
 .footer-wave-path {
     fill: #eee;
 }
-
-.footer-content {
-    margin-left: auto;
-    margin-right: auto;
-    max-width: 1230px;
-    padding: 40px 15px 450px;
-    position: relative;
-}
-
-.footer-content-column {
-    box-sizing: border-box;
-    float: left;
-    padding-left: 15px;
-    padding-right: 15px;
-    width: 100%;
-    color: #fff;
-}
-
-.footer-content-column ul li a {
-  color: #fff;
-  text-decoration: none;
-}
-
-.footer-logo-link {
-    display: inline-block;
-}
-.footer-menu {
-    margin-top: 30px;
-}
-
-.footer-menu-name {
-    color: #fffff2;
-    font-size: 15px;
-    font-weight: 900;
-    letter-spacing: .1em;
-    line-height: 18px;
-    margin-bottom: 0;
-    margin-top: 0;
-    text-transform: uppercase;
-}
-.footer-menu-list {
-    list-style: none;
-    margin-bottom: 0;
-    margin-top: 10px;
-    padding-left: 0;
-}
-.footer-menu-list li {
-    margin-top: 5px;
-}
-
-.footer-call-to-action-description {
-    color: #fffff2;
-    margin-top: 10px;
-    margin-bottom: 20px;
-}
-.footer-call-to-action-button:hover {
-    background-color: #fffff2;
-    color: #00bef0;
-}
-.button:last-of-type {
-    margin-right: 0;
-}
-.footer-call-to-action-button {
-    background-color: #027b9a;
-    border-radius: 21px;
-    color: #fffff2;
-    display: inline-block;
-    font-size: 11px;
-    font-weight: 900;
-    letter-spacing: .1em;
-    line-height: 18px;
-    padding: 12px 30px;
-    margin: 0 10px 10px 0;
-    text-decoration: none;
-    text-transform: uppercase;
-    transition: background-color .2s;
-    cursor: pointer;
-    position: relative;
-}
-.footer-call-to-action {
-    margin-top: 30px;
-}
-.footer-call-to-action-title {
-    color: #fffff2;
-    font-size: 14px;
-    font-weight: 900;
-    letter-spacing: .1em;
-    line-height: 18px;
-    margin-bottom: 0;
-    margin-top: 0;
-    text-transform: uppercase;
-}
-.footer-call-to-action-link-wrapper {
-    margin-bottom: 0;
-    margin-top: 10px;
-    color: #fff;
-    text-decoration: none;
-}
-.footer-call-to-action-link-wrapper a {
-    color: #fff;
-    text-decoration: none;
-}
-
-
-
-
-
-.footer-social-links {
-    bottom: 0;
-    height: 54px;
-    position: absolute;
-    right: 0;
-    width: 236px;
-}
-
-.footer-social-amoeba-svg {
-    height: 54px;
-    left: 0;
-    display: block;
-    position: absolute;
-    top: 0;
-    width: 236px;
-}
-
-.footer-social-amoeba-path {
-    fill: #027b9a;
-}
-
-.footer-social-link.linkedin {
-    height: 26px;
-    left: 3px;
-    top: 11px;
-    width: 26px;
-}
-
-.footer-social-link {
-    display: block;
-    padding: 10px;
-    position: absolute;
-}
-
-.hidden-link-text {
-    position: absolute;
-    clip: rect(1px 1px 1px 1px);
-    clip: rect(1px,1px,1px,1px);
-    -webkit-clip-path: inset(0px 0px 99.9% 99.9%);
-    clip-path: inset(0px 0px 99.9% 99.9%);
-    overflow: hidden;
-    height: 1px;
-    width: 1px;
-    padding: 0;
-    border: 0;
-    top: 50%;
-}
-
-.footer-social-icon-svg {
-    display: block;
-    
-}
-
-.footer-social-icon-path {
-    fill: #fffff2;
-    transition: fill .2s;
-}
-
-.footer-social-link.twitter {
-    height: 28px;
-    left: 62px;
-    top: 3px;
-    width: 28px;
-}
-
-.footer-social-link.youtube {
-    height: 24px;
-    left: 123px;
-    top: 12px;
-    width: 24px;
-}
-
-.footer-social-link.github {
-    height: 34px;
-    left: 172px;
-    top: 7px;
-    width: 34px;
-}
-
-.footer-copyright {
-    background-color: #c23fe3;
-    color: #fff;
-    padding: 15px 30px;
-  text-align: center;
-}
-
-.footer-copyright-wrapper {
-    margin-left: auto;
-    margin-right: auto;
-    max-width: 1200px;
-}
-
-.footer-copyright-text {
-  color: #fff;
-    font-size: 13px;
-    font-weight: 400;
-    line-height: 18px;
-    margin-bottom: 0;
-    margin-top: 0;
-}
-
-.footer-copyright-link {
-    color: #fff;
-    text-decoration: none;
-}
-
-
-
-
-
-
-
-/* Media Query For different screens */
-@media (min-width:320px) and (max-width:479px)  { /* smartphones, portrait iPhone, portrait 480x320 phones (Android) */
-  .footer-content {
-    margin-left: auto;
-    margin-right: auto;
-    max-width: 1230px;
-    padding: 40px 15px 1050px;
-    position: relative;
-  }
-}
-@media (min-width:480px) and (max-width:599px)  { /* smartphones, Android phones, landscape iPhone */
-  .footer-content {
-    margin-left: auto;
-    margin-right: auto;
-    max-width: 1230px;
-    padding: 40px 15px 1050px;
-    position: relative;
-  }
-}
-@media (min-width:600px) and (max-width: 800px)  { /* portrait tablets, portrait iPad, e-readers (Nook/Kindle), landscape 800x480 phones (Android) */
-  .footer-content {
-    margin-left: auto;
-    margin-right: auto;
-    max-width: 1230px;
-    padding: 40px 15px 1050px;
-    position: relative;
-  }
-}
-@media (min-width:801px)  { /* tablet, landscape iPad, lo-res laptops ands desktops */
-
-}
-@media (min-width:1025px) { /* big landscape tablets, laptops, and desktops */
-
-}
-@media (min-width:1281px) { /* hi-res laptops and desktops */
-
-}
-
-
-
-
-@media (min-width: 1025px) {
-  .footer-content {
-      margin-left: auto;
-      margin-right: auto;
-      max-width: 1030px;
-      padding: 20px 15px 450px;
-      position: relative;
-  }
-
-  .footer-wave-svg {
-      height: 50px;
-  }
-
-  .footer-content-column {
-      width: 24.99%;
-  }
-}
-@media (min-width: 568px) {
-  /* .footer-content-column {
-      width: 49.99%;
-  } */
-}
-
-* {
-box-sizing: border-box;
-}
-
-body,
-html {
-overflow-x: hidden;
-}
-
-
-a {
-text-decoration: none;
-transition: all 0.5s ease-in-out;
-}
-
-a:hover {
-transition: all 0.5s ease-in-out;
-}
-
-.we-are-block {
-display: flex;
-flex-direction: column;
-align-items: center;
-justify-content: center;
-flex-wrap: nowrap;
-width: 100%;
-height: 900px;
-}
-
-@media screen and (max-width: 860px) {
-.we-are-block {
-height: 2200px;
-}
-}
-
-@media screen and (max-width: 500px) {
-.we-are-block {
-height: 2300px;
-}
-}
-
-#about-us-section {
-background: #6537AE;
-width: 100%;
-height: 50%;
-display: flex;
-flex-direction: row;
-flex-wrap: nowrap;
-align-items: center;
-justify-content: center;
-position: relative;
-}
-
-@media screen and (max-width: 860px) {
-#about-us-section {
-flex-direction: column;
-justify-content: space-between;
-}
-}
-
-.about-us-image {
-position: absolute;
-top: 0;
-right: 0;
-height: 100%;
-overflow: hidden;
-}
-
-@media screen and (max-width: 860px) {
-.about-us-image {
-position: relative;
-width: 100%;
-height: 45%;
-}
-}
-
-@media screen and (max-width: 747px) {
-.about-us-image {
-height: 35%;
-}
-}
-
-@media screen and (max-width: 644px) {
-.about-us-image img {
-position: absolute;
-left: -220px;
-}
-}
-
-.about-us-info {
-display: flex;
-flex-direction: column;
-align-items: flex-end;
-justify-content: space-evenly;
-width: 40%;
-height: 80%;
-margin-right: 850px;
-margin-left: 12px;
-z-index: 2;
-}
-
-@media screen and (max-width: 1353px) {
-.about-us-info {
-margin-right: 400px;
-width: 60%;
-background: #6537AE99;
-padding: 0px 25px 0px 0px;
-}
-}
-
-@media screen and (max-width: 1238px) {
-.about-us-info {
-margin-right: 340px;
-width: 100%;
-}
-}
-
-@media screen and (max-width: 1111px) {
-.about-us-info {
-margin-right: 270px;
-}
-}
-
-@media screen and (max-width: 910px) {
-.about-us-info {
-margin-right: 150px;
-}
-}
-
-@media screen and (max-width: 860px) {
-.about-us-info {
-margin: 0px 0px 0px 0px !important;
-padding: 0px 20px 0px 20px !important;
-width: 100%;
-height: 55%;
-align-items: center;
-}
-}
-
-@media screen and (max-width: 747px) {
-.about-us-info {
-height: 65%;
-}
-}
-
-.about-us-info h2 {
-color: white;
-font-size: 40pt;
-text-align: right;
-}
-
-@media screen and (max-width: 860px) {
-.about-us-info h2 {
-text-align: center;
-}
-}
-
-.about-us-info p {
-color: white;
-font-size: 14pt;
-text-align: right;
-}
-
-@media screen and (max-width: 860px) {
-.about-us-info p {
-text-align: center;
-}
-}
-
-
-
-#history-section {
-width: 100%;
-height: 50%;
-display: flex;
-flex-direction: row;
-flex-wrap: nowrap;
-align-items: center;
-justify-content: center;
-position: relative;
-}
-
-@media screen and (max-width: 860px) {
-#history-section {
-flex-direction: column;
-justify-content: space-between;
-}
-}
-
-.history-image {
-position: absolute;
-top: 0;
-left: 0;
-max-width: 820px;
-height: 100%;
-overflow: hidden;
-}
-
-@media screen and (max-width: 860px) {
-.history-image {
-position: relative;
-width: 100%;
-height: 40%;
-}
-}
-
-@media screen and (max-width: 747px) {
-.history-image {
-height: 35%;
-}
-}
-
-@media screen and (max-width: 644px) {
-.history-image img {
-position: absolute;
-right: -220px;
-}
-}
-
-.history-info {
-display: flex;
-flex-direction: column;
-align-items: flex-start;
-justify-content: space-evenly;
-width: 40%;
-height: 80%;
-margin-left: 850px;
-margin-right: 12px;
-z-index: 2;
-}
-
-@media screen and (max-width: 1353px) {
-.history-info {
-margin-left: 400px;
-width: 60%;
-background: #ffffff99;
-padding: 0px 0px 0px 25px;
-}
-}
-
-@media screen and (max-width: 1238px) {
-.history-info {
-margin-left: 340px;
-width: 100%;
-}
-}
-
-@media screen and (max-width: 1111px) {
-.history-info {
-margin-left: 270px;
-}
-}
-
-@media screen and (max-width: 910px) {
-.history-info {
-margin-left: 150px;
-}
-}
-
-@media screen and (max-width: 860px) {
-.history-info {
-margin: 0px 0px 0px 0px !important;
-padding: 0px 40px 0px 40px !important;
-width: 100%;
-height: 60%;
-align-items: center;
-}
-}
-
-@media screen and (max-width: 747px) {
-.history-info {
-height: 65%;
-}
-}
-
-.history-info h2 {
-color: #6537AE;
-font-size: 40pt;
-text-align: left;
-}
-
-@media screen and (max-width: 860px) {
-.history-info h2 {
-text-align: center;
-}
-}
-
-.history-info p {
-color: #6537AE;
-font-size: 14pt;
-text-align: left;
-}
-
-@media screen and (max-width: 860px) {
-.history-info p {
-text-align: center;
-}
-}
-
-.select2-selection__rendered {
-    line-height: 31px !important;
-}
-.select2-container .select2-selection--single {
-    height: 35px !important;
-}
-.select2-selection__arrow {
-    height: 34px !important;
-}
-.select2-results__option { 
-  font-size: 14px;
-}
-
-li {
-    font-size: 20px;
+.custom-toggler.navbar-toggler {
+    border-color: #fff;
+}
+.custom-toggler .navbar-toggler-icon {
+    background-image: url(
+"data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(255, 255, 255, 0.8)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 8h24M4 16h24M4 24h24'/%3E%3C/svg%3E");
 }
     </style>
 </head>
@@ -770,32 +277,45 @@ li {
 </div>
 <nav class="navbar navbar-expand-lg px-3" style="background-color: transparent; background-color: #6537AE; /* Use your preferred solid color */" id="s1">
   <div class="container-fluid">
-  <a class="navbar-brand mt-1" style="margin-right: 37px;" href="../index.php">
+  <a class="navbar-brand mt-1" href="../index.php">
     <img src="images/zephyderm.png" alt="" height="30px" width="230px" class="mb-2">
   </a>
-    <button class="navbar-toggler text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon text-white"></span>
+    <button class="navbar-toggler text-white custom-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon icon-bar"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
         <li class="nav-item mx-2">
-        <a class="nav-link active  text-white" href="../index.php" id="s5">Home</a>
+        <a class="nav-link active  text-white fs-5" href="../index.php" id="s5">Home</a>
         </li>
         <li class="nav-item mx-2">
-          <a class="nav-link text-white" href="about.php" id="s5">About</a>
+          <a class="nav-link text-white fs-5" href="about.php" id="s5">About</a>
         </li>
         <li class="nav-item mx-2">
-          <a class="nav-link text-white" href="service.php" id="s5">Services</a>
+          <a class="nav-link text-white fs-5" href="service.php" id="s5">Services</a>
         </li>
         <li class="nav-item mx-2">
-          <a class="nav-link text-white" href="FAQ.php" id="s5">FAQ</a>
+          <a class="nav-link text-white fs-5" href="FAQ.php" id="s5">FAQ</a>
         </li>
         <li class="nav-item mx-2">
-          <a class="nav-link text-white" href="contact.php" id="s5">Contact</a>
+          <a class="nav-link text-white fs-5" href="contact.php" id="s5">Contact</a>
         </li>
       </ul>
-      <a href="../login.php" class="btn btn-outline-light mx-2" type="submit" id="s5">Login</a>
-      <a href="booking.php" class="btn btn-outline-light" type="submit" id="s5">Book an Appointment</a>
+      <?php if ($isClientLoggedIn): ?>
+        <div class="dropdown">
+                <a href="#" class="d-flex align-items-center text-dark text-decoration-none" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+                <img src="../img/avatar/<?php echo $userData['client_avatar']; ?>" class="rounded-circle me-3" height="40px" width="40px">
+                    <span class="d-none d-sm-inline mx-1"></span>
+                </a>
+                <ul class="dropdown-menu text-small shadow dropdown-menu-end" aria-labelledby="dropdownUser1">
+                <li><a class="dropdown-item" href="../Client/client_record/view.php">Profile Account</a></li>
+                    <li><a class="dropdown-item" href="../Client/logout.php">Sign out</a></li>
+                </ul>
+            </div>
+        <?php else: ?>
+            <a href="../login.php" class="btn btn-outline-light mx-2" type="submit" id="s5">Login</a>
+        <?php endif; ?>
+        <a href="booking.php" class="btn btn-outline-light" type="submit" id="s5">Book an Appointment</a>
     </div>
   </div>
 </nav>
@@ -838,80 +358,79 @@ li {
                         </div>
                     </div>
                     <div class="col-md-6">
+                        <label for="verificationCode">Verification Code <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="verificationCode" name="verificationCode" required pattern="[0-9]{6}">
+                            <button type="button" id="requestVerificationCode" class="btn text-white rounded-end" style="background-color:#6537AE;">Request</button>
+                            <div class="invalid-feedback">
+                                Please input a valid 6-digit OTP.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
                         <label for="validationCustom02">Phone Number <span class="text-danger">*</span></label>
-                        <input type="tel" class="form-control" id="number" placeholder="Phone Number"  name="number" required>
+                        <input type="tel" class="form-control" id="number" placeholder="Phone Number"  name="number" required pattern="09[0-9]{9}" required oninput="validateInput(this)">
                         <div class="invalid-feedback">
-                            Please enter your number.
+                        Please enter a valid phone number that starts with '09'.
                         </div>
                     </div>
                     <div class="col-md-6">
                         <label for="validationCustom04">Schedule Appointment Date<span class="text-danger">*</span></label>
-                        <input type="date" class="form-control" placeholder="Enter Schedule Date" id="d" name="date" onchange="updateTime()" required>
+                        <input type="date" class="form-control" placeholder="Enter Schedule Date" id="d" name="date" onchange="updateTime()" required autocomplete="off">
                         <div class="invalid-feedback">
                             Please choose a date.
                         </div>
                     </div>
                     <div class="col-md-6">
                         <label for="validationCustom05">Schedule Appointment Time<span class="text-danger">*</span></label>
-                        <select class="form-control" name="time" id="time" placeholder="Enter Time Appointment" required></select>
+                        <select class="form-control" name="time" id="time" required>
+                        </select>
                         <div class="invalid-feedback">
                             Please enter your time.
                         </div>
                     </div>
 
-                    <div class="col-6">
+                    <div class="col-md-6">
                     <label for="validationCustom06">Select Service<span class="text-danger">*</span></label>
-                    <select class="select2 form-select" name="services" style="width: 100%;"  required>
+                    <select class="select2 form-select" name="services" style="width: 100%;" required>
                         <option value=""></option>
-                        <optgroup label="HAIR">
-                            <option value="hair-face">Face-to-face Hair Consultation</option>
-                            <option value="hair-removal">Laser Hair Removal</option>
-                            <option value="hair-prp">Platelet Rich Plasma</option>
-                        </optgroup>
-                        <optgroup label="NAIL">
-                            <option value="nail-face">Face-to-face Nail Consultation</option>
-                        </optgroup>
-                        <optgroup label="SKIN">
-                            <option value="skin-face">Face-to-face Skin Consultation</option>
-                        </optgroup>
-                        <optgroup label="OTHER SERVICES">
-                            <option value="HIFU">HIFU</option>
-                            <option value="Skin biopsy">Skin biopsy</option>
-                            <option value="Cryolipolysis">Cryolipolysis</option>
-                            <option value="Mohs Microhraphic Surgery">Mohs Microhraphic Surgery</option>
-                            <option value="Platelet Rich Plasma">Platelet Rich Plasma</option>
-                            <option value="Warts, Milia Removal">Warts, Milia Removal</option>
-                            <option value="Chemical Peel">Chemical Peel</option>
-                            <option value="Syringoma Removal">Syringoma Removal</option>
-                            <option value="Tattoo Removal">Tattoo Removal</option>
-                            <option value="Dermalux - LED Phototherapy">Dermalux - LED Phototherapy</option>
-                            <option value="Acne Treatment">Acne Treatment</option>
-                            <option value="Double Chin treatment">Double Chin treatment</option>
-                            <option value="Botulinum toxin injection">Botulinum toxin injection</option>
-                            <option value="Ear Keloid Removal">Ear Keloid Removal</option>
-                            <option value="Excision of ear keloid">Excision of ear keloid</option>
-                            <option value="Treatment for Excessive Sweating">Treatment for Excessive Sweating</option>
-                            <option value="Sclerotherapy">Sclerotherapy</option>
-                            <option value="Mole Removal">Mole Removal</option>
-                            <option value="Melasma treatment">Melasma treatment</option>
-                            <option value="Fractional CO2 laser">Fractional CO2 laser</option>
-                            <option value="Easy TCA Peel">Easy TCA Peel</option>
-                            <option value="Cyst / Tumor Excision">Cyst / Tumor Excision</option>
-                            <option value="Electrocautery, Laser">Electrocautery, Laser</option>
-                            <option value="Power Peel">Power Peel</option>
-                        </optgroup>
+
+                        <?php
+                        include "../db_connect/config.php";
+                        $stmt = mysqli_prepare($conn, "SELECT DISTINCT services FROM service");
+                        mysqli_stmt_execute($stmt);
+                        mysqli_stmt_store_result($stmt);
+                        mysqli_stmt_bind_result($stmt, $category);
+
+                        while (mysqli_stmt_fetch($stmt)) {
+                            echo '<optgroup label="' . $category . '">';
+                            $stmt2 = mysqli_prepare($conn, "SELECT id, services, name, image, description FROM service WHERE services = ?");
+                            mysqli_stmt_bind_param($stmt2, "s", $category);
+                            mysqli_stmt_execute($stmt2);
+                            mysqli_stmt_store_result($stmt2);
+                            mysqli_stmt_bind_result($stmt2, $id, $services, $name, $image, $description);
+
+                            while (mysqli_stmt_fetch($stmt2)) {
+                                echo '<option value="' . $name . '">' . $name . '</option>';
+                            }
+                            echo '</optgroup>';
+                        }
+                        ?>
                     </select>
+
                     <div class="invalid-feedback">
                             Please Select Services.
                         </div>
                     </div>
+
                     <div class="col-12">
-                        <label>Health Complaint<span class="text-danger">*</span></label>
-                        <textarea class="form-control" placeholder="Health Complaint" name="health_concern" required></textarea>
-                        <div class="invalid-feedback">
-                            Please enter your health complaint.
-                        </div>
-                    </div>
+    <label>Health Complaint<span class="text-danger">*</span></label>
+    <textarea class="form-control" placeholder="Description" name="health_concern" required oninput="limitHealthConcern(this, 250);" onpaste="onPaste(event, this);"></textarea>
+    <div class="invalid-feedback">
+        Please enter your health complaint.
+    </div>
+    <div class="text-muted" id="wordCount">250 words remaining</div>
+</div>
                 <div class="col-12">
                     <div class="form-check">
                         <input type="checkbox" class="form-check-input" id="termsCheckbox" name="terms" required>
@@ -923,7 +442,7 @@ li {
                 </div>
                     <div class="col-12 mt-5">                        
                         <button type="submit" class="btn text-white float-end" name="submit" style="Background-color:#6537AE;">Book Appointment</button>
-                        <a href="home.php"><button type="button" class="btn btn-outline-secondary float-end me-2">Cancel</button></a>
+                        <button type="button" class="btn btn-secondary float-end me-2" id="clearFormButton">Clear Form</button>
                     </div>
                 </div>
             </form>
@@ -959,7 +478,6 @@ li {
                         </div>
                         <h3 class="fs-4 text-uppercase"style="col;">Time Open</h3>
                         <?php
-                        // Combine time slots
                         $stmt = mysqli_prepare($conn, "SELECT slots FROM appointment_slots");
                         mysqli_stmt_execute($stmt);
                         mysqli_stmt_store_result($stmt);
@@ -1002,113 +520,80 @@ li {
 
 </main>
 
-<div class="pg-footer" id="s1">
+<footer >
+<div class="mt-5">
     <footer class="footer">
       <svg class="footer-wave-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 100" preserveAspectRatio="none">
         <path class="footer-wave-path" d="M851.8,100c125,0,288.3-45,348.2-64V0H0v44c3.7-1,7.3-1.9,11-2.9C80.7,22,151.7,10.8,223.5,6.3C276.7,2.9,330,4,383,9.8 c52.2,5.7,103.3,16.2,153.4,32.8C623.9,71.3,726.8,100,851.8,100z"></path>
       </svg>
-      <div class="footer-content">
-        <div class="footer-content-column">
-          <div class="footer-logo">
-            <a class="footer-logo-link text-white" href="#" style="text-decoration: none;">
-              <span class="hidden-link-text"></span>
-              <h1 >Z-SKIN</h1>
-            </a>
-          </div>
-          <div class="footer-menu">
-            <h2 class="footer-menu-name">Get Started</h2>
-            <ul id="menu-get-started" class="footer-menu-list">
-            <p>Care and help you achieve optimal skin health. We are
+<div style="background-color: #6537AE; width: 100%; top: 20px">
+  <div class="container text-white py-5" style="background-color: #6537AE;">
+        <div class="row">
+          <div class="col-lg-4">
+              <div>
+                <h2 style="font-family: Lora;">Z-SKIN</h2>
+                  <p>Care and help you achieve optimal skin health. We are
                     committed to providing you with comprehensive,
                     personalized care, staying up-to-date with the latest
                     advancements in dermatology, and treating you with
-                    compassion, respect, and individualized attention</p>
-            </ul>
+                    compassion, respect, and individualized attention
+                  </p>
+              </div>
           </div>
-        </div>
-        <div class="footer-content-column">
-          <div class="footer-menu">
-            <h2 class="footer-menu-name">Navigation</h2>
-            <ul id="menu-company" class="footer-menu-list">
-              <li class="menu-item menu-item-type-post_type menu-item-object-page">
-                <a href="#">About Us</a>
-              </li>
-              <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
-                <a href="#">Services</a>
-              </li>
-              <li class="menu-item menu-item-type-post_type menu-item-object-page">
-                <a href="#">Faq</a>
-              </li>
-              <li class="menu-item menu-item-type-post_type menu-item-object-page">
-                <a href="#">Contact Us</a>
-              </li>
-            </ul>
+          <div class="col-lg-2">
+            <div>
+              <h2 style="font-family: Lora;">Navigation</h2>
+              <ul class="list-unstyled">
+                <li>
+                  <a href="#" class="text-white">About Us</a>
+                </li>
+                <li>
+                  <a href="#" class="text-white">Services</a>
+                </li>
+                <li>
+                  <a href="#" class="text-white">Faq</a>
+                </li>
+                <li>
+                  <a href="#" class="text-white">Contact Us</a>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h2 style="font-family: Lora;"> Legal</h2>
+              <ul class="list-unstyled">
+                <li>
+                  <a href="#" class="text-white">Terms and Condition</a>
+                </li>
+              </ul>
+            </div>
           </div>
-          <div class="footer-menu">
-            <h2 class="footer-menu-name"> Legal</h2>
-            <ul id="menu-legal" class="footer-menu-list">
-              <li class="menu-item menu-item-type-post_type menu-item-object-page">
-                <a href="#">Terms and Condition</a>
-              </li>
-            </ul>
+          <div class="col-lg-3">
+            <div>
+              <h2 style="font-family: Lora;">Social Media</h2>
+              <ul class="list-unstyled">
+                <li>
+                <a>
+                    <i class="bi bi-facebook text-white me-2"> </i>
+                    Facebook</a>
+                </li>
+              </ul>
+            </div>
           </div>
-        </div>
-        <div class="footer-content-column">
-          <div class="footer-menu">
-            <h2 class="footer-menu-name">Social Media</h2>
-            <ul id="menu-quick-links" class="footer-menu-list">
-              <li class="menu-item menu-item-type-custom menu-item-object-custom">
-                <a target="_blank" rel="noopener noreferrer" href="#">
-                  <i class="bi bi-tiktok text-white me-2"> </i>
-                  Tiktok</a>
-              </li>
-              <li class="menu-item menu-item-type-custom menu-item-object-custom">
-                <a target="_blank" rel="noopener noreferrer" href="#">
-                  <i class="bi bi-facebook text-white me-2"> </i>
-                  Facebook</a>
-              </li>
-              <li class="menu-item menu-item-type-custom menu-item-object-custom">
-                <a target="_blank" rel="noopener noreferrer" href="#">
-                  <i class="bi bi-youtube text-white me-2"> </i>
-                  Youtube</a>
-              </li>
-              <li class="menu-item menu-item-type-custom menu-item-object-custom">
-                <a target="_blank" rel="noopener noreferrer" href="#">
-                  <i class="bi bi-instagram text-white me-2"> </i>
-                  Instagran</a>
-              </li>
-            </ul>
-          </div>
-        </div>
-        <div class="footer-content-column">
-          <div class="footer-call-to-action">
-            <h2 class="footer-call-to-action-title">Address</h2>
+          <div class="col-lg-3">
+          <h2 style="font-family: Lora;">Address</h2>
             <p>Address: Unit 4 One Kalayaan Place Building 284 Samson Road Victory Liner Compound, Caloocan, Philippines</p>
-            <p >Email: </p>
-            <p>zskincarecenter @gmail.com</p>
+            <p> You can Contact Us</p>
+            <p>Phone: 0915 759 2213</p>
+            <p >Email: zskincarecenter @gmail.com</p>
           </div>
-          <div class="footer-call-to-action">
-            <h2 class="footer-call-to-action-title"> You can Contact Us</h2>
-            <p class="footer-call-to-action-link-wrapper"> <a class="footer-call-to-action-link" href="tel:0124-64XXXX" target="_self">Phone: 0915 759 2213 </a></p>
-
           </div>
-        </div>
-      </div>
-      <div class="footer-copyright">
-        <div class="footer-copyright-wrapper">
-          <p class="footer-copyright-text">
-            <a class="footer-copyright-link" href="#" target="_self"> ©2023. | Z-Skin | All rights reserved. </a>
-          </p>
-        </div>
-      </div>
-    </footer>
+          <div>
+            
   </div>
-  <div class="pace hide pace-running">
-  <div data-progress="0" data-progress-text="0%" style="width: 0%;" class="pace-progress">
-    <div class="pace-progress-inner"></div>
-  </div>
-  <div class="pace-activity"></div>
 </div>
+</footer>
+<div class=" text-center text-white p-1" style="background-color: #c23fe3;"> ©2023. | Z-Skin | All rights reserved. </div>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/js/select2.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -1127,12 +612,16 @@ $(document).ready(function() {
             return;
         }
         Swal.fire({
+          imageUrl: 'images/loading.gif',
+          imageWidth: 100,
+          imageHeight: 100,
             title: 'Sending Verification Code',
             allowOutsideClick: false,
             onBeforeOpen: () => {
                 Swal.showLoading();
             }
         });
+
         $.ajax({
             type: 'POST',
             url: 'code.php',
@@ -1191,6 +680,12 @@ $(document).ready(function() {
 });
     </script>
 <script>
+      function validateInput(inputElement) {
+        inputElement.value = inputElement.value.replace(/[^0-9]/g, '');
+        if (inputElement.value.length > 11) {
+            inputElement.value = inputElement.value.slice(0, 11);
+        }
+    };
 function updateTime() {
     var d = document.getElementById("d").value;
     var time = document.getElementById("time");
@@ -1278,14 +773,14 @@ function showReminderAlert() {
   Swal.fire({
   icon: 'info',
   title: 'Important Reminders',
-  html: '<div class="align-left"> 1. Minors cannot book appointments.<br>' +
+  html: '<div class="text-start"> 1. Minors cannot book appointments.<br>' +
     '2. If an authorized representative is making the appointment, they must present an original authorization letter and a valid ID.<br>' +
     '3. Ensure accurate information for the applicant or authorized representative. .<br>' +
     '4. Appointments are allocated on a first-come, first-served basis.</div?',
-  confirmButtonColor: '#6537AE', // Corrected double '#' in the color code
-  customClass: {
+  confirmButtonColor: '#6537AE',
+  showClass: {
     html: 'text-start'
-  }
+  },
 });
 }
 
@@ -1301,13 +796,49 @@ document.querySelector('input[type="checkbox"]').addEventListener('change', func
 $(document).ready(function() {
             $('.select2').select2({
                 placeholder: {
-                    id: '', // the value of the option
+                    id: '',
                     text: 'None Selected'
                 },
+                theme: 'bootstrap-5',
                 allowClear: true
             });
         });
 </script>
+<script>
+function limitHealthConcern(textarea, maxWords) {
+    let text = textarea.value;
+    let words = text.split(/\s+/);
+    if (words.length > maxWords) {
+        words = words.slice(0, maxWords);
+        textarea.value = words.join(" ");
+    }
+    let wordsRemaining = maxWords - words.length;
+    let wordCountElement = document.getElementById("wordCount");
+    wordCountElement.textContent = wordsRemaining + " words remaining";
+}
+
+function onPaste(event, textarea) {
+    setTimeout(function () {
+        limitHealthConcern(textarea, 250);
+    }, 0);
+}
+</script>
+
+<script>
+
+function clearFormFields() {
+    document.getElementById('signUpForm').reset();
+    const textarea = document.getElementById('healthComplaint');
+    textarea.value = ''; // Clear the textarea
+    textarea.disabled = false;
+    limitHealthConcern(textarea, 250); // Reset word count
+}
+
+
+document.getElementById('clearFormButton').addEventListener('click', clearFormFields);
+
+</script>
+
 
 
 

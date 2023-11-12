@@ -8,7 +8,7 @@ $userData = $_SESSION['id'];
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Dashboard</title>
+    <title>Client Record</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
     <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
@@ -17,6 +17,8 @@ $userData = $_SESSION['id'];
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+    
 </head>
 <style>
     .page-item.active .page-link {
@@ -27,6 +29,11 @@ $userData = $_SESSION['id'];
 .page-link {
     color: black !important;
 }
+th{
+   background-color:#6537AE  !important;
+   color: #fff  !important;
+}
+
 </style>
 <body>
         <div id="wrapper">
@@ -38,21 +45,20 @@ $userData = $_SESSION['id'];
                                 <h2 style="color:6537AE;" class="fw-bold">CLIENT RECORD</h2>
                             </div>
                             <div class="align-items-center">
-                                <button class="btn bg-purple text-white">CREATE</button>
+                                <a href="add_client_record.php" class="btn bg-purple text-white">CREATE</a>
                             </div>
-                            
                         </div>
                     </div>
                     <div class="bg-white p-3 rounded-3 border mx-3">
                         <table id="clientTable" class="table table-bordered table-striped" style="width:100%">
                             <thead>
                                 <tr>
-                                    <th style="background-color:#6537AE;" class="text-white">First Name</th>
-                                    <th style="background-color:#6537AE;" class="text-white">Last Name</th>
-                                    <th style="background-color:#6537AE;" class="text-white">Day of Birth</th>
-                                    <th style="background-color:#6537AE;" class="text-white">Contact Number</th>
-                                    <th style="background-color:#6537AE;" class="text-white">Email Address</th>
-                                    <th style="background-color:#6537AE;" class="text-white">Action</th>
+                                    <th>First Name</th>
+                                    <th>Last Name</th>
+                                    <th>Day of Birth</th>
+                                    <th>Contact Number</th>
+                                    <th>Email Address</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -102,8 +108,10 @@ $userData = $_SESSION['id'];
                 paging: true,
                 fixedColumns: true,
                 select: true,
+                "ordering": false,
             });
         });
     </script>
+    
 </body>
 </html>

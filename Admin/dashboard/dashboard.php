@@ -1,6 +1,7 @@
 <?php
+session_start();
 include "../function.php";
-checklogin('Admin');
+checklogin1('Admin');
 $userData = $_SESSION['id'];
     ?>
     <?php
@@ -55,17 +56,17 @@ $userData = $_SESSION['id'];
         $queryTotalPatients = "SELECT COUNT(*) as total_patient FROM zp_client_record";
         $resultTotalPatients = mysqli_query($conn, $queryTotalPatients);
 
-        $queryServices = "SELECT services, COUNT(*) as service_count 
+        $queryServices = "SELECT management, COUNT(*) as service_count 
         FROM (
-            SELECT services FROM zp_appointment WHERE MONTH(date) = $currentYear
+            SELECT management FROM zp_derma_record WHERE MONTH(date_diagnosis) = $currentYear
         ) AS combined_services
-        GROUP BY services";
+        GROUP BY management";
         $resultServices = mysqli_query($conn, $queryServices);
         $serviceLabels = [];
         $serviceCounts = [];
 
         while ($rowService = mysqli_fetch_assoc($resultServices)) {
-        $serviceLabels[] = $rowService['services'];
+        $serviceLabels[] = $rowService['management'];
         $serviceCounts[] = $rowService['service_count'];
         }
         if ($resultTotalPatients) {
@@ -108,23 +109,19 @@ $userData = $_SESSION['id'];
             max-width: 100%;
             height: auto;
         }
-        .fade-in {
-                animation: fadeIn 1s ease-in-out;
-                opacity: 0;
-                animation-fill-mode: forwards;
-            }
-            @keyframes fadeIn {
-                0% {
-                    opacity: 0;
-                }
-                100% {
-                    opacity: 1;
-                }
-            }
+        
         </style>
         <body> 
         <div id="wrapper">
             <?php include "../sidebar.php"; ?>
+            <div class="bg-white py-3 mb-3 border border-bottom">
+                    <div class="d-flex justify-content-between mx-4">
+                        <div>
+                            <h2 style="color:6537AE;" class="fw-bold">DASHBOARD</h2>
+                        </div>
+                    </div>
+                </div>
+            <div class="m-3">
             <section id="content-wrapper">
                     <div class="row">
                         
