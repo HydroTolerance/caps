@@ -18,18 +18,18 @@ function showInsertModal(id) {
 
     })
 }
-function showData(zep_acc) {
+function showData(id) {
 $.ajax({
     url: 'clinic_edit.php',
     type: 'POST',
-    data: { zep_acc: zep_acc },
+    data: { id: id },
     success: function (response) {
         $('#displayAccount .modal-body').html(response);
         $('#displayAccount').modal('show');
     }
 })
 }
-function statusAccount(zep_acc, action) {
+function statusAccount(id, action) {
 let statusText = action === 'deactivate' ? 'deactivated' : 'active';
 let confirmationText = `Are you sure you want to ${statusText} this account?`;
 Swal.fire({
@@ -46,7 +46,7 @@ Swal.fire({
         $.ajax({
             url: 'deactivate_account.php',
             type: 'POST',
-            data: { zep_acc: zep_acc, action: action },
+            data: { id: id, action: action },
             success: function (response) {
                 let successText = `The account has been ${statusText} successfully.`;
                 Swal.fire({

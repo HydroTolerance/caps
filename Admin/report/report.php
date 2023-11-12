@@ -1,233 +1,216 @@
+<?php 
+include "../function.php";
+checklogin('Admin');
+$userData = $_SESSION['id'];
+?>
+<?php
+include "../../db_connect/config.php";
+$currentYear = date("Y");
+$querymanagement = "SELECT management, YEAR(date_diagnosis) AS date_year, MONTHNAME(date_diagnosis) AS date_month, COUNT(*) as service_count FROM (SELECT management, date_diagnosis FROM zp_derma_record) AS combined_management GROUP BY management, date_year, date_month";
+$resultmanagement = mysqli_query($conn, $querymanagement);
+$serviceData = [];
+while ($rowService = mysqli_fetch_assoc($resultmanagement)) {
+    $serviceLabel = $rowService['management'];
+    $dateYear = $rowService['date_year'];
+    $dateMonth = $rowService['date_month'];
+
+    // Add the data to the serviceData array
+    $serviceData[] = [
+        'management' => $serviceLabel,
+        'date_year' => $dateYear,
+        'date_month' => $dateMonth,
+        'service_count' => $rowService['service_count']
+    ];
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <title>Appointment</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/exceljs/dist/exceljs.min.js"></script>
-
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">
+<title>Generate Report</title>
+    
+<!-- DataTables Buttons Extension -->
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.colVis.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/datetime/1.1.5/css/dataTables.dateTime.min.css">
+<script src="https://cdn.datatables.net/datetime/1.1.5/js/dataTables.dateTime.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 </head>
-
+<style>
+    .page-item.active .page-link {
+    background-color: #6537AE !important;
+    color: #fff !important;
+    border: #6537AE;
+}
+.page-link {
+    color: black !important;
+}
+th{
+   background-color:#6537AE  !important;
+   color: #fff  !important;
+}
+table.child-dt thead {
+  background: blue;
+}
+</style>
 <body>
-<?php
-include "../function.php";
-checklogin();
-?>
-<?php
-    include "../../db_connect/config.php";
-    $currentYear = date("Y");
-
-    $queryApproved = "SELECT COUNT(*) as total_approved FROM book1 WHERE appointment_status = 'approved' AND YEAR(created) = $currentYear";
-    $resultApproved = mysqli_query($conn, $queryApproved);
-    $rowApproved = mysqli_fetch_assoc($resultApproved);
-    $totalApproved = $rowApproved['total_approved'];
-
-    $queryPending = "SELECT COUNT(*) as total_pending FROM book1 WHERE appointment_status = 'pending' AND YEAR(created) = $currentYear";
-    $resultPending = mysqli_query($conn, $queryPending);
-    $rowPending = mysqli_fetch_assoc($resultPending);
-    $totalPending = $rowPending['total_pending'];
-
-    $queryReschedule = "SELECT COUNT(*) as total_reschedule FROM book1 WHERE appointment_status = 'rescheduled' AND YEAR(created) = $currentYear";
-    $resultReschedule = mysqli_query($conn, $queryReschedule);
-    $rowReschedule = mysqli_fetch_assoc($resultReschedule);
-    $totalReschedule = $rowReschedule['total_reschedule'];
-
-    $queryMale = "SELECT COUNT(*) as total_male FROM zp_client_record WHERE client_gender = 'Male'";
-    $resultMale = mysqli_query($conn, $queryMale);
-    $rowMale = mysqli_fetch_assoc($resultMale);
-    $totalMale = $rowMale['total_male'];
-
-    $queryFemale = "SELECT COUNT(*) as total_female FROM zp_client_record WHERE client_gender = 'Female'";
-    $resultFemale = mysqli_query($conn, $queryFemale);
-    $rowFemale = mysqli_fetch_assoc($resultFemale);
-    $totalFemale = $rowFemale['total_female'];
-
-    $queryTotalPatients = "SELECT COUNT(*) as total_patient FROM zp_client_record";
-    $resultTotalPatients = mysqli_query($conn, $queryTotalPatients);
-
-    if ($resultTotalPatients) {
-        $rowTotalPatients = mysqli_fetch_assoc($resultTotalPatients);
-        $totalPatient = $rowTotalPatients['total_patient'];
-    } else {
-        $totalPatient = 'N/A';
-    }
-    ?>
-<div class="container-fluid">
-    <div class="row flex-nowrap">
-        <?php include "../sidebar.php"; ?>
-        <div class="col main-content custom-navbar bg-light">
-        <?php include "../navbar.php"?>
-            <div class="container">
-                <div class="row mt-3">
-                    <div class="col-md-4">
-                    <select id="filterDropdown" class="form-select">
-                        <option value="appointment">Appointment</option>
-                        <option value="patient">Patient</option>
-                    </select>
-                </div>
-                <div class="col-md-4">
-    <select id="dateFilter" class="form-select">
-        <?php
-        // Generate options for the select dropdown using a loop
-        for ($year = date("Y"); $year >= 2000; $year--) {
-            echo '<option value="' . $year . '">' . $year . '</option>';
-        }
-        ?>
-    </select>
-</div>
-
-                <div class="col-md-2">
-                    <button id="generateReportButton" class="btn btn-primary">Generate Report</button>
-                </div>
-                </div>
-            </div>
-
-            <div class="container">
-                <div class="row mt-3">
-                    <div class="col-md-12">
-                        <div id="appointmentContainer">
-                            <canvas id="appointmentChart"></canvas>
-                        </div>
-                        <div id="patientContainer" style="display: none;">
-                            <canvas id="patientChart"></canvas>
-                        </div>
+<div id="wrapper">
+    <?php include "../sidebar.php"; ?>
+    <section id="content-wrapper">
+        
+        <div class="row">
+        <div class="bg-white py-3 mb-3 border border-bottom">
+                <div class="d-flex justify-content-between mx-3">
+                    <div>
+                        <h2 style="color:6537AE;" class="fw-bold">GENERATE REPORT</h2>
                     </div>
                 </div>
             </div>
+        <div>
+        <div class="row mx-3">
+            <div class="bg-white p-3 rounded-3 border w-100">
+                <div class="col-md-6">
+                <div class="row">
+                <div class="col-md-6">
+                    <label for="yearFilter">Filter by Year:</label>
+                    <select id="yearFilter" class="form-select">
+                        <option value="">All Years</option>
+                        <?php
+                        $query = "SELECT DISTINCT YEAR(date_diagnosis) AS year FROM zp_derma_record ORDER BY year DESC";
+                        $result = mysqli_query($conn, $query);
+                        while ($row = mysqli_fetch_assoc($result)) {
+                            $year = $row['year'];
+                            echo '<option value="' . $year . '">' . $year . '</option>';
+                        }
+                        ?>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="monthFilter">Filter by Month:</label>
+                    <select id="monthFilter" class="form-select">
+                        <option value="">All Months</option>
+                        <?php
+                        $query = "SELECT DISTINCT MONTHNAME(date_diagnosis) AS month FROM zp_derma_record ORDER BY date_diagnosis";
+                        $result = mysqli_query($conn, $query);
+                        while ($row = mysqli_fetch_assoc($result)) {
+                            $month = $row['month'];
+                            echo '<option value="' . $month . '">' . $month . '</option>';
+                        }
+                        ?>
+                    </select>
+                </div>
+                </div>
+                
+                </div>
+                
+                <table id="reportTable" class="table table-striped nowrap" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Service Label</th>
+                            <th>Yearly Report</th>
+                            <th>Montly Report</th>
+                            <th>Service Rendered</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <?php
+                        foreach ($serviceData as $service) {
+                            $serviceLabel = $service['management'];
+                            $dateYear = $service['date_year'];
+                            $dateMonth = $service['date_month'];
+                            $serviceCount = $service['service_count'];
+                        ?>
+                            <tr>
+                                <td><?php echo $serviceLabel?></td>
+                                <td><?php echo $dateYear?></td>
+                                <td><?php echo $dateMonth?></td>
+                                <td><?php echo $serviceCount?></td>
+                            </tr>
+                        <?php
+                        }
+        ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
+    </section>
 </div>
-        
+
 <script>
 $(document).ready(function() {
-    // Create the appointment chart
-    var appointmentChartData = {
-        labels: ['Approved', 'Pending', 'Rescheduled'],
-        datasets: [{
-            data: [<?php echo $totalApproved; ?>, <?php echo $totalPending; ?>, <?php echo $totalReschedule; ?>],
-            backgroundColor: ['#28a745', '#ffc107', '#dc3545'],
-        }],
-    };
-
-    var appointmentChart = new Chart(document.getElementById('appointmentChart'), {
-        type: 'doughnut',
-        data: appointmentChartData,
-    });
-
-    // Create the patient chart
-    var patientChartData = {
-        labels: ['Male Patients', 'Female Patients'],
-        datasets: [{
-            data: [<?php echo $totalMale; ?>, <?php echo $totalFemale; ?>],
-            backgroundColor: ['#28a745', '#dc3545'],
-        }]
-    };
-
-    var patientChart = new Chart(document.getElementById('patientChart'), {
-        type: 'doughnut',
-        data: patientChartData,
-    });
-
-    // Handle filter dropdown change
-    $('#filterDropdown').change(function() {
-        var selectedValue = $(this).val();
-        if (selectedValue === 'appointment') {
-            $('#appointmentContainer').show();
-            $('#patientContainer').hide();
-        } else if (selectedValue === 'patient') {
-            $('#appointmentContainer').hide();
-            $('#patientContainer').show();
-        }
-    });
-
-    // Handle date filter change
-    $('#dateFilter').change(function() {
-        updateCharts(); // Call a function to update the charts based on the selected date
-    });
-
-    function updateCharts() {
-        var selectedYear = $('#dateFilter').val();
-
-        $.ajax({
-            url: 'filtered.php', // Replace with your PHP script to fetch data
-            method: 'POST',
-            data: { year: selectedYear },
-            dataType: 'json',
-            success: function(response) {
-                if (response.noData) {
-                $('#appointmentContainer').html('<p>No data available for the selected year.</p>');
-                return;
+    // DataTable initialization
+    var table = $('#reportTable').DataTable({
+        order: [[0, 'desc']],
+        responsive: true,
+        dom: "<'row'<'col-sm-1 mt-2'B><'col-md-1 mt-2' l><'col-md-10'f>>" +
+            "<'row'<'col-md-12'tr>>" +
+            "<'row'<'col-md-12'i><'col-md-12'p>>",
+        buttons: [
+            {
+                extend: 'collection',
+                text: '<i class="bi bi-box-arrow-up"></i>',
+                buttons: [
+                    {
+                        extend: 'pdfHtml5',
+                        text: 'PDF',
+                        title: 'Z-skin Care Report',
+                        orientation: 'landscape',
+                        customize: function(doc) {
+                            doc.content[1].table.widths = ['25%', '25%', '25%', '25%'];
+                            doc.styles.title = {
+                                color: '#2D1D10',
+                                fontSize: '16',
+                                alignment: 'center'
+                            };
+                            doc.content[1].table.headerRows = 1; // Add this line to target the header row
+                            doc.content[1].table.body[0].forEach(function(cell) {
+                                cell.fillColor = '#6537AE'; // Purple color
+                                cell.color = '#fff'; // White text color
+                            });
+                        },
+                    },
+                    'copy',
+                    {
+                        extend: 'excelHtml5',
+                        text: 'Excel',
+                        title: 'Z SKin Care Excel Report',
+                        orientation: 'landscape',
+                    },
+                    {
+                        extend: 'print',
+                        text: 'Print',
+                        customize: function (win) {
+                            $(win.document.body)
+                                .find('table')
+                                .addClass('compact-print-table'); // Apply custom CSS class for printing
+                        }
+                    }
+                ]
             }
+        ],
+    });
 
-                var filteredApproved = response.totalApproved;
-                var filteredPending = response.totalPending;
-                var filteredReschedule = response.totalReschedule;
+    // Filter by Year
+    $('#yearFilter').on('change', function() {
+        var selectedYear = $(this).val();
+        table.column(1).search(selectedYear).draw();
+    });
 
-                var appointmentChartData = {
-                    labels: ['Approved', 'Pending', 'Rescheduled'],
-                    datasets: [{
-                        data: [filteredApproved, filteredPending, filteredReschedule],
-                        backgroundColor: ['#28a745', '#ffc107', '#dc3545'],
-                    }],
-                };
-
-                appointmentChart.data = appointmentChartData;
-                appointmentChart.update();
-            },
-            error: function(error) {
-                console.error(error);
-            }
-        });
-    }
-
-    // Handle generate report button click
-    $('#generateReportButton').click(function() {
-        var selectedYear = $('#dateFilter').val();
-        var workbook = new ExcelJS.Workbook();
-        var worksheet = workbook.addWorksheet('Report');
-
-        // Export appointment chart data
-        worksheet.getCell('A1').value = 'Appointment Chart Data';
-        worksheet.getCell('A2').value = 'Category';
-        worksheet.getCell('B2').value = 'Value';
-        
-        var appointmentChartData = appointmentChart.data.datasets[0].data;
-        var appointmentChartLabels = appointmentChart.data.labels;
-        
-        for (var i = 0; i < appointmentChartLabels.length; i++) {
-            worksheet.getCell('A' + (i + 3)).value = appointmentChartLabels[i];
-            worksheet.getCell('B' + (i + 3)).value = appointmentChartData[i];
-        }
-
-        // Export patient chart data
-        worksheet.getCell('A' + (appointmentChartLabels.length + 4)).value = 'Patient Chart Data';
-        worksheet.getCell('A' + (appointmentChartLabels.length + 5)).value = 'Category';
-        worksheet.getCell('B' + (appointmentChartLabels.length + 5)).value = 'Value';
-        
-        var patientChartData = patientChart.data.datasets[0].data;
-        var patientChartLabels = patientChart.data.labels;
-        
-        for (var i = 0; i < patientChartLabels.length; i++) {
-            worksheet.getCell('A' + (appointmentChartLabels.length + i + 6)).value = patientChartLabels[i];
-            worksheet.getCell('B' + (appointmentChartLabels.length + i + 6)).value = patientChartData[i];
-        }
-
-        workbook.xlsx.writeBuffer().then(function(buffer) {
-            var blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-            var url = window.URL.createObjectURL(blob);
-            var a = document.createElement('a');
-            a.href = url;
-            a.download = 'report.xlsx';
-            a.click();
-            window.URL.revokeObjectURL(url);
-        });
+    // Filter by Month
+    $('#monthFilter').on('change', function() {
+        var selectedMonth = $(this).val();
+        table.column(2).search(selectedMonth).draw();
     });
 });
 </script>
-
-
 
 </body>
 </html>

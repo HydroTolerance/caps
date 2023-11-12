@@ -1,78 +1,56 @@
-<?php include "../function.php"?>
+<?php 
+include "../function.php";
+checklogin('Admin');
+$userData = $_SESSION['id'];
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Dashboard</title>
+    <title>Client Record</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
     <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.4/css/jquery.dataTables.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/rowreorder/1.2.8/css/rowReorder.dataTables.min.css">
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
     
-    <style>
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th, td {
-            padding: 8px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-
-        th {
-            background-color: #f2f2f2;
-        }
-        .action-buttons a {
-            margin-right: 10px;
-            color: #222;
-            text-decoration: none;
-        }
-
-        .action-buttons a:hover {
-            color: #777;
-        }
-
-        .dataTables_filter input {
-            margin-top: 10px;
-            margin-right: 10px;
-            margin-bottom: 20px;
-        }
-    </style>
 </head>
+<style>
+    .page-item.active .page-link {
+    background-color: #6537AE !important;
+    color: #fff !important;
+    border: #6537AE;
+}
+.page-link {
+    color: black !important;
+}
+th{
+   background-color:#6537AE  !important;
+   color: #fff  !important;
+}
 
+</style>
 <body>
-<div class="container-fluid">
-        <div class="row flex-nowrap">
+        <div id="wrapper">
             <?php include "../sidebar.php"; ?>
-            <div class="col main-content custom-navbar bg-light">
-                <?php include "../navbar.php"?>
-                <div class="ms-3">
-                <div>
-                    <a href="add_client_record.php">
-                        <button class="create_patients btn btn-purple bg-purple text-white ms-3 mb-3 mt-2 col-xl-2">CREATE CLIENT</button>
-                    </a>
-                </div>
-                <div>
-                    <div class="ms-3">
-                    <div class="bg-white p-3 rounded-3 shadow mb-3">
-                        <table id="clientTable" class="display nowrap responsive" style="width:100%">
+                <section id="content-wrapper">
+                    <div class="bg-white py-3 mb-3 border border-bottom">
+                        <div class="d-flex justify-content-between mx-4">
+                            <div>
+                                <h2 style="color:6537AE;" class="fw-bold">CLIENT RECORD</h2>
+                            </div>
+                            <div class="align-items-center">
+                                <a href="add_client_record.php" class="btn bg-purple text-white">CREATE</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-3 rounded-3 border mx-3">
+                        <table id="clientTable" class="table table-bordered table-striped" style="width:100%">
                             <thead>
                                 <tr>
                                     <th>First Name</th>
@@ -80,14 +58,15 @@
                                     <th>Day of Birth</th>
                                     <th>Contact Number</th>
                                     <th>Email Address</th>
-                                    <th class="no-sort">Action</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php
                                 include "../../db_connect/config.php";
-                                $result = mysqli_query($conn, "SELECT * FROM zp_client_record");
-
+                                $stmt = mysqli_prepare($conn, "SELECT * FROM zp_client_record");
+                                mysqli_stmt_execute($stmt);
+                                $result = mysqli_stmt_get_result($stmt);
                                 while ($row = mysqli_fetch_array($result)) {
                                     ?>
 
@@ -98,8 +77,8 @@
                                         <td><?php echo $row['client_number']?></td>
                                         <td><?php echo $row['client_email']?></td>
                                         <td class="action-buttons">
-                                            <a href="view.php?id=<?php echo $row['id']?>" class="btn btn-primary text-white"> View Data</a>
-                                            <a href="edit_client_record.php?id=<?php echo $row['id']?>" class="btn btn-warning">Edit Data</a>
+                                            <a href="view.php?id=<?php echo $row['id']?>" class="btn bg-purple text-white"> View</a>
+                                            <a href="edit_client_record.php?id=<?php echo $row['id']?>" class="btn btn-outline-purple">Edit</a>
                                         </td>
                                     </tr>
                                 <?php
@@ -117,21 +96,22 @@
     </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.datatables.net/1.11.4/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/rowreorder/1.2.8/js/dataTables.rowReorder.min.js"></script>
-<script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         $(document).ready(function() {
-            $('#clientTable').DataTable({
+            var table = $('#clientTable').DataTable({
                 responsive: true,
-                rowReorder: {
-                    selector: 'td:nth-child(2)'
-                }
+                scrollY: 500,
+                scrollX: true,
+                scrollCollapse: true,
+                paging: true,
+                fixedColumns: true,
+                select: true,
+                "ordering": false,
             });
         });
     </script>
+    
 </body>
 </html>

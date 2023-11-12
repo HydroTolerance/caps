@@ -1,4 +1,19 @@
 <?php
+include "../function.php";
+checklogin('Admin');
+$userData = $_SESSION['id'];
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">   
+    <title>Edit FAQ</title>
+</head>
+
+<body>
+<?php
 if (isset($_GET['id'])) {
     include "../../db_connect/config.php";
     $id = $_GET['id'];
@@ -12,49 +27,40 @@ if (isset($_GET['id'])) {
         echo "FAQ not found.";
         exit;
     }
-    } else {
-        echo "Invalid request.";
-        exit;
-    }
-
-if (isset($_POST['edit_submit'])) {
-    $service = $_POST['services'];
-    $sql = "UPDATE service SET services=? WHERE id=?";
-    $stmt = mysqli_prepare($conn, $sql);
-    mysqli_stmt_bind_param($stmt, "si", $service, $id);
-    if(mysqli_stmt_execute($stmt)){
-        mysqli_stmt_close($stmt);
-        mysqli_close($conn);
-        header("Location: service.php");
-        exit();
-    }
-    else {
-        echo "Error Updating Error: " . mysqli_error($conn);
-    }
+} else {
+    echo "Invalid request.";
+    exit;
 }
+
+
 ?>
+<form method="post" action="" enctype="multipart/form-data">
+<input type="hidden" name="id" value="<?php echo $row['id']; ?>">
+<div class="form-group">
+    <label for="edit_image">Image:</label>
+    <input type="file" name="image" class="form-control">
+</div>
+<div class="form-group">
+    <label for="edit_description">Service Name</label>
+    <textarea name="name" class="form-control"><?php echo $row['name']; ?></textarea>
+</div>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">   
-    <title>Edit FAQ</title>
-</head>
+<div>
+    <label>Services:</label>
+    <select name="services" class="form-control">
+        <option value="Skin" <?php echo ($row['services'] === 'Skin') ? 'selected' : ''; ?>>Skin</option>
+        <option value="Face" <?php echo ($row['services'] === 'Hair') ? 'selected' : ''; ?>>Hair</option>
+        <option value="Nail" <?php echo ($row['services'] === 'Nail') ? 'selected' : ''; ?>>Nail</option>
+    </select>
+</div>
 
-<body>
-<form method="post" action="<?php echo $_SERVER['PHP_SELF'] . '?id=' . $id; ?>">
-    <label for="edit_answer">Answer:</label>
-    <textarea name="services" class="summernote"><?php echo $row['services']; ?></textarea>
-    <input type="submit" name="edit_submit" value="Submit">
+<div class="form-group">
+    <label for="edit_description">Description</label>
+    <textarea name="description" class="form-control"><?php echo $row['description']; ?></textarea>
+</div>
+<div class="modal-footer">
+    <input type="submit" name="edit_submit" value="Submit" class="btn text-white" style="background-color: #6537AE;">
+</div>
 </form>
-
-    <script>
-        $(document).ready(function() {
-            $('.summernote').summernote({
-                
-            });
-        });
-    </script>
 </body>
 </html>

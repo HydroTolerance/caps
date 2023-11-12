@@ -16,24 +16,6 @@ if (isset($_GET['id'])) {
         echo "Invalid request.";
         exit;
     }
-
-if (isset($_POST['edit_submit'])) {
-    $question = $_POST['edit_question'];
-    $answer = $_POST['edit_answer'];
-
-    $sql = "UPDATE faq SET question=?, answer=? WHERE id=?";
-    $stmt = mysqli_prepare($conn, $sql);
-    mysqli_stmt_bind_param($stmt, "sss", $question, $answer, $id);
-    if(mysqli_stmt_execute($stmt)){
-        mysqli_stmt_close($stmt);
-        mysqli_close($conn);
-        header("Location: faq.php");
-        exit();
-    }
-    else {
-        echo "Error Updating Error: " . mysqli_error($conn);
-    }
-}
 ?>
 
 <!DOCTYPE html>
@@ -45,19 +27,21 @@ if (isset($_POST['edit_submit'])) {
 </head>
 
 <body>
-<form method="post" action="<?php echo $_SERVER['PHP_SELF'] . '?id=' . $id; ?>">
-    <label class="" for="edit_question">Question:</label>
-    <input class="form-control" type="text" name="edit_question" value="<?php echo $row['question']; ?>">
-    <label for="edit_answer">Answer:</label>
-    <div name="edit_answer" class="summernote"><?php echo $row['answer']; ?></div>
-        <input type="submit" name="edit_submit" value="Submit">
-</form>
-    <script>
-        $(document).ready(function() {
-            $('.summernote').summernote({
-                
-            });
-        });
-    </script>
+<div class="container mt-5">
+        <form method="post" action="faq.php">
+        <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
+            <div class="mb-3">
+                <label for="edit_question" class="form-label">Question:</label>
+                <input type="text" class="form-control" name="edit_question" value="<?php echo $row['question']; ?>">
+            </div>
+            <div class="mb-3">
+                <label for="edit_answer" class="form-label">Answer:</label>
+                <input type="text" class="form-control" name="edit_answer" value="<?php echo $row['answer']; ?>">
+            </div>
+            <div class="modal-footer">
+                <button type="submit" name="edit_submit" class="btn text-white" style="background-color: #6537AE;">Submit</button>
+            </div>
+        </form>
+    </div>
 </body>
 </html>
