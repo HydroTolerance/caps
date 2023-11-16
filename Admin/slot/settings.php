@@ -41,9 +41,18 @@ if(isset($_POST['submit'])){
 <div id="wrapper">
     <?php include "../sidebar.php"; ?>
     <section id="content-wrapper">
-        <div class="row mx-1">
+        <div class="row">
+            <div class="bg-white py-3 mb-3 border border-bottom">
+                <div class="d-flex justify-content-between mx-4">
+                    <div>
+                        <h2 style="color:6537AE;" class="fw-bold">APPOINTMENT DISABLE</h2>
+                    </div>
+                    <div class="align-items-center">
+                        <a class="btn bg-purple text-white" onclick="DisableDaysModal();">CREATE</a>
+                    </div>
+                </div>
+            </div>
         <div class="container mt-4">
-            <button class="btn bg-purple mb-3 text-white" onclick="DisableDaysModal();">Create</button>
             <table class="table table-bordered">
                 <thead>
                     <tr>
@@ -61,7 +70,7 @@ if(isset($_POST['submit'])){
                         while(mysqli_stmt_fetch($stmt)) {
                         ?>
                         <tr>
-                        <td><?= $days ?></td>
+                        <td><?= date('F, m Y', strtotime($days)) ?></td>
                         <td>
                             <button class="btn bg-purple text-white" type="submit" name="update_data">Update</button>
                             <a href="#" onclick="deleteDays(<?php echo $id;?>)" class="btn btn-outline-purple" type="submit" name="update_data" va>Delete</a>
@@ -87,7 +96,7 @@ if(isset($_POST['submit'])){
                         <tbody>
                             <?php foreach ($availabilityData as $data) { ?>
                                 <tr>
-                                    <td><?php echo $data['day']; ?></td>
+                                    <td><?php echo date('F, m Y', strtotime($data['day'])); ?></td>
                                     <td>
                                         <div class="form-check">
                                             <input class="form-check-input" type="radio" name="availability[<?php echo $data['id']; ?>]" value="1" <?php echo ($data['is_available'] == 1) ? 'checked' : ''; ?>>
@@ -163,6 +172,7 @@ if(isset($_POST['submit'])){
     });
 });
 function DisableDaysModal(id) {
+    verifyAdminPassword('create', () => {
         $.ajax({
             url: 'add_disable.php',
             type: 'POST',
@@ -172,8 +182,11 @@ function DisableDaysModal(id) {
                 $('#DisableDaysModal').modal('show');
             }
         });
+    });
     }
+    
     function deleteDays(id) {
+        verifyAdminPassword('create', () => {
         Swal.fire({
             title: 'Are you sure?',
             text: 'This action cannot be undone!',
@@ -204,7 +217,49 @@ function DisableDaysModal(id) {
         });
         return false;
     }
-
+        )}
+    function verifyAdminPassword(action, callback) {
+    Swal.fire({
+        title: 'Admin Verification',
+        input: 'password',
+        inputLabel: 'Enter Admin Password',
+        inputAttributes: {
+            autocapitalize: 'off',
+            autocorrect: 'off'
+        },
+        showCancelButton: true,
+        confirmButtonText: 'Verify',
+        showLoaderOnConfirm: true,
+        preConfirm: (adminPassword) => {
+            // Send adminPassword to the server for verification
+            return fetch('verified_password.php', {
+                method: 'POST',
+                body: JSON.stringify({ adminPassword }),
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Admin password verified, proceed with the action
+                    callback();
+                } else {
+                    throw new Error(data.message);
+                }
+            })
+            .catch(error => {
+                Swal.showValidationMessage(`Verification failed: ${error}`);
+            });
+        },
+        allowOutsideClick: () => !Swal.isLoading()
+    });
+}
 </script>
 
 </body>

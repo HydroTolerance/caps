@@ -27,8 +27,6 @@ function updateStatus(id, status) {
       if (result.isConfirmed) {
         performStatusUpdate(id, status);
         logStatusChange(id, status);
-        
-        // Disable the select element for "Completed" status
         statusSelect.prop('disabled', true);
       }
     });
@@ -46,8 +44,6 @@ function updateStatus(id, status) {
       if (result.isConfirmed) {
           performStatusUpdate(id, status);
           logStatusChange(id, status);
-
-          // Disable the select element
           statusSelect.prop('disabled', true);
       }
   });
@@ -106,12 +102,8 @@ function acknowledgeAppointment(id) {
       Swal.close(); // Close the loading indicator
 
       if (response === 'Acknowledged') {
-        var statusCell = $('#status_' + id);
-        statusCell.text('Acknowledged');
         statusCell.removeClass().addClass('status-acknowledged');
         $('.status-select[data-id="' + id + '"]').prop('disabled', true);
-
-        // Show a success message
         Swal.fire('Success', 'Appointment has been acknowledged', 'success');
       } else {
         Swal.fire('Success', 'Appointment has been acknowledged', 'success');;
@@ -125,8 +117,6 @@ function acknowledgeAppointment(id) {
   });
 }
 
-
-
 function performStatusUpdate(id, status) {
   $.ajax({
     url: 'update_status.php',
@@ -139,22 +129,18 @@ function performStatusUpdate(id, status) {
       var statusCell = $('#status_' + id);
       statusCell.text(response);
       statusCell.removeClass().addClass('status-' + status.toLowerCase().replace(' ', '-'));
-      var toastrMessage = 'Appointment status is now ' + status + '!';
-      toastr.success(toastrMessage, '', {
-        progressBar: true,
-        timeOut: 3000,
-        positionClass: 'toast-top-right'
-      });
 
       if (status === 'Did not show') {
-        // Disable the select element for "Did not show" status
+        statusCell.removeClass().addClass('status-did-not-show');
         var statusSelect = $('.form-select[data-id="' + id + '"]');
         statusSelect.prop('disabled', true);
+        Swal.fire('Success', 'Appointment has been set to Did not Show', 'success');
+      } else if (status === 'Completed') {
+        Swal.fire('Success', 'Appointment has been set to Completed', 'success');
       }
     }
   });
 }
-
 function showRescheduleModal(id) {
 $.ajax({
     url: 'get_reschedule.php',

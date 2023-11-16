@@ -89,15 +89,15 @@ $userData = $_SESSION['id'];
                                 <div class="row mb-3">
                                     <input class="form-label" type="hidden" name="id" value="<?php echo $id; ?>">
                                 </div>
-                                <div class="row justify-content-center">
-                                    <div class="col-xl-3 col-lg-12">
-                                        <div class="bg-white mb-4 p-5 text-center rounded border" style="height: 90%; padding-bottom: 25px;">
-                                            <img src="<?php echo $avatar; ?>" alt="Avatar" style="width: 155px; height: 155px; border-radius: 50%; margin: 0 auto;"><br>
+                                <div class="row justify-content-center mb-4">
+                                    <div class="col-xl-3 h-100">
+                                        <div class="bg-white p-5 text-center rounded border" style="height: 90%; padding-bottom: 25px;">
+                                            <img src="<?php echo $avatar; ?>" alt="Avatar" class="image-fluid" style="width: 155px; height: 155px; border-radius: 50%; margin: 0 auto;"><br>
                                         </div>
                                     </div>
-                                    <div class="col-xl-9 col-lg-12 mb-4">
-                                        <div class="bg-white px-5 py-3 border rounded">
-                                            <div class="row mb-3">
+                                    <div class="col-xl-9">
+                                        <div class="bg-white px-5  h-100 border rounded">
+                                            <div class="row mt-3">
                                                 <div class="row">
                                                     <strong><label class="mb-2">CLIENT INFORMATION</label></strong>
                                                     <hr>
@@ -122,65 +122,46 @@ $userData = $_SESSION['id'];
                                                 </div>
                                                 <div class="col-md-6">
                                                     <strong><p>Date of Birth </p></strong>
-                                                    <p><?php echo $dob; ?></p>
+                                                    <p><?php echo date('F m, Y', strtotime($dob)); ?></p>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            <div class="col-md-12 bg-white p-5 border rounded mb-3" style="padding: 20px;">
-                                <div class="row mb-3">
+                            <div class="col-md-12 bg-white px-5 border rounded mb-3" style="padding: 20px;">
+                                <div class="row">
                                     <strong><label class="mb-2">ADDRESS</label></strong>
                                     <hr>
                                 </div>
                                 <div class="row mb-3">
-                                    <div class="col-md-4">
-                                        <strong><label class="mb-3">House Number</label></strong>
-                                        <p><?php echo $houseNumber ?></p>
+                                    <div class="col-md-12">
+                                        <p><?php echo $houseNumber . " " . $streetName . " " . $barangay . ", " . $city . " " . $province . " " . $postalCode?></p>
                                     </div>
-                                    <div class="col-md-3">
-                                        <strong><label class="mb-3">Street Name</label></strong>
-                                        <p><?php echo $streetName?></p>
-                                    </div>
-                                    <div class="col-md-5">
-                                        <strong><label class="mb-3">Barangay</label></strong>
-                                        <p><?php echo $barangay?></p>
-                                    </div>
+                                    
                                 </div>
-                                <div class="row mb-3">
-                                    <div class="col-md-4">
-                                        <strong><label class="mb-3">City</label></strong>
-                                        <p><?php echo $city?></p>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <strong><label class="mb-3">Province</label></strong>
-                                        <p><?php echo $province?></p>
-                                    </div>
-                                    <div class="col-md-5">
-                                        <strong><label class="mb-3">Postal Code</label></strong>
-                                        <p><?php echo $postalCode?></p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-12 bg-white p-5 border rounded mb-3" style="padding: 20px;">
-                                <div class="row mb-3">
+                                <div class="col-md-12">
+                                <div class="row">
                                     <strong><label class="mb-2">EMERGENCY CONTACT PERSON</label></strong>
                                     <hr>
                                 </div>
                                 <div class="row mb-3">
-                                    <div class="col-md-4">
-                                        <strong><label class="mb-3">Contact Person:</label></strong>
+                                    <div class="col-md-5">
+                                        <strong><label class="mb-3">Contact Person</label></strong>
                                         <p><?php echo $econtact ?></p>
                                     </div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-4">
                                         <strong><label class="mb-3">Relation</label></strong>
                                         <p><?php echo $relation ?></p>
                                     </div>
-                                    <div class="col-md-5">
+                                    <div class="col-md-3">
                                         <strong><label class="mb-3">Contact Person Number</label></strong>
                                         <p><?php echo $econtactno ?></p>
                                     </div>
                                 </div>
+                            </div>
+                            </div>
+                            <div class="col-md-12">
+
                             </div>
                         </form>
                         <nav>
@@ -195,7 +176,7 @@ $userData = $_SESSION['id'];
                         
                             <div>
                             <div class="text-dark border rounded p-3 mb-3">
-                                <h2 style="color: 6537AE;" class="text-center">Diagnosis of the Patient</h2>
+                                <h2 style="color: 6537AE;" class="text-center">Diagnosis of Client</h2>
                                 <table id="clientTable" class="table table table-bordered table-striped nowrap" style="width:100%">
                                         <thead>
                                             <tr>
@@ -383,7 +364,7 @@ $userData = $_SESSION['id'];
      buttons: [
     {
         extend: 'collection',
-        text: '<i class="bi bi-funnel"></i>',
+        text: '<i class="bi bi-box-arrow-up"></i>',
         buttons: [
             {
                 header: {
@@ -391,7 +372,7 @@ $userData = $_SESSION['id'];
                 },
                 extend: 'pdfHtml5',
                 text: 'PDF',
-                title: 'Z-Skin Care Report (<?php echo $fname . " " . $mname . " " . $lname . " " . $sname; ?>)',
+                title: 'Z Skin Care Report (<?php echo $fname . " " . $mname . " " . $lname . " " . $sname; ?>)',
                 exportOptions: {
                     columns: [0, 1, 3, 4]
                 },
@@ -401,6 +382,11 @@ $userData = $_SESSION['id'];
                 color: '#2D1D10',
                 fontSize: '16',
                 alignment: 'center'
+            };
+            doc.content[0] = {
+                text: 'Z Skin Care Report',
+                style: 'title',
+                margin: [0, 0, 0, 5],
             };
             doc.content[1].table.headerRows = 1;
             doc.content[1].table.body[0].forEach(function(cell) {
@@ -426,7 +412,7 @@ $userData = $_SESSION['id'];
           alignment: 'left'
         },
         {
-          text: 'DOB: ' + '<?php echo $dob; ?>',
+          text: 'Date of Birth: ' + '<?php echo $dob; ?>',
           margin: [0, 0, 10, 5],
           alignment: 'right'
         }
@@ -491,7 +477,7 @@ $userData = $_SESSION['id'];
             {
                 extend: 'excelHtml5',
                 text: 'Excel',
-                title: 'Z-Skin Care Report',
+                title: 'Z Skin Care Report (<?php echo $fname . " " . $mname . " " . $lname . " " . $sname; ?>)',
                 orientation: 'landscape',
                 exportOptions: {
                     columns: [0, 1, 3, 4,],
@@ -527,39 +513,22 @@ $userData = $_SESSION['id'];
 })
     </script>
     <script>
-                    // Initialize Summernote on the textarea
-                    $(document).ready(function() {
-                        $('#calendar').fullCalendar({
-                        editable: true,
-                        header: {
-                            left: 'prev,next today',
-                            center: 'title',
-                            right: 'month,agendaWeek,agendaDay'
-                        },
-                        events: './get_schedule.php?id=<?php echo $id; ?>', // Add the user ID
-                        eventClick: function(event) {
-                            // Handle event click here
-                            alert('Event clicked: ' + event.title);
-                        }
-                    });
-                });
+    $(document).ready(function() {
+        $('#calendar').fullCalendar({
+        editable: true,
+        header: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'month,agendaWeek,agendaDay'
+        },
+        events: './get_schedule.php?id=<?php echo $id; ?>', // Add the user ID
+        eventClick: function(event) {
+            // Handle event click here
+            alert('Event clicked: ' + event.title);
+        }
+    });
+});
     </script>
-<script>
-    function showDiagnosisSection() {
-        document.getElementById('diagnosisContainer').style.display = 'block';
-        document.getElementById('appointmentContainer').style.display = 'none';
-        document.getElementById('diagnosisTab').classList.add('active');
-        document.getElementById('appointmentTab').classList.remove('active');
-    }
-    function showAppointmentSection() {
-        document.getElementById('diagnosisContainer').style.display = 'none';
-        document.getElementById('appointmentContainer').style.display = 'block';
-        document.getElementById('appointmentTab').classList.add('active');
-        document.getElementById('diagnosisTab').classList.remove('active');
-    }
-    document.getElementById('diagnosisTab').addEventListener('click', showDiagnosisSection);
-    document.getElementById('appointmentTab').addEventListener('click', showAppointmentSection);
-</script>
 <script>
     function showData(id) {
     $.ajax({

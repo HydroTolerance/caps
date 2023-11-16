@@ -1,7 +1,7 @@
 <?php
-session_start();
+
 include "../function.php";
-checklogin1('Admin');
+checklogin('Admin');
 $userData = $_SESSION['id'];
     ?>
     <?php

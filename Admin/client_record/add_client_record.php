@@ -61,23 +61,12 @@ if (isset($_POST['submit'])) {
     // Check if the email exists in zp_client_record
     $checkEmailSql = "SELECT COUNT(*) FROM zp_client_record WHERE client_email = ?";
     $checkEmailStmt = mysqli_prepare($conn, $checkEmailSql);
-
-    // Check if the client's name already exists in zp_client_record
-    $checkNameSql = "SELECT COUNT(*) FROM zp_client_record WHERE client_firstname = ? AND client_lastname = ? AND client_middle = ? AND client_suffix = ?";
-    $checkNameStmt = mysqli_prepare($conn, $checkNameSql);
-
-    if ($checkEmailStmt && $checkNameStmt) {
+    if ($checkEmailStmt) {
         mysqli_stmt_bind_param($checkEmailStmt, "s", $email);
         mysqli_stmt_execute($checkEmailStmt);
         mysqli_stmt_bind_result($checkEmailStmt, $clientEmailCount);
         mysqli_stmt_fetch($checkEmailStmt);
         mysqli_stmt_close($checkEmailStmt);
-
-        mysqli_stmt_bind_param($checkNameStmt, "ssss", $fname, $lname, $mname, $sname);
-        mysqli_stmt_execute($checkNameStmt);
-        mysqli_stmt_bind_result($checkNameStmt, $nameCount);
-        mysqli_stmt_fetch($checkNameStmt);
-        mysqli_stmt_close($checkNameStmt);
 
         if ($clientEmailCount > 0) {
             // Email is occupied
@@ -88,18 +77,9 @@ if (isset($_POST['submit'])) {
                     text: 'Email is already Already Exists.'
                 });
             </script>";
-        } elseif ($nameCount > 0) {
-            // Name exists
-            echo "<script>
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Warning!',
-                    text: 'A client with the same name already exists.'
-                });
-            </script>";
         } else {
             // Perform the insertion
-            $clinicNumber = "clinic_number-" . rand(100, 999); // You can generate the clinic_number as needed
+            $clinicNumber = "clinic_number-" . rand(100, 999);
             $insertSql = "INSERT INTO zp_client_record (clinic_number, client_firstname, client_lastname, client_middle, client_suffix, client_birthday, client_number, client_gender, client_email, client_password, client_emergency_person, client_relation, client_emergency_contact_number, client_avatar, client_house_number, client_street_name, client_barangay, client_city, client_province, client_postal_code, client_role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $insertStmt = mysqli_prepare($conn, $insertSql);
 

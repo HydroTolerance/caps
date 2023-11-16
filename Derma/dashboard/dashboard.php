@@ -1,7 +1,6 @@
 <?php
-session_start();
 include "../function.php";
-checklogin3('Derma');
+checklogin('Derma');
 $userData = $_SESSION['id'];
     ?>
     <?php

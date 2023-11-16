@@ -129,12 +129,11 @@ $userData = $_SESSION['id'];
     color: #F9A603 !important;
 }
 .status-acknowledged {
-    color: orange !important;
+    color: #6537AE !important;
 }
 .custom-width {
     width: 150px;
 }
-div.dataTables_filter input {  width: 300px !important;}
 #statusFilter::-webkit-select-button {
     background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filter" viewBox="0 0 16 16"><path d="M2 3a1 1 0 011-1h10a1 1 0 110 2H3a1 1 0 01-1-1z"/><path d="M2 7a1 1 0 011-1h10a1 1 0 010 2H3a1 1 0 01-1-1z"/><path d="M2 11a1 1 0 011-1h10a1 1 0 010 2H3a1 1 0 01-1-1z"/></svg>');
   }
@@ -142,6 +141,162 @@ div.dataTables_filter input {  width: 300px !important;}
 </head>
 
 <body>
+    <?php
+include "../../db_connect/config.php";
+if (isset($_POST['submit'])) {
+        $firstname = $_POST['firstname'];
+        $lastname = $_POST['lastname'];
+        $number = $_POST['number'];
+        $email = $_POST['email'];
+        $services = $_POST['services'];
+        $date = $_POST['date'];
+        $time = $_POST['time'];
+        $health = $_POST['health_concern'];
+        $currentdate = date("Y-m-d H:i:s");
+
+        $reference = generateReferenceCode();
+        $appointment_id = generateAppointmentID();
+        $insertSql = "INSERT INTO zp_appointment (appointment_id, reference_code, firstname, lastname, health_concern, number, email,  services, date, time, appointment_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending')";
+        $insertStmt = mysqli_prepare($conn, $insertSql);
+        mysqli_stmt_bind_param($insertStmt, "ssssssssss",$appointment_id, $reference, $firstname, $lastname, $health, $number, $email, $services, $date, $time);
+        $result = mysqli_stmt_execute($insertStmt);
+            if ($result) {
+                require 'phpmailer/PHPMailerAutoload.php';
+                $mail = new PHPMailer(true);
+                try {
+                    $mail->isSMTP(); 
+                    $mail->Host = 'smtp.gmail.com';
+                    $mail->SMTPAuth = true;         
+                    $mail->Username = 'blazered098@gmail.com';
+                    $mail->Password = 'nnhthgjzjbdpilbh';
+                    $mail->SMTPSecure = 'tls';       
+                    $mail->Port = 587;              
+                    $mail->setFrom('blazered098@gmail.com', 'Z Skin Care Center');
+                    $mail->addAddress($email);
+                    $mail->isHTML(true); 
+                    $mail->Subject = 'Appointment Summary';
+                    $mail->Body = "
+                    <!DOCTYPE html>
+                    <html lang='en'>
+                    <head>
+                        <meta charset='UTF-8'>
+                        <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                        <style>
+                            body {
+                                font-family: 'Arial', sans-serif;
+                                color: #333;
+                                background-color: #f4f4f4;
+                                margin: 0;
+                                padding: 0;
+                            }
+
+
+                            h1 {
+                                color: #6537AE;
+                            }
+                            p {
+                            font-size: 16px;
+                        }
+
+                            ul {
+                                list-style: none;
+                                padding: 0;
+                                margin: 0;
+                                font-size: 16px;
+                            }
+
+                            li {
+                                margin-bottom: 10px;
+                                font-size: 16px;
+                            }
+
+                            a {
+                                color: #007BFF;
+                                text-decoration: none;
+                            }
+
+                            a:hover {
+                                text-decoration: underline;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class='container'>
+                            <h1>Z Skin Care Center</h1>
+                            <p>Dear $firstname $lastname,</p>
+                            <p>Thank you for scheduling your appointment with us!</p>
+                            <p>Here is a summary of your appointment details:</p>
+                            <ul>
+                                <li><strong>Name:</strong> $firstname $lastname</li>
+                                <li><strong>Phone number:</strong> $number</li>
+                                <li><strong>Email:</strong> $email</li>
+                                <li><strong>Service:</strong> $services</li>
+                                <li><strong>Schedule Date:</strong> " . date("F j, Y", strtotime($date)) . "</li>
+                                <li><strong>Schedule Time:</strong> $time</li>
+                                <li><strong>Health Concern:</strong> $health</li>
+                            </ul>
+                            <p style='font-weight: bold; font-size: 20px;'>Reference Code: $reference</p>
+                            <p>Thank you for your transaction! You can check your email for instructions on how to reschedule or cancel your appointment. Please note that rescheduling or cancelling of the appointment will only be possible within 2 weeks upon creating the appointment</p>
+                            <p><a href='https://zskincarecenter.online/t/reschedule.php?reference_code=$reference'>Tap Here to Reschedule or Cancel</a></p>
+                        </div>
+                    </body>
+                    </html>";        
+            if ($mail->Send()) {
+                // Email sent successfully
+                echo '<script>
+                    Swal.fire({
+                        icon: "success",
+                        title: "Success",
+                        text: "Appointment Successfully Created for Walk-In Customer!"
+                    }).then(function() {
+                        window.location = "appointment.php"; // Redirect after user clicks OK
+                    });
+                </script>';
+                exit();
+            } else {
+                echo '<script>
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error",
+                        text: "Email could not be sent. Mailer Error: ' . $mail->ErrorInfo . '"
+                    });
+                </script>';
+            }
+                } catch (Exception $e) {
+                    echo "Email could not be sent. Mailer Error: {$mail->ErrorInfo}";
+                }
+
+            }
+
+        }
+        
+
+
+    
+function generateReferenceCode()
+{
+    $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    $reference = '';
+    $length = 6;
+
+    for ($i = 0; $i < $length; $i++) {
+        $randomIndex = rand(0, strlen($characters) - 1);
+        $reference .= $characters[$randomIndex];
+    }
+
+    return $reference;
+}
+function generateAppointmentID()
+{
+    $counterFile = '../../t/appointment_counter.txt';
+    $counter = file_get_contents($counterFile);
+    $counter++;
+    $appointmentID = 'apt#' . str_pad($counter, 3, '0', STR_PAD_LEFT);
+    file_put_contents($counterFile, $counter);
+
+    return $appointmentID;
+}
+?>
     <?php
     include "../../db_connect/config.php";
     if (isset($_POST['update'])) {
@@ -170,9 +325,6 @@ div.dataTables_filter input {  width: 300px !important;}
                 $mail->isHTML(true); 
                 $mail->Subject = 'Appointment Rescheduled';
                 $mail->Body = "Your appointment has been rescheduled:<br><br>New Date: $date<br>New Time: $time<br>Reason: $reason";
-    
-                $mail->send();
-    
         if ($mail->Send()) {
             // Email sent successfully
             echo '<script>
@@ -255,7 +407,6 @@ if (isset($_POST['cancel'])) {
     }
 }
 ?>
-
 <div id="pageloader">
     <div class="custom-loader"></div>
 </div>
@@ -263,9 +414,12 @@ if (isset($_POST['cancel'])) {
     <?php include "../sidebar.php"; ?>
         <section id="content-wrapper">
             <div class="bg-white py-3 mb-3 border border-bottom">
-                <div class="d-flex justify-content-between mx-3">
+                <div class="d-flex justify-content-between mx-4">
                     <div>
                         <h2 style="color:6537AE;" class="fw-bold">APPOINTMENT</h2>
+                    </div>
+                    <div class="align-items-center">
+                        <a class="btn bg-purple text-white" onclick="addAppointmentModal()">CREATE</a>
                     </div>
                 </div>
             </div>
@@ -286,8 +440,8 @@ if (isset($_POST['cancel'])) {
                 <tr>
                     <th>Full Name</th>
                     <th>Services</th>
-                    <th class="text-nowrap" data-bs-toggle="popover" data-bs-placement="Right" data-bs-content="Sort Date">Appointment Date</th>
-                    <th class="text-nowrap" data-bs-toggle="popover" data-bs-placement="Right" data-bs-content="Sort Time">Appointment Time</th>
+                    <th class="text-nowrap" data-bs-toggle="popover" data-bs-placement="Right" data-bs-content="Descending">Appointment Date</th>
+                    <th class="text-nowrap" data-bs-toggle="popover" data-bs-placement="Right" data-bs-content="Descending">Appointment Time</th>
                     <th class="text-nowrap">Reference Code</th>
                     <th>Health Concern</th>
                     <th>Health Concern</th>
@@ -437,7 +591,21 @@ mysqli_close($conn);
         </div>
     </div>
 </div>
-
+<div class="modal fade" id="insertAppointment" aria-labelledby="insertModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" style="color:6537AE" id="insertModalLabel">Create Appointment</h5>
+                <div class="modal-footer">
+                <button type="button" class="btn-close float-end" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <!-- Data will be dynamically inserted here -->
+            </div>
+        </div>
+    </div>
+</div>
             </div>
         </section>
     </div>
@@ -447,6 +615,8 @@ mysqli_close($conn);
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
 <script>
 $(document).ready(function() {
 
@@ -571,7 +741,7 @@ $(document).ready(function() {
 // Apply the status filter on change
 statusFilter.on('change', function() {
     var selectedStatus = $(this).val();
-    table.column(7).search(selectedStatus).draw();
+    table.column(8).search(selectedStatus).draw();
 });
 });
 
@@ -580,6 +750,18 @@ var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
   return new bootstrap.Popover(popoverTriggerEl)
 })
 
+function addAppointmentModal(id) {
+    $.ajax ({
+        url: 'create_appointment.php',
+        type: 'POST',
+        data: {id: id},
+        success: function(response){
+            $('#insertAppointment .modal-body').html(response);
+            $('#insertAppointment').modal('show');
+        }
+
+    });
+}
 
 </script>
 

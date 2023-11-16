@@ -1,22 +1,14 @@
-
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
-    <link rel="stylesheet" href="style.css">
-    <link rel="shortcut icon" href="t/images/icon1.png" type="image/x-icon">
-    <title>Login</title>
-</head>
-
-<body>
+<?php
+include "Client/function.php";
+checklogin('Client', true);
+$userData = [];
+$isClientLoggedIn = isset($_SESSION['client_email']);
+if ($isClientLoggedIn) {
+    $userData = $_SESSION['id'];
+}
+?>
 <?php
 include "db_connect/config.php";
-session_start();
 $error_message = "";
 
 if (!isset($_SESSION['login_attempts'])) {
@@ -99,6 +91,7 @@ if (isset($_POST["submit"])) {
                     $role = $fetch["clinic_role"];
                     $_SESSION['clinic_email'] = $email;
                     $_SESSION['clinic_role'] = $role;
+                    $_SESSION['clinic_password'] = $password;
                     $_SESSION['id'] = $fetch;
 
                     switch ($role) {
@@ -152,6 +145,74 @@ if (isset($_POST["submit"])) {
     }
 }
 ?>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Z-Skin Care Center</title>
+    <!-- Include Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Lora&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css">
+<script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" rel="stylesheet"/>
+<script src="https://unpkg.com/scrollreveal"></script>
+<link rel="stylesheet" href="bootstrap-icons/font/bootstrap-icons.css">
+<link rel="shortcut icon" href="t/images/icon1.png" type="image/x-icon">
+</head>
+<style>
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', serif;
+    font-size: 16px;
+}
+
+
+.footer {
+    background-color: #6537AE;
+    color: #fff;
+
+}
+.footer-wave-svg {
+    background-color: transparent;
+    display: block;
+    height: 30px;
+    position: relative;
+    top: -1px;
+    width: 100%;
+}
+.footer-wave-path {
+    fill: #fffff2;
+}
+
+.fixed-text {
+  position: fixed;
+  top: 50%; /* Adjust the vertical position as needed */
+  left: 40%; /* Adjust the horizontal position as needed */
+  transform: translate(-50%, -50%);
+}
+.custom-toggler.navbar-toggler {
+    border-color: #fff;
+}
+.custom-toggler .navbar-toggler-icon {
+    background-image: url(
+"data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(255, 255, 255, 0.8)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 8h24M4 16h24M4 24h24'/%3E%3C/svg%3E");
+}
+
+
+</style>
+<body>
+
+<body>
 <nav class="navbar navbar-expand-lg px-3" style="background-color: transparent; background-color: #6537AE; /* Use your preferred solid color */">
   <div class="container-fluid">
   <a class="navbar-brand mt-1" href="index.php">
@@ -178,8 +239,24 @@ if (isset($_POST["submit"])) {
           <a class="nav-link text-white fs-5" href="./t/contact.php">Contact</a>
         </li>
       </ul>
-            <a href="login.php" class="btn btn-outline-light mx-2" type="submit" id="s5">Login</a>
-        <a href="./t/booking.php" class="btn btn-outline-light" type="submit" id="s5">Book an Appointment</a>
+      <?php if ($isClientLoggedIn): ?>
+        <div class="dropdown">
+                <a href="#" class="d-flex align-items-center text-dark text-decoration-none" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+                <img src="img/avatar/<?php echo $userData['client_avatar']; ?>" class="rounded-circle me-3" height="40px" width="40px">
+                    <span class="d-none d-sm-inline mx-1"></span>
+                </a>
+                <ul class="dropdown-menu text-small shadow dropdown-menu-end" aria-labelledby="dropdownUser1">
+                <li><a class="dropdown-item" href="Client/client_record/view.php">Profile Account</a></li>
+                <li>
+                  <hr class="dropdown-divider">
+                </li>
+                    <li><a class="dropdown-item" href="../Client/logout.php">Sign out</a></li>
+                </ul>
+            </div>
+        <?php else: ?>
+            <a href="login.php" class="btn btn-outline-light mx-2" type="submit">Login</a>
+        <?php endif; ?>
+        <a href="./t/booking.php" class="btn btn-outline-light" type="submit">Book an Appointment</a>
     </div>
   </div>
 </nav>
@@ -196,7 +273,11 @@ if (isset($_POST["submit"])) {
                         </div>
                         <div class="mb-3">
                             <label for="clinic_password" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="clinic_password" name="clinic_password" required>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="password" name="clinic_password" required>
+                                <label for="" class="input-group-text "><i class="bi bi-eye-slash" id="togglePassword"></i></label>
+                            </div>
+                                
                         </div>
                         <button type="submit" name="submit" class="btn w-100 text-white my-3" style="background-color: #6537AE;">Log In</button>
                         <a href="forgot_password.php" class="float-end my-3" style="color: grey;">Forgot Password?</a>
@@ -219,6 +300,21 @@ if (isset($_POST["submit"])) {
         </div>
     </div>
 </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
 
+
+<script>
+    const togglePassword = document.querySelector('#togglePassword');
+    const password = document.querySelector('#password');
+    
+    togglePassword.addEventListener('click', () => {
+        // Toggle the type attribute using getAttribute() method
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+        togglePassword.classList.toggle('bi-eye');
+    });
+</script>
 </body>
+
 </html>

@@ -96,7 +96,7 @@ $userData = $_SESSION['id'];
                         <form method="post"  id="updateForm">
                             <div class="container">
                             <a class="btn btn-secondary" href="client_record.php"><i class="bi bi-arrow-left"></i> </a>
-                            <h2 style="color:6537AE;" class="text-center">Edit Client Record</h2>
+                            <h2 style="color:6537AE;" class="text-center fw-bold">Edit Client Record</h2>
                                 <div class="row mb-3">
                                     <input class="form-label" type="hidden" name="id" value="<?php echo $id; ?>">
                                 </div>
@@ -111,7 +111,7 @@ $userData = $_SESSION['id'];
                                         <div class="bg-white h-100 p-4 border rounded">
                                             <div class="row mb-3">
                                                 <div class="col-md-4">
-                                                    <label class="mb-3">First Name:</label>
+                                                    <label class="mb-3 ">First Name:</label>
                                                     <input class="form-control" type="text" name="client_firstname" value="<?php echo $fname; ?>" required>
                                                 </div>
                                                 <div class="col-md-3">
@@ -482,9 +482,6 @@ function showData(id) {
     var table = $('#clientTable').DataTable({
         order: [[0, 'desc']],
         responsive: true,
-        dom: "<'row'<'col-sm-1 mt-2 text-center'B><'col-md-1 mt-2 ' l><'col-md-10'f>>" +
-     "<'row'<'col-md-12'tr>>" +
-     "<'row'<'col-md-12'i><'col-md-12'p>>",
      buttons: [
     {
         extend: 'collection',
@@ -691,21 +688,20 @@ document.getElementById('updateForm').addEventListener('submit', function (event
                 method: 'POST',
                 body: formData,
             })
-            .then(response => response.json())
             .then(data => {
                 if (data.success) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'Failed to update data.'
+                    });
+                } else {
                     Swal.fire({
                         icon: 'success',
                         title: 'Success!',
                         text: 'Data Updated successfully.'
                     }).then(function() {
-                        window.location.href = 'edit_client_record.php?id=<?php echo $id; ?>';
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error!',
-                        text: 'Failed to update data.'
+                        window.location.href = 'view.php?id=<?php echo $id; ?>';
                     });
                 }
             });

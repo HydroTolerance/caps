@@ -8,16 +8,20 @@ $userData = $_SESSION['id'];
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-        <title>Dashboard</title>
+        <title>Edit Client Record</title>
         <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
         <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
         <link rel="stylesheet" href="../css/style.css">
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css">
-            <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/css/select2.min.css" rel="stylesheet">
-        <style>
-        </style>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/css/select2.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.rtl.min.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+
     </head>
     <body>
     <?php
@@ -72,20 +76,33 @@ $userData = $_SESSION['id'];
     }
 
     if (isset($_POST['add_diagnosis'])) {
-        include "../../db_connect/config.php"; // Include your database configuration
-
+        include "../../db_connect/config.php";
+    
         $id = $_POST['id'];
         $diagnosis = $_POST['diagnosis'];
         $history = $_POST['history'];
-        $date_diagnosis = $_POST['date_diagnosis'];
+    
+        $date_diagnosis = date_default_timezone_set('Asia/Manila');
+        $date_diagnosis = date("Y-m-d");
+    
         $management = $_POST['management'];
         $notes = $_POST['notes'];
-
-        // Insert or update diagnosis information in zp_derma_record table
-        $info_sql = "INSERT INTO zp_derma_record (patient_id, date_diagnosis, history, management, diagnosis, notes) VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE diagnosis=?";
+    
+        if ($_FILES['image']['size'] > 0) {
+            $image = $_FILES['image']['name'];
+            $image_tmp = $_FILES['image']['tmp_name'];
+            $timestamp = time();
+            $image_extension = pathinfo($image, PATHINFO_EXTENSION);
+            $unique_image_name = $timestamp . '_' . uniqid() . '.' . $image_extension;
+            move_uploaded_file($image_tmp, "../../img/progress/" . $unique_image_name);
+        } else {
+            $unique_image_name = "";
+        }
+    
+        $info_sql = "INSERT INTO zp_derma_record (patient_id, date_diagnosis, history, management, diagnosis, notes, image) VALUES (?, ?, ?, ?, ?, ?, ?)";
         $info_stmt = mysqli_prepare($conn, $info_sql);
-        mysqli_stmt_bind_param($info_stmt, "issssss", $id, $date_diagnosis, $history, $management,  $diagnosis, $notes, $diagnosis);
-
+        mysqli_stmt_bind_param($info_stmt, "issssss", $id, $date_diagnosis, $history, $management,  $diagnosis, $notes, $unique_image_name);
+    
         if ($info_stmt->execute()) {
             echo "<script>
                 Swal.fire({
@@ -95,17 +112,21 @@ $userData = $_SESSION['id'];
                 }).then(function() {
                     window.location.href = 'edit_client_record.php?id=" . $id . "';
                 });</script>";
-        }else {
-            echo" Swal.fire({
-                icon: 'error',
-                title: 'Error!',
-                text: 'Failed to add data.'
-            });";
+            exit();
+        } else {
+            echo "<script>
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: 'Failed to add data.'
+                });</script>";
         }
-        
+    
         mysqli_stmt_close($info_stmt);
         mysqli_close($conn);
     }
+    
+    
     if (isset($_POST['add_appointment'])) {
         include "../../db_connect/config.php";
 
@@ -137,7 +158,7 @@ $userData = $_SESSION['id'];
                 Swal.fire({
                     icon: 'success',
                     title: 'Success!',
-                    text: 'Data Updated successfully.'
+                    text: 'Diagnosis is Added successfully.'
                 }).then(function() {
                     window.location.href = 'edit_client_record.php?id=" . $id . "';
                 });
@@ -160,42 +181,6 @@ $userData = $_SESSION['id'];
     mysqli_close($conn);
     }
         
-    if (isset($_POST['update_client'])) {
-        include "../../db_connect/config.php";
-
-        $id = $_POST['id'];
-        $fname = $_POST['client_firstname'];
-        $lname = $_POST['client_lastname'];
-        $dob = $_POST['client_birthday'];
-        $gender = $_POST['client_gender'];
-        $contact = $_POST['client_number'];
-        $email = $_POST['client_email'];
-        $econtact = $_POST['client_emergency_person'];
-        $relation = $_POST['client_relation'];
-        $econtactno = $_POST['client_emergency_contact_number'];
-        $sql_update_client = "UPDATE zp_client_record SET client_firstname=?, client_lastname=?, client_birthday=?, client_gender=?, client_number=?, client_email=?, client_emergency_person=?, client_relation=?, client_emergency_contact_number=? WHERE id=?";
-        $stmt_update_client = mysqli_prepare($conn, $sql_update_client);
-        mysqli_stmt_bind_param($stmt_update_client, "sssssssssi", $fname, $lname, $dob, $gender, $contact, $email, $econtact, $relation, $econtactno, $id);
-
-        if ($stmt_update_client->execute()) {
-            echo "<script>
-            window.addEventListener('DOMContentLoaded', (event) => {
-            Swal.fire({
-                icon: 'success',
-                title: 'Success!',
-                text: 'Data Updated successfully.'
-            }).then(function() {
-                window.location.href = 'edit_client_record.php?id=" . $id . "';
-            });
-        });</script>";
-    }else {
-        echo" Swal.fire({
-            icon: 'error',
-            title: 'Error!',
-            text: 'Failed to add data.'
-        });";
-    }
-    }
 
 if (isset($_POST['update_diagnosis'])) {
     include "../../db_connect/config.php";
@@ -204,20 +189,31 @@ if (isset($_POST['update_diagnosis'])) {
     $editedDiagnosis = $_POST['edit_diagnosis'];
     $editedManagement = $_POST['edit_management'];
     $editednotes = $_POST['edit_notes'];
-
-    $update_sql = "UPDATE zp_derma_record SET history=?, diagnosis=?, management=?, notes=? WHERE id=?";
+    $imagePath = '';
+    if ($_FILES['uploaded_image']['error'] == 0) {
+        $targetDirectory = '../../img/progress/';
+        $targetFile = $targetDirectory . basename($_FILES['uploaded_image']['name']);
+        if (move_uploaded_file($_FILES['uploaded_image']['tmp_name'], $targetFile)) {
+            $imagePath = $targetFile;
+        } else {
+            echo "Error uploading image.";
+            exit;
+        }
+    }
+    $update_sql = "UPDATE zp_derma_record SET history=?, diagnosis=?, management=?, notes=?, image=? WHERE id=?";
     $update_stmt = mysqli_prepare($conn, $update_sql);
-    mysqli_stmt_bind_param($update_stmt, "ssssi", $editedHistory, $editedDiagnosis, $editedManagement, $editednotes, $id);
+    mysqli_stmt_bind_param($update_stmt, "sssssi", $editedHistory, $editedDiagnosis, $editedManagement, $editedNotes, $imagePath, $id);
 
     if ($update_stmt->execute()) {
         echo "<script>
-        window.addEventListener('DOMContentLoaded', (event) => {
-            Swal.fire({
-                icon: 'success',
-                title: 'Success!',
-                text: 'Data Updated successfully.'
-            })
-        });</script>";
+            window.addEventListener('DOMContentLoaded', (event) => {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: 'Data Updated successfully.'
+                })
+            });
+        </script>";
     } else {
         echo "Error updating record: " . mysqli_error($conn);
     }
@@ -245,7 +241,28 @@ if (isset($_POST['archive'])) {
 }
 
 
+function generateServiceDropdown($conn)
+    {
+    include "../../db_connect/config.php";
+    $stmt = mysqli_prepare($conn, "SELECT DISTINCT services FROM service");
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_store_result($stmt);
+    mysqli_stmt_bind_result($stmt, $category);
 
+    while (mysqli_stmt_fetch($stmt)) {
+        echo '<optgroup label="' . $category . '">';
+        $stmt2 = mysqli_prepare($conn, "SELECT id, services, name, image, description FROM service WHERE services = ?");
+        mysqli_stmt_bind_param($stmt2, "s", $category);
+        mysqli_stmt_execute($stmt2);
+        mysqli_stmt_store_result($stmt2);
+        mysqli_stmt_bind_result($stmt2, $id, $services, $name, $image, $description);
+
+        while (mysqli_stmt_fetch($stmt2)) {
+            echo '<option value="' . $name . '">' . $name . '</option>';
+        }
+        echo '</optgroup>';
+    }
+}
 
     
     function generateReferenceCode() {
@@ -272,7 +289,7 @@ if (isset($_POST['archive'])) {
                     <form method="post" >
                             <div class="container">
                             <a class="btn btn-secondary" href="client_record.php"><i class="bi bi-arrow-left"></i></a>
-                            <h2 style="color:6537AE;" class="text-center">Edit Client Record</h2>
+                            <h2 style="color:6537AE;" class="text-center fw-bold">EDIT CLIENT RECORD</h2>
                                 <div class="row mb-3">
                                     <input class="form-label" type="hidden" name="id" value="<?php echo $id; ?>">
                                 </div>
@@ -315,59 +332,40 @@ if (isset($_POST['archive'])) {
                                         </div>
                                     </div>
                                 </div>
-                            <div class="col-md-12 bg-white p-5 border rounded mb-3" style="padding: 20px;">
-                                <div class="row mb-3">
-                                    <strong><label class="mb-2">ADDRESS:</label></strong>
+                                <div class="col-md-12 bg-white px-5 border rounded mb-3" style="padding: 20px;">
+                                <div class="row">
+                                    <strong><label class="mb-2">ADDRESS</label></strong>
                                     <hr>
                                 </div>
                                 <div class="row mb-3">
-                                    <div class="col-md-4">
-                                        <strong><label class="mb-3">House Number</label></strong>
-                                        <p><?php echo $houseNumber ?></p>
+                                    <div class="col-md-12">
+                                        <p><?php echo $houseNumber . " " . $streetName . " " . $barangay . ", " . $city . " " . $province . " " . $postalCode?></p>
                                     </div>
-                                    <div class="col-md-3">
-                                        <strong><label class="mb-3">Street Name</label></strong>
-                                        <p><?php echo $streetName?></p>
-                                    </div>
-                                    <div class="col-md-5">
-                                        <strong><label class="mb-3">Barangay</label></strong>
-                                        <p><?php echo $barangay?></p>
-                                    </div>
+                                    
                                 </div>
-                                <div class="row mb-3">
-                                    <div class="col-md-4">
-                                        <strong><label class="mb-3">City</label></strong>
-                                        <p><?php echo $city?></p>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <strong><label class="mb-3">Province</label></strong>
-                                        <p><?php echo $province?></p>
-                                    </div>
-                                    <div class="col-md-5">
-                                        <strong><label class="mb-3">Postal Code</label></strong>
-                                        <p><?php echo $postalCode?></p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-12 bg-white p-5 border rounded mb-3" style="padding: 20px;">
-                                <div class="row mb-3">
-                                    <strong><label class="mb-2">EMERGENCY CONTACT PERSON:</label></strong>
+                                <div class="col-md-12">
+                                <div class="row">
+                                    <strong><label class="mb-2">EMERGENCY CONTACT PERSON</label></strong>
                                     <hr>
                                 </div>
                                 <div class="row mb-3">
-                                    <div class="col-md-4">
-                                        <strong><label class="mb-3">Contact Person:</label></strong>
+                                    <div class="col-md-5">
+                                        <strong><label class="mb-3">Contact Person</label></strong>
                                         <p><?php echo $econtact ?></p>
                                     </div>
-                                    <div class="col-md-3">
-                                        <strong><label class="mb-3">Relation:</label></strong>
+                                    <div class="col-md-4">
+                                        <strong><label class="mb-3">Relation</label></strong>
                                         <p><?php echo $relation ?></p>
                                     </div>
-                                    <div class="col-md-5">
-                                        <strong><label class="mb-3">Relation:</label></strong>
+                                    <div class="col-md-3">
+                                        <strong><label class="mb-3">Contact Person Number</label></strong>
                                         <p><?php echo $econtactno ?></p>
                                     </div>
                                 </div>
+                            </div>
+                            </div>
+                            <div class="col-md-12">
+
                             </div>
                         </form>
                         <nav>
@@ -384,12 +382,13 @@ if (isset($_POST['archive'])) {
                             <table id="clientTable" class="table table table-bordered table-striped w-100">
                                         <thead>
                                             <tr>
-                                                <th>Date:</th>
-                                                <th>History:</th>
-                                                <th>Diagnosis:</th>
-                                                <th>Diagnosis:</th>
-                                                <th>Management:</th>
-                                                <th>Notes:</th>
+                                                <th>Date</th>
+                                                <th>History</th>
+                                                <th>Diagnosis</th>
+                                                <th>Diagnosis</th>
+                                                <th>Progress Report</th>
+                                                <th>Management</th>
+                                                <th>Notes</th>
                                                 <th>All Information</th>
                                             </tr>
                                         </thead>
@@ -409,8 +408,31 @@ if (isset($_POST['archive'])) {
                                                             <td><?php echo strlen($info_row['history']) > 50 ? substr($info_row['history'], 0, 50) . '...' : $info_row['history']; ?></td>
                                                             <td><?php echo strlen($info_row['diagnosis']) > 50 ? substr($info_row['diagnosis'], 0, 50) . '...' : $info_row['diagnosis']; ?></td>
                                                             <td><?php echo strlen($info_row['diagnosis']) > 50 ? substr($info_row['diagnosis'], 0, 50) . '...' : $info_row['diagnosis']; ?></td>
-                                                            <td><?php echo strlen($info_row['notes']) > 50 ? substr($info_row['notes'], 0, 50) . '...' : $info_row['notes']; ?></td>
+                                                            <td>
+                                                                <?php
+                                                                $imagePath = "../../img/progress/{$info_row['image']}";
+
+                                                                if (file_exists($imagePath) && is_file($imagePath)) {
+                                                                    $type = pathinfo($imagePath, PATHINFO_EXTENSION);
+                                                                    $data = file_get_contents($imagePath);
+                                                                    $imgData = base64_encode($data);
+                                                                    $src = 'data:image/' . $type . ';base64,' . $imgData;
+                                                                    echo "<img class='img-fluid' src='{$src}' alt='' height='200px' width='200px'>";
+                                                                } else {
+                                                                    $defaultImagePath = "../../img/progress/1700073271_65550f3715ffe.jpg";
+                                                                    $defaultType = pathinfo($defaultImagePath, PATHINFO_EXTENSION);
+                                                                    $defaultData = file_get_contents($defaultImagePath);
+                                                                    $defaultImgData = base64_encode($defaultData);
+                                                                    $defaultSrc = 'data:image/' . $defaultType . ';base64,' . $defaultImgData;
+                                                                    
+                                                                    echo "<img class='img-fluid' src='{$defaultSrc}' alt='' height='200px' width='200px'>";
+                                                                }
+                                                                
+                                                                ?>
+                                                            </td>
                                                             <td><?php echo $info_row['management']?></td>
+                                                            <td><?php echo strlen($info_row['notes']) > 50 ? substr($info_row['notes'], 0, 50) . '...' : $info_row['notes']; ?></td>
+                                                            
                                                             
                                                             <td>
                                                                 <div style="display: flex; gap: 10px;">
@@ -446,62 +468,27 @@ if (isset($_POST['archive'])) {
                             <div class="rounded p-3 bg-white">
                             <div class="text-dark border rounded p-3 mb-3">
                                     <!--  -->
-                                    <form method="post">
+                                    <form method="post" enctype="multipart/form-data">
                                 <input type="hidden" name="id" value="<?php echo $id; ?>">
-                                <div class="mb-3" id="date_diagnosis_div"  style="width: 100%;">
-                                    <label class="mb-3">Date of Diagnosis: <span class="text-danger">*</span></label>
-                                    <input class="form-control" id="date_diagnosis" name="date_diagnosis" type="date" placeholder="Time of Diagnosis" required>
+                                <div class="mb-3">
+                                    <label class="mb-3">Insert Progress <span class="text-danger">*</span></label>
+                                    <input type="file" name="image" id="image" class="form-control">
                                 </div>
                                 <div class="mb-3" id="history_div">
-                                    <label class="mb-3">History of the Patient: </label>
+                                    <label class="mb-3">History of the Patient </label>
                                     <textarea class="form-control" name="history" id="summernote" rows="4"></textarea>
                                 </div>
                                 <div class="mb-3" id="diagnosis_div">
-                                    <label class="mb-3">Diagnosis of the Patient: <span class="text-danger">*</span></label>
+                                    <label class="mb-3">Diagnosis of the Patient <span class="text-danger">*</span></label>
                                     <textarea class="form-control" name="diagnosis" id="summernote" rows="4" required></textarea>
                                 </div>
                                 <div class="mb-3" id="management_div">
-                                    <label class="mb-3">Management: <span class="text-danger">*</span></label>
-                                    <select class="select2 form-select" name="management" style="width: 100%;"  required>
+                                    <label class="mb-3">Management <span class="text-danger">*</span></label>
+                                    <select class="select2 form-select" name="management" style="width: 100%;" required>
                                         <option value=""></option>
-                                        <optgroup label="HAIR">
-                                            <option value="Face-to-face Hair Consultation">Face-to-face Hair Consultation</option>
-                                            <option value="Laser Hair Removal">Laser Hair Removal</option>
-                                            <option value="Platelet Rich Plasma">Platelet Rich Plasma</option>
-                                        </optgroup>
-                                        <optgroup label="NAIL">
-                                            <option value="Face-to-face Nail Consultation">Face-to-face Nail Consultation</option>
-                                        </optgroup>
-                                        <optgroup label="SKIN">
-                                            <option value="Face-to-face Skin Consultation">Face-to-face Skin Consultation</option>
-                                        </optgroup>
-                                        <optgroup label="OTHER SERVICES">
-                                            <option value="HIFU">HIFU</option>
-                                            <option value="Skin biopsy">Skin biopsy</option>
-                                            <option value="Cryolipolysis">Cryolipolysis</option>
-                                            <option value="Mohs Microhraphic Surgery">Mohs Microhraphic Surgery</option>
-                                            <option value="Platelet Rich Plasma">Platelet Rich Plasma</option>
-                                            <option value="Warts, Milia Removal">Warts, Milia Removal</option>
-                                            <option value="Chemical Peel">Chemical Peel</option>
-                                            <option value="Syringoma Removal">Syringoma Removal</option>
-                                            <option value="Tattoo Removal">Tattoo Removal</option>
-                                            <option value="Dermalux - LED Phototherapy">Dermalux - LED Phototherapy</option>
-                                            <option value="Acne Treatment">Acne Treatment</option>
-                                            <option value="Double Chin treatment">Double Chin treatment</option>
-                                            <option value="Botulinum toxin injection">Botulinum toxin injection</option>
-                                            <option value="Ear Keloid Removal">Ear Keloid Removal</option>
-                                            <option value="Excision of ear keloid">Excision of ear keloid</option>
-                                            <option value="Treatment for Excessive Sweating">Treatment for Excessive Sweating</option>
-                                            <option value="Sclerotherapy">Sclerotherapy</option>
-                                            <option value="Mole Removal">Mole Removal</option>
-                                            <option value="Melasma treatment">Melasma treatment</option>
-                                            <option value="Fractional CO2 laser">Fractional CO2 laser</option>
-                                            <option value="Easy TCA Peel">Easy TCA Peel</option>
-                                            <option value="Cyst / Tumor Excision">Cyst / Tumor Excision</option>
-                                            <option value="Electrocautery, Laser">Electrocautery, Laser</option>
-                                            <option value="Power Peel">Power Peel</option>
-                                        </optgroup>
+                                        <?php generateServiceDropdown($conn); ?>
                                     </select>
+                                    
                                 </div>
                                 <div class="mb-3" id="diagnosis_div">
                                     <label class="mb-3">Session Notes <span class="text-danger">*</span></label>
@@ -613,34 +600,40 @@ if (isset($_POST['archive'])) {
                             </div>
                             </div>
                             <div class="tab-pane fade" id="nav-appointment" role="tabpanel" aria-labelledby="nav-appointment-tab">
-                            <div class="rounded p-3 bg-white">
+                            <div class="rounded p-5 bg-white">
+                                <h2 style="color: #6537AE;" class="text-center mb-5">Next Appointment for Client</h2>
                             <form method="post">
                                 <input type="hidden" name="id" value="<?php echo $id; ?>">
-                                <div>
-                                    <label for="">Select Date Appointment<span class="text-danger">*</span></label>
-                                    <input type="da" class="form-control" placeholder="Enter Schedule Date" id="d" name="date" value="<?php echo isset($date) ? $date : ''; ?>" required>
-                                </div>
-                                <div>
-                                <label>Select Time Appointment <span class="text-danger">*</span></label>
-                                    <select class="form-control" name="time" id="time" required>
-                                        <option value="" disabled selected>-- Select Time --</option>
-                                        <?php if (isset($time)): ?>
-                                            <option value="<?php echo $time; ?>"><?php echo $time; ?></option>
-                                        <?php endif; ?>
-                                    </select>
-                                    <div>
-                                        <label>Services <span class="text-danger">*</span></label>
-                                        <select class="form-select" name="services" required>
-                                            <option value="">-- Select Service --</option>
-                                            <option value="Nail">Nail</option>
-                                            <option value="Hair">Hair</option>
-                                            <option value="Skin">Skin</option>
-                                            <option value="Face">Face</option>
-                                        </select>
+                                <div class="container">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <label for="">Select Date Appointment<span class="text-danger">*</span></label>
+                                            <input type="date" class="form-control" placeholder="Enter Schedule Date" id="d" name="date" value="<?php echo isset($date) ? $date : ''; ?>" required autocomplete="off">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label>Select Time Appointment <span class="text-danger">*</span></label>
+                                            <select class="form-control" name="time" id="time" required>
+                                                <option value="" disabled>-- Select Time --</option>
+                                                <?php if (isset($time)): ?>
+                                                    <option value="<?php echo $time; ?>"><?php echo $time; ?></option>
+                                                <?php endif; ?>
+                                            </select>
+                                        </div>
+                                            <div class="col-md-4">
+                                                <label>Services <span class="text-danger">*</span></label>
+                                                <div>
+                                                    
+                                                </div>
+                                                <select class="select2 form-select" name="services" required>
+                                                    <?php generateServiceDropdown($conn); ?>
+                                                </select>
+                                            </div>
+                                        <div class="mb-3 mt-3">
+                                            <input type="submit" name="add_appointment" class="btn btn-purple bg-purple text-white float-end" value="Add Appointment">
+                                        </div>
                                     </div>
-                                <div class="mb-3 mt-3">
-                                    <input type="submit" name="add_appointment" class="btn btn-purple bg-purple text-white" value="Add Appointment">
                                 </div>
+                                
                             </form>
                             </div>
                             
@@ -654,7 +647,7 @@ if (isset($_POST['archive'])) {
         </div>
     </div>
     <div class="modal fade" id="displayAccount" tabindex="-1" aria-labelledby="dataModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="dataModalLabel">Edit Diagnosis</h5>
@@ -666,7 +659,7 @@ if (isset($_POST['archive'])) {
             </div>
         </div>
     </div>
-    <div class="modal fade" id="displaydata" tabindex="-1" aria-labelledby="dataModalLabel" aria-hidden="true">
+    <div class="modal fade" id="displaydata" aria-labelledby="dataModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
@@ -679,25 +672,23 @@ if (isset($_POST['archive'])) {
             </div>
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="js/record.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">
-
-    
-<!-- DataTables Buttons Extension -->
-<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap5.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.colVis.min.js"></script>
-<link rel="stylesheet" href="https://cdn.datatables.net/datetime/1.1.5/css/dataTables.dateTime.min.css">
-<script src="https://cdn.datatables.net/datetime/1.1.5/js/dataTables.dateTime.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.colVis.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/datetime/1.1.5/css/dataTables.dateTime.min.css">
+    <script src="https://cdn.datatables.net/datetime/1.1.5/js/dataTables.dateTime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <script>
         $(document).ready(function() {
             $('#calendar').fullCalendar({
@@ -714,23 +705,51 @@ if (isset($_POST['archive'])) {
             });
         });
     </script>
-    <script>
-        configuration = {
-            allowInput: true,
-            dateFormat: "Y-m-d",
-            maxDate: "today"
+<?php
+include "../../db_connect/config.php";
 
+$sql = "SELECT day_to_disable FROM disabled_days";
+$result = $conn->query($sql);
+$disableDates = array();
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $disableDates[] = $row['day_to_disable'];
+    }
+}
+$sql = "SELECT day, is_available FROM availability";
+$result = $conn->query($sql);
+$disableDays = array();
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        if ($row['is_available'] == 0) {
+            $disableDays[] = $row['day'];
         }
-        flatpickr("#date_diagnosis", configuration);
+    }
+}
 
-        configuration = {
-            enableTime: true,
-            noCalendar: true,
-            dateFormat: "h:i K"
+$conn->close();
+?>
+<script>
+    var configuration = {
+        dateFormat: "Y-m-d",
+        allowInput: true,
+        minDate: new Date().fp_incr(1),
+        maxDate: new Date().fp_incr(60),
+        "disable": [
+            function(date) {
+                date.setHours(23, 59, 59, 999);
+                var dateString = date.toISOString().split('T')[0];
+                var dayName = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+                
+                return <?php echo json_encode($disableDates); ?>.includes(dateString) ||
+                       <?php echo json_encode($disableDays); ?>.includes(dayName[date.getDay()]);
+            },
+        ]
+    };
 
-        }
-        flatpickr("#time_diagnosis", configuration);
-      </script>
+    flatpickr("#d", configuration);
+
+</script>
       <script>
    document.addEventListener('DOMContentLoaded', function () {
         // Add an event listener to the "Clear Form" button
@@ -778,34 +797,35 @@ $.ajax({
         text: '<i class="bi bi-funnel"></i>',
         buttons: [
             {
-                header: {
-                    image: 'https://i.kym-cdn.com/photos/images/newsfeed/002/440/417/671'
-                },
                 extend: 'pdfHtml5',
                 text: 'PDF',
                 title: 'Z-Skin Care Report',
                 exportOptions: {
-                    columns: [0, 1, 3, 4]
+                    columns: [0, 1, 3, 4],
+                    stripHtml: true
                 },
                 customize: function(doc) {
             doc.content[1].table.widths = ['25%', '25%', '25%', '25%'];
+            var imagePaths = $('.img-fluid').map(function () {
+        return this.src;
+    }).get();
+
+    for (var i = 0, c = 1; i < imagePaths.length; i++, c++) {
+        doc.content[1].table.body[c][3] = {
+            image: imagePaths[i],
+            width: 100
+        };
+    }
             doc.styles.title = {
                 color: '#2D1D10',
                 fontSize: '16',
-                alignment: 'center'
+                alignment: 'center',
             };
             doc.content[1].table.headerRows = 1;
             doc.content[1].table.body[0].forEach(function(cell) {
                 cell.fillColor = '#6537AE';
                 cell.color = '#fff';
             });
-            for (var row = 0; row < doc.content[1].table.body.length; row++) {
-                var rowData = doc.content[1].table.body[row];
-                for (var col = 0; col < rowData.length; col++) {
-                    var cell = rowData[col];
-                    cell.border = [0, 0, 0, 1];
-                }
-            }
             doc.content.splice(1, 0, {
   layout: 'noBorders',
   table: {
@@ -873,6 +893,7 @@ $.ajax({
       ],
     ]
   }
+  
 });
 
 
@@ -908,9 +929,23 @@ $.ajax({
         paging: true,
         fixedColumns: true,
         select: true,
+        "columnDefs": [
+            {"targets": [2],"visible": false, "searchable": false},
+    ],
     });
 })
 </script>
+<script>
+    $(document).ready(function(){
+        $('.select2').select2({
+        placeholder: {
+            id: '',
+            text: 'None Selected'
+        },
+        theme: 'bootstrap-5',
+    });
+    })
 
+</script>
     </body>
     </html>

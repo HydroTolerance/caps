@@ -1,20 +1,3 @@
-
-
-    
-var configuration = {
-    dateFormat: "Y-m-d",
-    allowInput:true,
-    minDate: new Date().fp_incr(1),
-    maxDate: new Date().fp_incr(60),
-    disable: [
-        function(date) {
-            return (date.getDay() === 2 || date.getDay() === 4 || date.getDay() === 0);
-        }
-    ]
-};
-
-flatpickr("#d", configuration);
-
 d.addEventListener("change", updateTime);
 function updateTime() {
     var d = document.getElementById("d").value;

@@ -58,44 +58,51 @@
     <body>
             <form method="post" id="signUpForm" enctype="multipart/form-data">
                     <!-- Add your input fields for the new account data here -->
-                    <div class="mb-3">
-                        <label for="image">Upload Image (Max 5MB):</label>
-                        <input class="form-control" type="file" name="image" accept="image/*" id="image">
-                    </div>
-                    <div class="mb-3"> 
-                        <label for="fname" class="form-label">Firstname: <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="fname" name="fname" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="fname" class="form-label">Lastname: <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="lname" name="lname" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="fname" class="form-label">Gender: <span class="text-danger">*</span></label>
-                        <select class="form-control" name="gender" id="gender" required>
-                            <option selected="true" disabled>-- Select Gender --</option>
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Email: <span class="text-danger">*</span></label>
-                        <input type="email" class="form-control" id="email" name="email" required>
-                    </div>
-                    <div class="form-group mb-3">
-                        <label for="password" class="form-label">Password: <span class="text-danger">*</span></label>
-                        <input class="form-control" type="password" name="password">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="image" class="form-label">Upload Image (Max 5MB):</label>
+                                <input class="form-control" type="file" name="image" id="image">
+                            </div>
+                            <div class="col-md-6"> 
+                                <label for="fname" class="form-label">Firstname <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="fname" name="fname" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="fname" class="form-label">Lastname <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="lname" name="lname" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="fname" class="form-label">Gender <span class="text-danger">*</span></label>
+                                <select class="form-control" name="gender" id="gender" required>
+                                    <option selected="true" disabled>-- Select Gender --</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="password" class="form-label">Date of Birth <span class="text-danger">*</span></label>
+                                <input class="form-control" type="date" name="birthday">
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="">Select Role <span class="text-danger">*</span></label>
+                                <select name="role" id="" class="form-control" required>
+                                    <option selected="true" disabled>-- Select Role --</option>
+                                    <option value="Derma">Derma</option>
+                                    <option value="Staff">Staff</option>
+                                </select>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" name="submit" class="btn bg-purple text-white">Save</button>
+                            </div>
+                            
                         </div>
                     </div>
-                    <div class="mb-3">
-                    <label for="">Select Role: <span class="text-danger">*</span></label>
-                    <select name="role" id="" class="form-control" required>
-                      <option selected="true" disabled>-- Select Role --</option>
-                      <option value="Derma">Derma</option>
-                      <option value="Staff">Staff</option>
-                    </select>
-                    </div>
-                    <button type="submit" name="submit" class="btn bg-purple text-white">Save</button>
                 </form>
                 <script>
 $(document).ready(function() {

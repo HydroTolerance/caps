@@ -6,30 +6,6 @@ $isClientLoggedIn = isset($_SESSION['client_email']);
 if ($isClientLoggedIn) {
     $userData = $_SESSION['id'];
 }
-
-include "Admin/function.php";
-checklogin1('Admin', true);
-$adminData = [];
-$isAdminLoggedIn = isset($_SESSION['clinic_email']);
-if ($isAdminLoggedIn) {
-    $adminData = $_SESSION['id'];
-}
-
-include "Staff/function.php";
-checklogin2('Staff', true);
-$staffData = [];
-$isStaffLoggedIn = isset($_SESSION['clinic_email']);
-if ($isStaffLoggedIn) {
-    $staffData = $_SESSION['id'];
-}
-
-include "Derma/function.php";
-checklogin3('Derma', true);
-$dermaData = [];
-$isDermaLoggedIn = isset($_SESSION['clinic_email']);
-if ($isDermaLoggedIn) {
-    $dermaData = $_SESSION['id'];
-}
 ?>
 
 <!DOCTYPE html>
@@ -38,7 +14,7 @@ if ($isDermaLoggedIn) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Home</title>
+    <title>Z-Skin Care Center</title>
     <!-- Include Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     
@@ -50,10 +26,6 @@ if ($isDermaLoggedIn) {
 <script src="https://unpkg.com/scrollreveal"></script>
 <link rel="stylesheet" href="bootstrap-icons/font/bootstrap-icons.css">
 <link rel="shortcut icon" href="t/images/icon1.png" type="image/x-icon">
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.5/dist/umd/popper.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
-
 </head>
 <style>
 
@@ -66,7 +38,32 @@ if ($isDermaLoggedIn) {
     font-family: 'Inter', serif;
     font-size: 16px;
 }
+.image-container {
+      position: relative;
+      max-width: 500px; /* Adjust the max-width as needed */
+    }
 
+    .blurred-image {
+      filter: blur(20px); /* Adjust the blur effect as needed */
+      transition: filter 0.5s ease-in-out;
+      width: 100%;
+    }
+
+    .warning-message {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      color: white; /* Adjust text color as needed */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .warning-message h3 {
+      margin-bottom: 10px;
+    }
 
 .footer {
     background-color: #6537AE;
@@ -87,8 +84,8 @@ if ($isDermaLoggedIn) {
 
 .fixed-text {
   position: fixed;
-  top: 50%;
-  left: 40%;
+  top: 50%; /* Adjust the vertical position as needed */
+  left: 40%; /* Adjust the horizontal position as needed */
   transform: translate(-50%, -50%);
 }
 .custom-toggler.navbar-toggler {
@@ -98,6 +95,7 @@ if ($isDermaLoggedIn) {
     background-image: url(
 "data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(255, 255, 255, 0.8)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 8h24M4 16h24M4 24h24'/%3E%3C/svg%3E");
 }
+/* medium and up screens */
 #loading-animation {
   position: fixed;
   top: 0;
@@ -199,79 +197,24 @@ if ($isDermaLoggedIn) {
           <a class="nav-link text-white fs-5" href="./t/contact.php">Contact</a>
         </li>
       </ul>
-      <?php if ($isClientLoggedIn): ?> <!-- Client --> 
+      <?php if ($isClientLoggedIn): ?>
         <div class="dropdown">
-            <a href="#" class="d-flex align-items-center text-dark text-decoration-none" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+                <a href="#" class="d-flex align-items-center text-dark text-decoration-none" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
                 <img src="img/avatar/<?php echo $userData['client_avatar']; ?>" class="rounded-circle me-3" height="40px" width="40px">
-                <span class="d-none d-sm-inline mx-1"></span>
-            </a>
-            <ul class="dropdown-menu text-small shadow dropdown-menu-end" aria-labelledby="dropdownUser1">
+                    <span class="d-none d-sm-inline mx-1"></span>
+                </a>
+                <ul class="dropdown-menu text-small shadow dropdown-menu-end" aria-labelledby="dropdownUser1">
                 <li><a class="dropdown-item" href="Client/client_record/view.php">Profile Account</a></li>
                 <li>
-                    <hr class="dropdown-divider">
+                  <hr class="dropdown-divider">
                 </li>
-                <li><a class="dropdown-item" href="Client/logout.php">Sign out</a></li>
-            </ul>
-        </div>
-    <?php elseif ($isDermaLoggedIn): ?> <!-- Admin -->
-      <p>
-      <?php echo $dermaData['clinic_firstname']; ?>
-      </p>
-
-        <div class="dropdown">
-            <a href="#" class="d-flex align-items-center text-dark text-decoration-none" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
-                <img src="img/img/<?php echo $dermaData['image']; ?>" class="rounded-circle me-3" height="40px" width="40px">
-                <span class="d-none d-sm-inline mx-1"></span>
-            </a>
-            <ul class="dropdown-menu text-small shadow dropdown-menu-end" aria-labelledby="dropdownUser1">
-                <li><a class="dropdown-item" href="Admin/dashboard/dashboard.php">Profile Account</a></li>
-                <li>
-                    <hr class="dropdown-divider">
-                </li>
-                <li><a class="dropdown-item" href="Admin/logout.php">Sign out</a></li>
-            </ul>
-        </div>
-        <?php elseif ($isAdminLoggedIn): ?> <!-- Admin -->
-      <p>
-      <?php echo $adminData['clinic_firstname']; ?>
-      </p>
-
-        <div class="dropdown">
-            <a href="#" class="d-flex align-items-center text-dark text-decoration-none" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
-                <img src="img/img/<?php echo $adminData['image']; ?>" class="rounded-circle me-3" height="40px" width="40px">
-                <span class="d-none d-sm-inline mx-1"></span>
-            </a>
-            <ul class="dropdown-menu text-small shadow dropdown-menu-end" aria-labelledby="dropdownUser1">
-                <li><a class="dropdown-item" href="Admin/dashboard/dashboard.php">Profile Account</a></li>
-                <li>
-                    <hr class="dropdown-divider">
-                </li>
-                <li><a class="dropdown-item" href="Admin/logout.php">Sign out</a></li>
-            </ul>
-        </div>
-        <?php elseif ($isStaffLoggedIn): ?> <!-- Admin -->
-      <p>
-      <?php echo $staffData['clinic_firstname']; ?>
-      </p>
-
-        <div class="dropdown">
-            <a href="#" class="d-flex align-items-center text-dark text-decoration-none" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
-                <img src="img/img/<?php echo $staffData['image']; ?>" class="rounded-circle me-3" height="40px" width="40px">
-                <span class="d-none d-sm-inline mx-1"></span>
-            </a>
-            <ul class="dropdown-menu text-small shadow dropdown-menu-end" aria-labelledby="dropdownUser1">
-                <li><a class="dropdown-item" href="Admin/dashboard/dashboard.php">Profile Account</a></li>
-                <li>
-                    <hr class="dropdown-divider">
-                </li>
-                <li><a class="dropdown-item" href="Admin/logout.php">Sign out</a></li>
-            </ul>
-        </div>
-    <?php else: ?>
-        <a href="login.php" class="btn btn-outline-light mx-2" type="submit" id="s5">Login</a>
-    <?php endif; ?>
-
-    <a href="./t/booking.php" class="btn btn-outline-light" type="submit" id="s5">Book an Appointment</a>
+                    <li><a class="dropdown-item" href="../Client/logout.php">Sign out</a></li>
+                </ul>
+            </div>
+        <?php else: ?>
+            <a href="login.php" class="btn btn-outline-light mx-2" type="submit">Login</a>
+        <?php endif; ?>
+        <a href="./t/booking.php" class="btn btn-outline-light" type="submit">Book an Appointment</a>
     </div>
   </div>
 </nav>
@@ -282,13 +225,14 @@ if ($isDermaLoggedIn) {
     <div class="carousel-item active" data-bs-interval="10000">
         <div class="row">
             <div class="col-md-6">
-                <img src="./t/images/2.png" class="d-block w-100" alt="./t/images/1.png">
+                <img src="./t/images/1.png" class="d-block w-100" alt="./t/images/1.png">
               </div>
               <div class="col-md-6 m-auto p-5">
                 <div>
                   <div>
-                    <h1 style="font-family: Lora;">Wish Grandted</h1>
-                    <p>Some representative placeholder content for the first slide.</p>
+                    <h1 style="font-family: Lora;" class="mb-3">Discover Your Best Skin Care with Expert Care</h1>
+                    <p>Explore our expertly formulated skincare solutions and reveal your radiant, healthy skin.</p>
+                    
                   </div>
                 </div>
             </div>
@@ -302,8 +246,9 @@ if ($isDermaLoggedIn) {
               <div class="col-md-6 m-auto p-5">
                 <div>
                   <div>
-                    <h1 style="font-family: Lora;">Wish Grandted</h1>
-                    <p>Some representative placeholder content for the first slide.</p>
+                    <h1 style="font-family: Lora;" class="mb-3">Wish Granted: Unlock Your Dreams</h1>
+                    <p>Discover a world where your wishes come true with our expert guidance and support.</p>
+                    
                   </div>
                 </div>
             </div>
@@ -330,8 +275,8 @@ if ($isDermaLoggedIn) {
         <p class="text-center mt-4">Skin Treatment</p>
       </div>
       <div class="col-md-4 mx-auto">
-        <img src="./t/images/face.png" alt="" height="200px" width="200px" class="d-block mx-auto">
-        <p class="text-center mt-4">Face Treatment</p>
+        <img src="./t/images/hair.png" alt="" height="200px" width="200px" class="d-block mx-auto">
+        <p class="text-center mt-4">Hair Treatment</p>
       </div>
       <div class="col-md-4 mx-auto">
         <img src="./t/images/nail.png" alt="" height="200px" width="200px" class="d-block mx-auto">
@@ -347,10 +292,10 @@ if ($isDermaLoggedIn) {
   <div class="carousel-inner mx-auto">
   <?php
 include "db_connect/config.php";
-$stmt = mysqli_prepare($conn, "SELECT id, services, image, description FROM service");
+$stmt = mysqli_prepare($conn, "SELECT id, services, image, name, description FROM service");
 mysqli_stmt_execute($stmt);
 mysqli_stmt_store_result($stmt);
-mysqli_stmt_bind_result($stmt, $id, $services, $image, $description);
+mysqli_stmt_bind_result($stmt, $id, $services, $image, $name, $description);
 ?>
       <?php
       $groupSize = 3;
@@ -369,7 +314,7 @@ mysqli_stmt_bind_result($stmt, $id, $services, $image, $description);
         echo '<img style="max-width:100%;" src="img/services/' . $image . '" alt="...">';
         echo '</div>';
         echo '<div class="card-body">';
-        echo '<h5 class="card-title">' . $services . '</h5>';
+        echo '<h5 class="card-title">' . $name . '</h5>';
         echo '<p class="card-text">' . $description . '</p>';
         echo '<a href="./t/service.php" class="btn text-white" style="background-color:#6537AE;">Go to services</a>';
         echo '</div>';
@@ -411,7 +356,7 @@ mysqli_stmt_bind_result($stmt, $id, $services, $image, $description);
               <h1 style="font-family: Lora;">About Us</h1>
               <p >Get to know our Story</p>
               <p class="">We are a leading dermatology clinic dedicated to helping our patients achieve optimal skin health and wellness. Our experienced team offers personalized medical and cosmetic dermatology services using the latest advancements in the field. Contact us to schedule an appointment and experience our patient-centered care for yourself.</p>
-              <a href="about.php" class="btn rounded-pill text-white" style="font-family: 'Poppins', sans-serif; font-size: 1rem; background-color:#6537AE;">Our Story</a>
+              <a href="./t/about.php" class="btn rounded-pill text-white" style="font-family: 'Poppins', sans-serif; font-size: 1rem; background-color:#6537AE;">Our Story</a>
             </div>
           </div>
         </div>
@@ -425,7 +370,7 @@ mysqli_stmt_bind_result($stmt, $id, $services, $image, $description);
 
 <section id="s1">
   <div class="my-5">
-      <h1  class="text-center" style="font-family: Lora;">Hightlights</h1>
+      <h1  class="text-center" style="font-family: Lora;">Highlight</h1>
     </div>
     <div class="container">
       <div class="row">
@@ -444,23 +389,65 @@ mysqli_stmt_bind_result($stmt, $id, $services, $image, $description);
   <div class="container">
   <h1  class="text-center" style="font-family: Lora;">Results</h1>
       <div class="row">
-          <div class="col-md-4">
-              <img src="./t/images/result (1).png" alt="" height="500px" width="500px" style="max-width: 100%;">
+          <div class="col-lg-4">
+            <div class="image-container">
+              <img src="./t/images/result (1).png" alt="" class="blurred-image" height="500px" width="500px" style="max-width: 100%;">
+              <div class="warning-message">
+                <h3 class="text-nowrap">Trigger Warning</h3>
+                <p>Click on the button below to see the results.</p>
+                <button class="btn btn-danger" onclick="showImage(this)">Show Me</button>
+              </div>
+            </div>
           </div>
-          <div class="col-md-4">
-              <img src="./t/images/result (2).png" alt="" height="500px" width="500px" style="max-width: 100%;">
+          <div class="col-lg-4">
+          <div class="image-container">
+              <img src="./t/images/result (2).png" alt="" class="blurred-image" height="500px" width="500px" style="max-width: 100%;">
+              <div class="warning-message">
+                <h3 class="text-nowrap">Trigger Warning</h3>
+                <p>Click on the button below to see the results.</p>
+                <button class="btn btn-danger" onclick="showImage(this)">Show Me</button>
+              </div>
+            </div>
           </div>
-          <div class="col-md-4">
-            <img src="./t/images/result (3).png" alt="" height="500px" width="500px" style="max-width: 100%;">
+          <div class="col-lg-4">
+          <div class="image-container">
+              <img src="./t/images/result (3).png" alt="" class="blurred-image" height="500px" width="500px" style="max-width: 100%;">
+              <div class="warning-message">
+                <h3 class="text-nowrap">Trigger Warning</h3>
+                <p>Click on the button below to see the results.</p>
+                <button class="btn btn-danger" onclick="showImage(this)">Show Me</button>
+              </div>
+            </div>
           </div>
-          <div class="col-md-4">
-            <img src="./t/images/result (4).png" alt="" height="500px" width="500px" style="max-width: 100%;">
+          <div class="col-lg-4">
+          <div class="image-container">
+              <img src="./t/images/result (4).png" alt="" class="blurred-image" height="500px" width="500px" style="max-width: 100%;">
+              <div class="warning-message">
+                <h3 class="text-nowrap">Trigger Warning</h3>
+                <p>Click on the button below to see the results.</p>
+                <button class="btn btn-danger" onclick="showImage(this)">Show Me</button>
+              </div>
+            </div>
           </div>
-          <div class="col-md-4">
-            <img src="./t/images/result (5).png" alt="" height="500px" width="500px" style="max-width: 100%;">
+          <div class="col-lg-4">
+            <div class="image-container">
+              <img src="./t/images/result (5).png" alt="" class="blurred-image" height="500px" width="500px" style="max-width: 100%;">
+              <div class="warning-message">
+                <h3 class="text-nowrap">Trigger Warning</h3>
+                <p>Click on the button below to see the results.</p>
+                <button class="btn btn-danger" onclick="showImage(this)">Show Me</button>
+              </div>
+            </div>
           </div>
-          <div class="col-md-4">
-            <img src="./t/images/result (6).png" alt="" height="500px" width="500px" style="max-width: 100%;">
+          <div class="col-lg-4">
+            <div class="image-container">
+              <img src="./t/images/result (6).png" alt="" class="blurred-image" height="500px" width="500px" style="max-width: 100%;">
+              <div class="warning-message">
+                <h3 class="text-nowrap">Trigger Warning</h3>
+                <p>Click on the button below to see the results.</p>
+                <button class="btn btn-danger" onclick="showImage(this)">Show Me</button>
+              </div>
+            </div>
           </div>
       </div>
   </div>
@@ -597,6 +584,19 @@ ScrollReveal().reveal('.col-md-4', {
   window.addEventListener("load", function () {
     document.getElementById("loading-animation").style.display = "none";
   });
+
+  function showImage(button) {
+    // Get the parent container of the clicked button
+    var imageContainer = button.parentElement.parentElement;
+    
+    // Remove the blur effect and show the original image
+    var blurredImage = imageContainer.querySelector('.blurred-image');
+    blurredImage.style.filter = 'none';
+
+    // Hide the warning message
+    var warningMessage = imageContainer.querySelector('.warning-message');
+    warningMessage.style.display = 'none';
+  }
 </script>
 </body>
 

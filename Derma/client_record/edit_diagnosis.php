@@ -1,4 +1,16 @@
-<?php
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.rtl.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+</head>
+<body>
+    <?php
 include "../../db_connect/config.php";
 if (isset($_POST['id'])) {
     $id = $_POST['id'];
@@ -17,6 +29,10 @@ if (isset($_POST['id'])) {
     <form method="post"  enctype="multipart/form-data">
         <input type="hidden" name="id" value="<?php echo $id; ?>">
         <div class="mb-3">
+            <label for="edit_fname" class="form-label fw-bold">Date</label>
+            <input type="date" class="form-control" id="d" name="edit_date" value="<?php echo $rows['date_diagnosis']; ?>" required>
+        </div>
+        <div class="mb-3">
             <label for="edit_fname" class="form-label fw-bold">History</label>
             <input type="text" class="form-control" id="edit_fname" name="edit_history" value="<?php echo $rows['history']; ?>" required>
         </div>
@@ -26,46 +42,32 @@ if (isset($_POST['id'])) {
         </div>
         <div class="mb-3">
             <label for="edit_email" class="form-label fw-bold">Management</label>
-            <select class="select2 form-select" name="edit_management" style="width: 100%" required>
+            <select class="select1 form-select" name="edit_management" style="width: 100%;" required>
                 <option value=""></option>
-                <optgroup label="HAIR">
-                    <option value="Face-to-face Hair Consultation" <?php if ($rows['management'] == 'Face-to-face Hair Consultation') echo 'selected'; ?>>Face-to-face Hair Consultation</option>
-                    <option value="Laser Hair Removal" <?php if ($rows['management'] == 'Laser Hair Removal') echo 'selected'; ?>>Laser Hair Removal</option>
-                    <option value="Platelet Rich Plasma" <?php if ($rows['management'] == 'Platelet Rich Plasma') echo 'selected'; ?>>Platelet Rich Plasma</option>
-                </optgroup>
-                <optgroup label="NAIL">
-                    <option value="Face-to-face Nail Consultation" <?php if ($rows['management'] == 'Face-to-face Nail Consultation') echo 'selected'; ?>>Face-to-face Nail Consultation</option>
-                </optgroup>
-                <optgroup label="SKIN">
-                    <option value="Face-to-face Skin Consultation" <?php if ($rows['management'] == 'Face-to-face Skin Consultation') echo 'selected'; ?>>Face-to-face Skin Consultation</option>
-                </optgroup>
-                <optgroup label="OTHER SERVICES">
-                    <option value="HIFU" <?php if ($rows['management'] == 'HIFU') echo 'selected'; ?>>HIFU</option>
-                    <option value="Skin biopsy" <?php if ($rows['management'] == 'Skin biopsy') echo 'selected'; ?>>Skin biopsy</option>
-                    <option value="Cryolipolysis" <?php if ($rows['management'] == 'Cryolipolysis') echo 'selected'; ?>>Cryolipolysis</option>
-                    <option value="Mohs Micrographic Surgery" <?php if ($rows['management'] == 'Mohs Micrographic Surgery') echo 'selected'; ?>>Mohs Micrographic Surgery</option>
-                    <option value="Platelet Rich Plasma" <?php if ($rows['management'] == 'Platelet Rich Plasma') echo 'selected'; ?>>Platelet Rich Plasma</option>
-                    <option value="Warts, Milia Removal" <?php if ($rows['management'] == 'Warts, Milia Removal') echo 'selected'; ?>>Warts, Milia Removal</option>
-                    <option value="Chemical Peel" <?php if ($rows['management'] == 'Chemical Peel') echo 'selected'; ?>>Chemical Peel</option>
-                    <option value="Syringoma Removal" <?php if ($rows['management'] == 'Syringoma Removal') echo 'selected'; ?>>Syringoma Removal</option>
-                    <option value="Tattoo Removal" <?php if ($rows['management'] == 'Tattoo Removal') echo 'selected'; ?>>Tattoo Removal</option>
-                    <option value="Dermalux - LED Phototherapy" <?php if ($rows['management'] == 'Dermalux - LED Phototherapy') echo 'selected'; ?>>Dermalux - LED Phototherapy</option>
-                    <option value="Acne Treatment" <?php if ($rows['management'] == 'Acne Treatment') echo 'selected'; ?>>Acne Treatment</option>
-                    <option value="Double Chin treatment" <?php if ($rows['management'] == 'Double Chin treatment') echo 'selected'; ?>>Double Chin treatment</option>
-                    <option value="Botulinum toxin injection" <?php if ($rows['management'] == 'Botulinum toxin injection') echo 'selected'; ?>>Botulinum toxin injection</option>
-                    <option value="Ear Keloid Removal" <?php if ($rows['management'] == 'Ear Keloid Removal') echo 'selected'; ?>>Ear Keloid Removal</option>
-                    <option value="Excision of ear keloid" <?php if ($rows['management'] == 'Excision of ear keloid') echo 'selected'; ?>>Excision of ear keloid</option>
-                    <option value="Treatment for Excessive Sweating" <?php if ($rows['management'] == 'Treatment for Excessive Sweating') echo 'selected'; ?>>Treatment for Excessive Sweating</option>
-                    <option value="Sclerotherapy" <?php if ($rows['management'] == 'Sclerotherapy') echo 'selected'; ?>>Sclerotherapy</option>
-                    <option value="Mole Removal" <?php if ($rows['management'] == 'Mole Removal') echo 'selected'; ?>>Mole Removal</option>
-                    <option value="Melasma treatment" <?php if ($rows['management'] == 'Melasma treatment') echo 'selected'; ?>>Melasma treatment</option>
-                    <option value="Fractional CO2 laser" <?php if ($rows['management'] == 'Fractional CO2 laser') echo 'selected'; ?>>Fractional CO2 laser</option>
-                    <option value="Easy TCA Peel" <?php if ($rows['management'] == 'Easy TCA Peel') echo 'selected'; ?>>Easy TCA Peel</option>
-                    <option value="Cyst / Tumor Excision" <?php if ($rows['management'] == 'Cyst / Tumor Excision') echo 'selected'; ?>>Cyst / Tumor Excision</option>
-                    <option value="Electrocautery, Laser" <?php if ($rows['management'] == 'Electrocautery, Laser') echo 'selected'; ?>>Electrocautery, Laser</option>
-                    <option value="Power Peel" <?php if ($rows['management'] == 'Power Peel') echo 'selected'; ?>>Power Peel</option>
-                </optgroup>
+                <?php
+                include "../../db_connect/config.php";
+                $stmt = mysqli_prepare($conn, "SELECT DISTINCT services FROM service");
+                mysqli_stmt_execute($stmt);
+                mysqli_stmt_store_result($stmt);
+                mysqli_stmt_bind_result($stmt, $category);
+
+                while (mysqli_stmt_fetch($stmt)) {
+                    echo '<optgroup label="' . $category . '">';
+                    $stmt2 = mysqli_prepare($conn, "SELECT id, services, name, image, description FROM service WHERE services = ?");
+                    mysqli_stmt_bind_param($stmt2, "s", $category);
+                    mysqli_stmt_execute($stmt2);
+                    mysqli_stmt_store_result($stmt2);
+                    mysqli_stmt_bind_result($stmt2, $id, $services, $name, $image, $description);
+
+                    while (mysqli_stmt_fetch($stmt2)) {
+                        $selected = ($name == $rows['management']) ? 'selected' : '';
+                        echo '<option value="' . $name . '" ' . $selected . '>' . $name . '</option>';
+                    }
+                    echo '</optgroup>';
+                }
+                ?>
             </select>
+
         </div>
         <div class="mb-3">
             <label for="edit_email" class="form-label fw-bold">Notes</label>
@@ -76,4 +78,20 @@ if (isset($_POST['id'])) {
         </div>
         
     </form>
+    <script>
+            $(document).ready(function(){
+        $('.select1').select2({
+        placeholder: {
+            id: '',
+            text: 'None Selected'
+        },
+        theme: 'bootstrap-5',
+        allowClear: true,
+        dropdownParent: $("#displayAccount")
+    });
+    })
+    </script>
 </div>
+
+</body>
+</html>

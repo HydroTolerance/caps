@@ -15,54 +15,6 @@ $d = $_GET['date'];
 $time = $_GET['time'];
 $reference = $_GET['reference_code'];
 $currentdate = $_GET['created'];
-$to = $email;
-$subject = "Appointment Summary";
-$body = "<html><body style='color: #000000;'>";
-$body .= "<p>Dear $firstname $lastname,</p>";
-$body .= "<p>Thank you for your appointment!</p>";
-$body .= "<p>Here is your appointment summary:</p>";
-$body .= "<ul>";
-$body .= "<li><strong>Name:</strong> $firstname $lastname</li>";
-$body .= "<li><strong>Phone number:</strong> $num</li>";
-$body .= "<li><strong>Email:</strong> $email</li>";
-$body .= "<li><strong>Health Concern:</strong> $message</li>";
-$body .= "<li><strong>Service:</strong> $option</li>";
-$body .= "<li><strong>Schedule Date:</strong> " . date("F j, Y", strtotime($d)) . "</li>";
-$body .= "<li><strong>Schedule Time:</strong> $time</li>";
-$body .= "</ul>";
-$body .= "<p style='font-weight: bold; font-size: 20px;'>Reference Code: $reference</p>";
-$body .= "<p>Thank you for your transaction! You can check your email for instructions on how to reschedule or cancel your appointment. Please note that rescheduling or cancelling of appointment will only be possible within 2 weeks upon creating the appointment</p>";
-$body .= "<a href='localhost/caps/t/reschedule.php?reference_code=$reference'>tap Here</a>";
-$body .= "</p>";
-$body .= "</body></html>";
-
-$smtpHost = 'smtp.gmail.com';
-$smtpPort = 587;
-$smtpUsername = 'blazered098@gmail.com';
-$smtpPassword = 'nnhthgjzjbdpilbh';
-
-require 'phpmailer/PHPMailerAutoload.php';
-
-$mail = new PHPMailer(true);
-$mail->SMTPDebug = 0;
-$mail->isSMTP();
-$mail->Host = $smtpHost;
-$mail->Port = $smtpPort;
-$mail->SMTPSecure = 'tls';
-$mail->SMTPAuth = true;
-$mail->Username = $smtpUsername;
-$mail->Password = $smtpPassword;
-
-$mail->setFrom($smtpUsername, 'Zephyris Skin Care');
-$mail->addAddress($to);
-$mail->Subject = $subject;
-$mail->isHTML(true);
-$mail->Body = $body;
-
-$imagePath = 'img/dermalogo.png';
-$mail->addEmbeddedImage($imagePath, 'dermalogo.png', 'dermalogo.png');
-
-$mailSent = $mail->send();
 ?>
 
 

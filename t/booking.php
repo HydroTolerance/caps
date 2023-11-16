@@ -7,6 +7,7 @@ if ($isClientLoggedIn) {
     $userData = $_SESSION['id'];
 }
 ?>
+
 <?php
 if (isset($_POST['submit'])) {
     $receivedOTP = $_POST['verificationCode'];
@@ -43,28 +44,136 @@ if (isset($_POST['submit'])) {
         mysqli_stmt_bind_param($insertStmt, "ssssssssss", $appointment_id, $reference, $firstname, $lastname, $number, $email, $health, $services, $date, $time);
 
         if (mysqli_stmt_execute($insertStmt)) {
-            $_SESSION['authenticated'] = true; // Set a session variable
-            $redirectUrl = "display.php?" .
-                "reference_code=" . urlencode($reference) .
-                "&firstname=" . urlencode($firstname) .
-                "&lastname=" . urlencode($lastname) .
-                "&number=" . urlencode($number) .
-                "&email=" . urlencode($email) .
-                "&health_concern=" . urlencode($health) .
-                "&services=" . urlencode($services) .
-                "&date=" . urlencode($date) .
-                "&time=" . urlencode($time) .
-                "&created=" . urlencode($currentdate);
+            $to = $email;
+$subject = "Appointment Summary";
+$body = "
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            color: #333;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
 
-            header("Location: $redirectUrl");
-            exit;
+
+        h1 {
+            color: #6537AE;
+        }
+        p {
+          font-size: 16px;
+      }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            font-size: 16px;
+        }
+
+        li {
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        a {
+            color: #007BFF;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class='container'>
+        <h1>Z Skin Care Center</h1>
+        <p>Dear $firstname $lastname,</p>
+        <p>Thank you for scheduling your appointment with us!</p>
+        <p>Here is a summary of your appointment details:</p>
+        <ul>
+            <li><strong>Name:</strong> $firstname $lastname</li>
+            <li><strong>Phone number:</strong> $num</li>
+            <li><strong>Email:</strong> $email</li>
+            <li><strong>Health Concern:</strong> $message</li>
+            <li><strong>Service:</strong> $option</li>
+            <li><strong>Schedule Date:</strong> " . date("F j, Y", strtotime($d)) . "</li>
+            <li><strong>Schedule Time:</strong> $time</li>
+        </ul>
+        <p style='font-weight: bold; font-size: 20px;'>Reference Code: $reference</p>
+        <p>Thank you for your transaction! You can check your email for instructions on how to reschedule or cancel your appointment. Please note that rescheduling or cancelling of the appointment will only be possible within 2 weeks upon creating the appointment</p>
+        <p><a href='https://zskincarecenter.online/t/reschedule.php?reference_code=$reference'>Tap Here to Reschedule or Cancel</a></p>
+    </div>
+</body>
+</html>";
+
+$smtpHost = 'smtp.gmail.com';
+$smtpPort = 587;
+$smtpUsername = 'blazered098@gmail.com';
+$smtpPassword = 'nnhthgjzjbdpilbh';
+
+require 'phpmailer/PHPMailerAutoload.php';
+
+$mail = new PHPMailer(true);
+$mail->SMTPDebug = 0;
+$mail->isSMTP();
+$mail->Host = $smtpHost;
+$mail->Port = $smtpPort;
+$mail->SMTPSecure = 'tls';
+$mail->SMTPAuth = true;
+$mail->Username = $smtpUsername;
+$mail->Password = $smtpPassword;
+
+$mail->setFrom($smtpUsername, 'Z Skin Care Center');
+$mail->addAddress($to);
+$mail->Subject = $subject;
+$mail->isHTML(true);
+$mail->Body = $body;
+
+$imagePath = 'img/dermalogo.png';
+$mail->addEmbeddedImage($imagePath, 'dermalogo.png', 'dermalogo.png');
+
+$mailSent = $mail->send();
+
+            if ($mailSent) {
+                // Email sent successfully
+                $_SESSION['authenticated'] = true; // Set a session variable
+                $redirectUrl = "display.php?" .
+                    "reference_code=" . urlencode($reference) .
+                    "&firstname=" . urlencode($firstname) .
+                    "&lastname=" . urlencode($lastname) .
+                    "&number=" . urlencode($number) .
+                    "&email=" . urlencode($email) .
+                    "&health_concern=" . urlencode($health) .
+                    "&services=" . urlencode($services) .
+                    "&date=" . urlencode($date) .
+                    "&time=" . urlencode($time) .
+                    "&created=" . urlencode($currentdate);
+
+                header("Location: $redirectUrl");
+                exit;
+            } else {
+                // Email sending failed
+                echo '<script>
+                    console.log("JavaScript code is executing"); // Add this line for debugging
+                    alert("Error sending confirmation email. Please contact support.");
+                </script>';
+            }
         } else {
+            // Appointment creation failed
             echo '<script>
                 console.log("JavaScript code is executing"); // Add this line for debugging
                 alert("Error creating appointment. Please try again.");
             </script>';
         }
     } else {
+        // Invalid OTP
         echo '<script>
             console.log("JavaScript code is executing"); // Add this line for debugging
             alert("Your OTP is incorrect or has already been used!");
@@ -100,6 +209,7 @@ function generateAppointmentID()
     return $appointmentID;
 }
 ?>
+
 
 
 
@@ -142,16 +252,10 @@ function generateAppointmentID()
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<!-- Styles -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
 <!-- Or for RTL support -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.rtl.min.css" />
-
-<!-- Scripts -->
-<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.0/dist/jquery.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="../js/appointment.js"></script>
     <title>Appoinment</title>
@@ -423,23 +527,23 @@ main {
                         </div>
                     </div>
 
-                    <div class="col-12">
-    <label>Health Complaint<span class="text-danger">*</span></label>
-    <textarea class="form-control" placeholder="Description" name="health_concern" required oninput="limitHealthConcern(this, 250);" onpaste="onPaste(event, this);"></textarea>
-    <div class="invalid-feedback">
-        Please enter your health complaint.
-    </div>
-    <div class="text-muted" id="wordCount">250 words remaining</div>
-</div>
-                <div class="col-12">
-                    <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="termsCheckbox" name="terms" required>
-                        <span><a href="terms_and_condition.php" class="text-dark text-decoration-none">I agree to the terms and conditions</a><span class="text-danger">*</span></span>
+                    <div class="col-md-12">
+                        <label>Health Complaint<span class="text-danger">*</span></label>
+                        <textarea class="form-control" placeholder="Description" name="health_concern" required oninput="limitHealthConcern(this, 250);" onpaste="onPaste(event, this);"></textarea>
                         <div class="invalid-feedback">
-                            You must agree to the terms and conditions to book an appointment.
+                            Please enter your health complaint.
+                        </div>
+                        <div class="text-muted" id="wordCount">250 words remaining</div>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="termsCheckbox" name="terms" required>
+                            <span><a href="terms_and_condition.php" class="text-dark text-decoration-none">I agree to the terms and conditions</a><span class="text-danger">*</span></span>
+                            <div class="invalid-feedback">
+                                You must agree to the terms and conditions to book an appointment.
+                            </div>
                         </div>
                     </div>
-                </div>
                     <div class="col-12 mt-5">                        
                         <button type="submit" class="btn text-white float-end" name="submit" style="Background-color:#6537AE;">Book Appointment</button>
                         <button type="button" class="btn btn-secondary float-end me-2" id="clearFormButton">Clear Form</button>
@@ -794,15 +898,15 @@ document.querySelector('input[type="checkbox"]').addEventListener('change', func
 
 <script>
 $(document).ready(function() {
-            $('.select2').select2({
-                placeholder: {
-                    id: '',
-                    text: 'None Selected'
-                },
-                theme: 'bootstrap-5',
-                allowClear: true
-            });
-        });
+    $('.select2').select2({
+        placeholder: {
+            id: '',
+            text: 'None Selected'
+        },
+        theme: 'bootstrap-5',
+        allowClear: true
+    });
+});
 </script>
 <script>
 function limitHealthConcern(textarea, maxWords) {

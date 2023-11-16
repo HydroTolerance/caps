@@ -49,7 +49,7 @@ if (isset($_GET['id'])) {
     <label>Services:</label>
     <select name="services" class="form-control">
         <option value="Skin" <?php echo ($row['services'] === 'Skin') ? 'selected' : ''; ?>>Skin</option>
-        <option value="Face" <?php echo ($row['services'] === 'Hair') ? 'selected' : ''; ?>>Hair</option>
+        <option value="Hair" <?php echo ($row['services'] === 'Hair') ? 'selected' : ''; ?>>Hair</option>
         <option value="Nail" <?php echo ($row['services'] === 'Nail') ? 'selected' : ''; ?>>Nail</option>
     </select>
 </div>
