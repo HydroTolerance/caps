@@ -3,6 +3,11 @@
 include "../function.php";
 checklogin('Client');
 
+if (!isset($_SESSION['client_email'])) {
+    header("Location: login.php");
+    exit();
+}
+
 $userData = $_SESSION['id'];
 $fname = $userData['client_firstname'];
 $mname = $userData['client_middle'];
@@ -56,7 +61,15 @@ $isClientLoggedIn = isset($_SESSION['id']);
         .nav-link{
             color: purple;
         }
-        
+        div.dataTables_wrapper div.dataTables_filter input {
+            width: 70%;
+        }
+        .fc-scroller {
+  height: auto !important;
+}
+.fc-day-grid-event > .fc-content {
+       white-space: normal;
+   }
     </style>
     <body>
         
@@ -107,12 +120,10 @@ $isClientLoggedIn = isset($_SESSION['id']);
         <div id="wrapper">
             <?php include "../sidebar.php"; ?>
             <section id="content-wrapper">
-                <div class="row">
-                    
-                    <div class="col-lg-12 my-5">
+                <div>
+                    <div class="col-lg-12">
                     <h2 style="color:6537AE;" class="text-center">Client Profile</h2>
-                    <div class="mx-3">
-                        
+                    <div>
                         <form method="post" >
                             <div class="container">
                                 <div class="row mb-3">
@@ -217,7 +228,7 @@ $isClientLoggedIn = isset($_SESSION['id']);
                         <section>
                             <div class="bg-white rounded">
                             <h1 class="text-center pt-5" style="color: 6537AE;">Transaction History</h1>
-                            <nav>
+                            <nav class="nowrap">
                                 <div class="nav nav-tabs" id="nav-tab" role="tablist">
                                     <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">Client Diagnosis</button>
                                     <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Appointment Schedule</button>
@@ -266,8 +277,8 @@ $isClientLoggedIn = isset($_SESSION['id']);
                             
                             <div class="border rounded p-3 my-3">
                             
-                                <div class="d-flex justify-content-center mb-3">
-                                    <div id="calendar"></div>
+                                <div class="mb-3">
+                                    <div class="hei" id="calendar"></div>
                                 </div>
 
                                 <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -371,25 +382,30 @@ $isClientLoggedIn = isset($_SESSION['id']);
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
     <script>
-    $(document).ready(function() {
-        $(document).ready(function() {
-        $('#calendar').fullCalendar({
+$(document).ready(function () {
+    $('#calendar').fullCalendar({
         editable: true,
         header: {
             left: 'prev,next today',
             center: 'title',
-            right: 'month,agendaWeek,agendaDay'
+            right: 'month'
         },
         events: './get_schedule.php?id=<?php echo $userData['id']; ?>',
-        eventClick: function(event) {
-            alert('Event clicked: ' + event.title);
-        }
-        });
+        eventClick: function (event) {
+    Swal.fire({
+        title: 'Event Clicked!',
+        text: 'The Schedule is Around: ' + event.title,
+        icon: 'info',
+        confirmButtonText: 'OK'
     });
+},
+        mobile: true
+    });
+
         var table = $('#clientTable').DataTable({
         order: [[0, 'desc']],
         responsive: true,
-        dom: "<'row'<'col-sm-1 mt-2 text-center'B><'col-md-1 mt-2 ' l><'col-md-10'f>>" +
+        dom: "<'row'<'col-md-2 mt-2 text-center'B><'col-md-1 mt-2 mb-2' l><'col-md-9'f>>" +
      "<'row'<'col-md-12'tr>>" +
      "<'row'<'col-md-12'i><'col-md-12'p>>",
      "columnDefs": [
@@ -397,11 +413,9 @@ $isClientLoggedIn = isset($_SESSION['id']);
         ],
         buttons: [
             {
-                header: {
-                    image: 'https://i.kym-cdn.com/photos/images/newsfeed/002/440/417/671'
-                },
+                "className": 'bg-danger border-0',
                 extend: 'pdfHtml5',
-                text: 'PDF',
+                text: '<i class="bi bi-filetype-pdf fs-4"></i> Export PDF',
                 title: 'Z-Skin Care Report',
                 customize: function(doc) {
                     doc.content[1].table.widths = ['50%', '50%'];

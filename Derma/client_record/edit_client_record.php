@@ -112,14 +112,12 @@ $userData = $_SESSION['id'];
                 }).then(function() {
                     window.location.href = 'edit_client_record.php?id=" . $id . "';
                 });</script>";
-            exit();
-        } else {
-            echo "<script>
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error!',
-                    text: 'Failed to add data.'
-                });</script>";
+        }else {
+            echo" Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: 'Failed to add data.'
+            });";
         }
     
         mysqli_stmt_close($info_stmt);
@@ -182,46 +180,77 @@ $userData = $_SESSION['id'];
     }
         
 
-if (isset($_POST['update_diagnosis'])) {
-    include "../../db_connect/config.php";
-    $id = $_POST['id'];
-    $editedHistory = $_POST['edit_history'];
-    $editedDiagnosis = $_POST['edit_diagnosis'];
-    $editedManagement = $_POST['edit_management'];
-    $editednotes = $_POST['edit_notes'];
-    $imagePath = '';
-    if ($_FILES['uploaded_image']['error'] == 0) {
-        $targetDirectory = '../../img/progress/';
-        $targetFile = $targetDirectory . basename($_FILES['uploaded_image']['name']);
-        if (move_uploaded_file($_FILES['uploaded_image']['tmp_name'], $targetFile)) {
-            $imagePath = $targetFile;
-        } else {
-            echo "Error uploading image.";
-            exit;
-        }
-    }
-    $update_sql = "UPDATE zp_derma_record SET history=?, diagnosis=?, management=?, notes=?, image=? WHERE id=?";
-    $update_stmt = mysqli_prepare($conn, $update_sql);
-    mysqli_stmt_bind_param($update_stmt, "sssssi", $editedHistory, $editedDiagnosis, $editedManagement, $editedNotes, $imagePath, $id);
-
-    if ($update_stmt->execute()) {
-        echo "<script>
-            window.addEventListener('DOMContentLoaded', (event) => {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success!',
-                    text: 'Data Updated successfully.'
-                })
-            });
-        </script>";
-    } else {
-        echo "Error updating record: " . mysqli_error($conn);
-    }
+    if (isset($_POST['update_diagnosis'])) {
+        include "../../db_connect/config.php";
+        $id = $_POST['id'];
+        $editedHistory = $_POST['edit_history'];
+        $editedDiagnosis = $_POST['edit_diagnosis'];
+        $editedManagement = $_POST['edit_management'];
+        $editednotes = $_POST['edit_notes'];
+        $imagePath = '';
     
-    mysqli_stmt_close($update_stmt);
-    mysqli_close($conn);
-}
-
+        // Check if a new image file is selected
+        if ($_FILES['uploaded_image']['error'] == 0 && $_FILES['uploaded_image']['size'] > 0) {
+            $targetDirectory = '../../img/progress/';
+            $uniqueFilename = uniqid() . '_' . basename($_FILES['uploaded_image']['name']);
+            $targetFile = $targetDirectory . $uniqueFilename;
+    
+            if (move_uploaded_file($_FILES['uploaded_image']['tmp_name'], $targetFile)) {
+                // Unlink (delete) the old image, except for the exception
+                $oldImagePathQuery = "SELECT image FROM zp_derma_record WHERE id=?";
+                $oldImagePathStmt = mysqli_prepare($conn, $oldImagePathQuery);
+                mysqli_stmt_bind_param($oldImagePathStmt, "i", $id);
+                mysqli_stmt_execute($oldImagePathStmt);
+                mysqli_stmt_bind_result($oldImagePathStmt, $oldImagePath);
+                mysqli_stmt_fetch($oldImagePathStmt);
+                mysqli_stmt_close($oldImagePathStmt);
+    
+                if (!empty($oldImagePath) && $oldImagePath !== "../../img/progress/white.jpg") {
+                    unlink($oldImagePath);
+                }
+    
+                // Update the new image path in the database
+                $imagePath = $targetFile;
+            } else {
+                echo "Error uploading image.";
+                exit;
+            }
+        } else {
+            // No new image uploaded, retain the existing image path
+            $existingImagePathQuery = "SELECT image FROM zp_derma_record WHERE id=?";
+            $existingImagePathStmt = mysqli_prepare($conn, $existingImagePathQuery);
+            mysqli_stmt_bind_param($existingImagePathStmt, "i", $id);
+            mysqli_stmt_execute($existingImagePathStmt);
+            mysqli_stmt_bind_result($existingImagePathStmt, $existingImagePath);
+            mysqli_stmt_fetch($existingImagePathStmt);
+            mysqli_stmt_close($existingImagePathStmt);
+    
+            // Retain the existing image path
+            $imagePath = $existingImagePath;
+        }
+    
+        // Update SQL
+        $update_sql = "UPDATE zp_derma_record SET history=?, diagnosis=?, management=?, notes=?, image=? WHERE id=?";
+        $update_stmt = mysqli_prepare($conn, $update_sql);
+        mysqli_stmt_bind_param($update_stmt, "sssssi", $editedHistory, $editedDiagnosis, $editedManagement, $editednotes, $imagePath, $id);
+    
+        if ($update_stmt->execute()) {
+            echo "<script>
+                window.addEventListener('DOMContentLoaded', (event) => {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'Data Updated successfully.'
+                    });
+                });
+            </script>";
+        } else {
+            echo "Error updating record: " . mysqli_error($conn);
+        }
+    
+        mysqli_stmt_close($update_stmt);
+        mysqli_close($conn);
+    }
 
 if (isset($_POST['archive'])) {
     $id = $_POST['id'];
@@ -326,7 +355,7 @@ function generateServiceDropdown($conn)
                                                 </div>
                                                 <div class="col-md-6">
                                                     <strong><p>Date of Birth: </p></strong>
-                                                    <p><?php echo $dob; ?></p>
+                                                    <p><?php echo date('F m, Y', strtotime($dob)); ?></p>
                                                 </div>
                                             </div>
                                         </div>
@@ -368,12 +397,15 @@ function generateServiceDropdown($conn)
 
                             </div>
                         </form>
+                        <div class="bg-white pt-4">
+                            <h2 class="text-center">DIAGNOSIS OF THE PATIENT</h2>
                         <nav>
                         <div class="nav nav-tabs" id="nav-tab" role="tablist">
                             <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">List Diagnosis</button>
                             <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Create Diagnosis</button>
                         </div>
                         </nav>
+                        
                         <div class="bg-white mb-4">
                         <div class="tab-content" id="nav-tabContent">
                             <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
@@ -419,7 +451,7 @@ function generateServiceDropdown($conn)
                                                                     $src = 'data:image/' . $type . ';base64,' . $imgData;
                                                                     echo "<img class='img-fluid' src='{$src}' alt='' height='200px' width='200px'>";
                                                                 } else {
-                                                                    $defaultImagePath = "../../img/progress/1700073271_65550f3715ffe.jpg";
+                                                                    $defaultImagePath = "../../img/progress/white.jpg";
                                                                     $defaultType = pathinfo($defaultImagePath, PATHINFO_EXTENSION);
                                                                     $defaultData = file_get_contents($defaultImagePath);
                                                                     $defaultImgData = base64_encode($defaultData);
@@ -463,48 +495,54 @@ function generateServiceDropdown($conn)
                             
                         </div>
                         </div>
-                            </div>
+                        </div>
                             <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
-                            <div class="rounded p-3 bg-white">
-                            <div class="text-dark border rounded p-3 mb-3">
-                                    <!--  -->
-                                    <form method="post" enctype="multipart/form-data">
-                                <input type="hidden" name="id" value="<?php echo $id; ?>">
-                                <div class="mb-3">
-                                    <label class="mb-3">Insert Progress <span class="text-danger">*</span></label>
-                                    <input type="file" name="image" id="image" class="form-control">
+                                <div class="rounded p-3 bg-white">
+                                    <div class="text-dark border rounded p-3 mb-3">
+                                        <form method="post" enctype="multipart/form-data">
+                                            <input type="hidden" name="id" value="<?php echo $id; ?>">
+
+                                            <div class="mb-3">
+                                                <label class="form-label">Insert Progress</label>
+                                                <input type="file" name="image" id="image" class="form-control" accept="image/jpeg, image/jpg, image/png">
+                                            </div>
+
+                                            <div class="mb-3" id="history_div">
+                                                <label class="form-label">History of the Patient</label>
+                                                <textarea class="form-control" name="history" id="summernote" rows="4"></textarea>
+                                            </div>
+
+                                            <div class="mb-3" id="diagnosis_div">
+                                                <label class="form-label">Diagnosis of the Patient <span class="text-danger">*</span></label>
+                                                <textarea class="form-control" name="diagnosis" id="summernote" rows="4" required></textarea>
+                                            </div>
+
+                                            <div class="mb-3" id="management_div">
+                                                <label class="form-label">Management <span class="text-danger">*</span></label>
+                                                <select class="form-select select2" name="management" style="width: 100%;" required>
+                                                    <option value=""></option>
+                                                    <?php generateServiceDropdown($conn); ?>
+                                                </select>
+                                            </div>
+
+                                            <div class="mb-3" id="session_notes_div">
+                                                <label class="form-label">Session Notes <span class="text-danger">*</span></label>
+                                                <textarea class="form-control" name="notes" rows="4" required></textarea>
+                                            </div>
+
+                                            <div class="mb-3 mt-md-3 text-end">
+                                                <input class="btn bg-purple text-white" type="submit" name="add_diagnosis" value="Add Diagnosis">
+                                            </div>
+                                        </form>
+                                    </div>
                                 </div>
-                                <div class="mb-3" id="history_div">
-                                    <label class="mb-3">History of the Patient </label>
-                                    <textarea class="form-control" name="history" id="summernote" rows="4"></textarea>
-                                </div>
-                                <div class="mb-3" id="diagnosis_div">
-                                    <label class="mb-3">Diagnosis of the Patient <span class="text-danger">*</span></label>
-                                    <textarea class="form-control" name="diagnosis" id="summernote" rows="4" required></textarea>
-                                </div>
-                                <div class="mb-3" id="management_div">
-                                    <label class="mb-3">Management <span class="text-danger">*</span></label>
-                                    <select class="select2 form-select" name="management" style="width: 100%;" required>
-                                        <option value=""></option>
-                                        <?php generateServiceDropdown($conn); ?>
-                                    </select>
-                                    
-                                </div>
-                                <div class="mb-3" id="diagnosis_div">
-                                    <label class="mb-3">Session Notes <span class="text-danger">*</span></label>
-                                    <textarea class="form-control" name="notes" rows="4" required></textarea>
-                                </div>
-                                <div class="mb-3">
-                                    <input class="btn btn-purple bg-purple text-white" type="submit" name="add_diagnosis" value="Add Diagnosis">
-                                </div>
-                            </form>
-                            </div>     
+                            </div>
+
+                            </div>
                             
                             </div>
-                            </div>
-                            </div>
-                            
-                            </div>
+                        </div>
+                        
                             
                             <!-- Another Tab-->
                             <nav>
@@ -620,7 +658,7 @@ function generateServiceDropdown($conn)
                                             </select>
                                         </div>
                                             <div class="col-md-4">
-                                                <label>Services <span class="text-danger">*</span></label>
+                                                <label> Services <span class="text-danger">*</span></label>
                                                 <div>
                                                     
                                                 </div>
@@ -628,7 +666,7 @@ function generateServiceDropdown($conn)
                                                     <?php generateServiceDropdown($conn); ?>
                                                 </select>
                                             </div>
-                                        <div class="mb-3 mt-3">
+                                        <div class="mb-3 mt-3 ">
                                             <input type="submit" name="add_appointment" class="btn btn-purple bg-purple text-white float-end" value="Add Appointment">
                                         </div>
                                     </div>
@@ -752,9 +790,7 @@ $conn->close();
 </script>
       <script>
    document.addEventListener('DOMContentLoaded', function () {
-        // Add an event listener to the "Clear Form" button
         document.getElementById('clearFormButton').addEventListener('click', function () {
-            // Reset the form using JavaScript
             document.getElementById('sessionForm').reset();
         });
     });
@@ -794,22 +830,26 @@ $.ajax({
      buttons: [
     {
         extend: 'collection',
-        text: '<i class="bi bi-funnel"></i>',
+        text: '<i class="bi bi-box-arrow-up"></i>',
         buttons: [
             {
                 extend: 'pdfHtml5',
                 text: 'PDF',
-                title: 'Z-Skin Care Report',
+                title: 'Z Skin Care Report (<?php echo $fname . " " . $mname . " " . $lname . " " . $sname; ?>)',
                 exportOptions: {
-                    columns: [0, 1, 3, 4],
+                    columns: [0, 1, 3, 4, 5],
                     stripHtml: true
                 },
                 customize: function(doc) {
-            doc.content[1].table.widths = ['25%', '25%', '25%', '25%'];
+            doc.content[1].table.widths = ['20%', '20%', '20%', '20%', '20%'];
+            doc.content[0] = {
+                text: 'Z Skin Care Report',
+                style: 'title',
+                margin: [0, 0, 0, 5],
+            };
             var imagePaths = $('.img-fluid').map(function () {
-        return this.src;
-    }).get();
-
+            return this.src;
+        }).get();
     for (var i = 0, c = 1; i < imagePaths.length; i++, c++) {
         doc.content[1].table.body[c][3] = {
             image: imagePaths[i],
@@ -907,8 +947,9 @@ $.ajax({
                 title: 'Z-Skin Care Report',
                 orientation: 'landscape',
                 exportOptions: {
-                    columns: [0, 1, 3, 4,],
+                    columns: [0, 1, 3, 5],
                 }
+                
             },
             {
                     extend: 'print',

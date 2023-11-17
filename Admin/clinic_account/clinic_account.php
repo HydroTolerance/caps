@@ -449,7 +449,7 @@ function generatePasswordFromBirthday($birthday) {
                                         <td>
                                         <img src="<?php echo $row['image']; ?>" alt="Image Description" width="100">
                                         </td>
-                                        <td><?php echo $row['clinic_firstname'] ?></td>
+                                        <td><?php echo $row['clinic_lastname'] . ", " . $row['clinic_firstname']?></td>
                                         <td><?php echo $row['clinic_email'] ?></td>
                                         <td><?php echo $row['clinic_role'] ?></td>
                                         <td class="action-buttons">

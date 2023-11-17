@@ -275,8 +275,10 @@ transition: color 0.3s;
   while (mysqli_stmt_fetch($stmt)) {
   ?>
       <div class="image-wrapper col-xl-4 col-lg-4 col-md-6 my-3">
+      <a href="list_services.php?id=<?php echo $id; ?>">
           <img src="../img/services/<?php echo $image; ?>" class="image-fluid" style="height: 400px; width: 400px;" alt="Image 1">
           <div class="text"><?php echo $name; ?></div>
+      </a>
       </div>
   <?php
   }
@@ -298,8 +300,10 @@ transition: color 0.3s;
               while (mysqli_stmt_fetch($stmt)) {
               ?>
                 <div class="image-wrapper col-xl-4 col-lg-4 col-md-6 my-3">
+                <a href="list_services.php?id=<?php echo $id; ?>">
                     <img src="../img/services/<?php echo $image; ?>" class="image-fluid" style="height: 400px; width: 400px;" alt="Image 1">
                     <div class="text"><?php echo $name; ?></div>
+                </a>
                 </div>
               <?php
               }
@@ -321,8 +325,10 @@ transition: color 0.3s;
               while (mysqli_stmt_fetch($stmt)) {
               ?>
                 <div class="image-wrapper col-xl-4 col-lg-4 col-md-6 my-3">
-                    <img src="../img/services/<?php echo $image; ?>" class="image-fluid" style="height: 400px; width: 400px;" alt="Image 1">
-                    <div class="text"><?php echo $name; ?></div>
+                  <a href="list_services.php?id=<?php echo $id; ?>">
+                      <img src="../img/services/<?php echo $image; ?>" class="image-fluid" style="height: 400px; width: 400px;" alt="Image 1">
+                      <div class="text"><?php echo $name; ?></div>
+                  </a>
                 </div>
               <?php
               }

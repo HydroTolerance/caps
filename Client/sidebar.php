@@ -20,12 +20,6 @@ a:hover,
 a:focus {
   text-decoration: none;
 }
-#content-wrapper {
-  width: 100%;
-  position: absolute;
-  padding: 15px;
-  top: 100px;
-}
 /* Purple Shit */
 .bg-purple {
 background-color: #6537AE;
@@ -61,8 +55,7 @@ background-color: #6537AE;
 #content-wrapper {
   width: 100%;
   position: absolute;
-  padding: 15px;
-  top: 100px;
+  top: 80px;
 }
 #wrapper.toggled #content-wrapper {
   position: absolute;

@@ -412,7 +412,19 @@ text-align: left;
 text-align: center;
 }
 }
-
+.FAQ-container {
+        
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 20px;
+        height: 70vh;
+        background-image: url('images/z-skin.jpg');
+        background-size: cover;
+        background-repeat: no-repeat;
+        
+    }
 
 
 
@@ -471,6 +483,8 @@ text-align: center;
     </div>
   </div>
 </nav>
+<div class="FAQ-container">
+            </div> 
 <section>
   <div style="background-color: #6537AE;">
     <div class="py-5">

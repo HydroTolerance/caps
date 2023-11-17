@@ -28,9 +28,10 @@ if (isset($_POST['id'])) {
 <div class="modal-body">
     <form method="post"  enctype="multipart/form-data">
         <input type="hidden" name="id" value="<?php echo $id; ?>">
+        <!-- Add this inside your form -->
         <div class="mb-3">
-            <label for="edit_fname" class="form-label fw-bold">Date</label>
-            <input type="date" class="form-control" id="d" name="edit_date" value="<?php echo $rows['date_diagnosis']; ?>" required>
+            <label for="edit_image" class="form-label fw-bold">Image</label>
+            <input type="file" class="form-control" id="edit_image" name="uploaded_image">
         </div>
         <div class="mb-3">
             <label for="edit_fname" class="form-label fw-bold">History</label>
@@ -50,7 +51,6 @@ if (isset($_POST['id'])) {
                 mysqli_stmt_execute($stmt);
                 mysqli_stmt_store_result($stmt);
                 mysqli_stmt_bind_result($stmt, $category);
-
                 while (mysqli_stmt_fetch($stmt)) {
                     echo '<optgroup label="' . $category . '">';
                     $stmt2 = mysqli_prepare($conn, "SELECT id, services, name, image, description FROM service WHERE services = ?");
@@ -58,7 +58,6 @@ if (isset($_POST['id'])) {
                     mysqli_stmt_execute($stmt2);
                     mysqli_stmt_store_result($stmt2);
                     mysqli_stmt_bind_result($stmt2, $id, $services, $name, $image, $description);
-
                     while (mysqli_stmt_fetch($stmt2)) {
                         $selected = ($name == $rows['management']) ? 'selected' : '';
                         echo '<option value="' . $name . '" ' . $selected . '>' . $name . '</option>';
@@ -67,11 +66,10 @@ if (isset($_POST['id'])) {
                 }
                 ?>
             </select>
-
         </div>
         <div class="mb-3">
             <label for="edit_email" class="form-label fw-bold">Notes</label>
-            <textarea type="text" class="form-control" id="edit_notes" name="edit_notes" rows="5"  required><?php echo $rows['notes']; ?></textarea>
+            <textarea type="text" class="form-control" id="edit_notes" name="edit_notes" rows="5" required><?php echo $rows['notes']; ?></textarea>
         </div>
         <div class="modal-footer">
             <button type="submit" name="update_diagnosis" class="btn bg-purple text-white">Save</button>

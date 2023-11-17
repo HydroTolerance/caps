@@ -491,7 +491,7 @@ if (isset($_GET['appointment_id'])) {
             <td class="text-center"><button class="btn bg-purple text-white status-select" onclick="showData(<?= $row['id'] ?>)">View</button></td>
             <td>
             <select class="form-select  custom-width text-nowrap" data-id="<?php echo $row['id']; ?>" name="status" <?php echo $isCompleted ? 'disabled' : ''; ?> onchange="updateStatus(<?php echo $row['id']; ?>, this.value)">
-                <option <?php if ($row['appointment_status'] === 'Pending') echo 'selected'; ?> value="Pending" selected="true" disabled>Pending</option>
+                <option <?php if ($row['appointment_status'] === 'Pending') echo 'selected'; ?> value="Pending" hidden>Pending</option>
                 <option value="Completed" <?php if ($row['appointment_status'] === 'Completed') echo 'selected'; ?> value="Completed">Completed</option>
                 <option value="Acknowledged" <?php if ($row['appointment_status'] === 'Acknowledged') echo 'selected'; ?>>Acknowledged</option>
                 <option value="Rescheduled" <?php if ($row['appointment_status'] === 'Rescheduled') echo 'selected'; ?>>Rescheduled</option>
@@ -529,7 +529,7 @@ if (isset($_GET['appointment_id'])) {
             <td class="text-center"><button class="btn bg-purple text-white status-select" onclick="showData(<?= $row['id'] ?>)">View</button></td>
             <td>
             <select class="form-select  custom-width text-nowrap" data-id="<?php echo $row['id']; ?>" name="status" <?php echo $isCompleted ? 'disabled' : ''; ?> onchange="updateStatus(<?php echo $row['id']; ?>, this.value)">
-            <option <?php if ($row['appointment_status'] === 'Pending') echo 'selected'; ?> value="Pending" disabled>Pending</option>
+            <option <?php if ($row['appointment_status'] === 'Pending') echo 'selected'; ?> value="Pending" hidden>Pending</option>
 
                 <option value="Completed" <?php if ($row['appointment_status'] === 'Completed') echo 'selected'; ?> value="Completed">Completed</option>
                 <option value="Acknowledged" <?php if ($row['appointment_status'] === 'Acknowledged') echo 'selected'; ?>>Acknowledged</option>

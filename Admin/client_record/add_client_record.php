@@ -188,8 +188,8 @@ if (isset($_POST['submit'])) {
 
                             <div class="mb-3 col-md-3">
                                 <label for="validationCustom04" class="form-label mb-3">Contact Number <span class="text-danger">*</span></label>
-                                <input class="form-control" id="validationCustom04" type="text" name="client_number" oninput="validateInput(this)";  required>
-                                <div class="invalid-feedback">Please enter a valid contact number.</div>
+                                <input class="form-control" id="validationCustom04" type="tel" name="client_number" required pattern="09[0-9]{9}" required oninput="validateInput(this)">
+                                <div class="invalid-feedback">Please enter a valid phone number that starts with '09'.</div>
                             </div>
                             <div class="mb-3 col-md-3">
                             <label for="validationCustom05" class="form-label mb-3">Date of Birth <span class="text-danger">*</span></label>
@@ -257,8 +257,8 @@ if (isset($_POST['submit'])) {
                             </div>
                             <div class="mb-3 col-md-5">
                                 <label for="validationCustom15" class="form-label mb-3">Contact Person Number <span class="text-danger">*</span></label>
-                                <input class="form-control" id="validationCustom15" type="tel" name="client_emergency_contact_number" oninput="validateInput(this)"; required>
-                                <div class="invalid-feedback">Please enter a valid contact number for the emergency contact.</div>
+                                <input class="form-control" id="validationCustom15" id="number" placeholder="Phone Number" name="client_emergency_contact_number" required pattern="09[0-9]{9}" required oninput="validateInput(this)">
+                                <div class="invalid-feedback">Please enter a valid phone number that starts with '09'.</div>
                             </div>
                         </div>
                         <div class="mb-3 text-end">
@@ -270,30 +270,6 @@ if (isset($_POST['submit'])) {
             </div>
         </div>
     </section>
-</div>
-<div class="mb-3 col-md-4">
-    <label for="regionSelect" class="form-label mb-3">Region <span class="text-danger">*</span></label>
-    <select class="form-control" id="regionSelect" name="client_region" required>
-        <option value="" disabled selected>Select Region</option>
-        <option value="Region 1">Region 1</option>
-        <option value="Region 2">Region 2</option>
-        <!-- Add more regions as needed -->
-    </select>
-    <div class="invalid-feedback">Please select a region.</div>
-</div>
-<div class="mb-3 col-md-4">
-    <label for="citySelect" class="form-label mb-3">City <span class="text-danger">*</span></label>
-    <select class="form-control" id="citySelect" name="client_city" required>
-        <option value="" disabled selected>Select City</option>
-    </select>
-    <div class="invalid-feedback">Please select a city.</div>
-</div>
-<div class="mb-3 col-md-4">
-    <label for="barangaySelect" class="form-label mb-3">Barangay <span class="text-danger">*</span></label>
-    <select class="form-control" id="barangaySelect" name="client_barangay" required>
-        <option value="" disabled selected>Select Barangay</option>
-    </select>
-    <div class="invalid-feedback">Please select a barangay.</div>
 </div>
 
     <script>

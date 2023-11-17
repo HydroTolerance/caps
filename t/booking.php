@@ -136,8 +136,9 @@ $mail->Subject = $subject;
 $mail->isHTML(true);
 $mail->Body = $body;
 
-$imagePath = 'img/dermalogo.png';
-$mail->addEmbeddedImage($imagePath, 'dermalogo.png', 'dermalogo.png');
+$imagePath = 'images/thank_you_from_zskin.png';
+$mail->addEmbeddedImage($imagePath, 'images/thank_you_from_zskin.png', 'images/thank_you_from_zskin.png');
+
 
 $mailSent = $mail->send();
 
@@ -379,6 +380,16 @@ main {
 <div id="pageloader">
     <div class="custom-loader"></div>
 </div>
+<div class="toast" role="alert" aria-live="assertive" aria-atomic="true" id="toastTrigger" data-bs-delay="5000">
+    <div class="toast-header">
+        <strong class="me-auto">Booking Success</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body">
+        Your service has been booked successfully!
+    </div>
+</div>
+
 <nav class="navbar navbar-expand-lg px-3" style="background-color: transparent; background-color: #6537AE; /* Use your preferred solid color */" id="s1">
   <div class="container-fluid">
   <a class="navbar-brand mt-1" href="../index.php">
@@ -464,7 +475,7 @@ main {
                     <div class="col-md-6">
                         <label for="verificationCode">Verification Code <span class="text-danger">*</span></label>
                         <div class="input-group">
-                            <input type="text" class="form-control" id="verificationCode" name="verificationCode" required pattern="[0-9]{6}">
+                            <input type="text" class="form-control" id="verificationCode" name="verificationCode" required pattern="[0-9]{6}" maxlength="6" oninput="validateNum(this)">
                             <button type="button" id="requestVerificationCode" class="btn text-white rounded-end" style="background-color:#6537AE;">Request</button>
                             <div class="invalid-feedback">
                                 Please input a valid 6-digit OTP.
@@ -501,6 +512,7 @@ main {
 
                         <?php
                         include "../db_connect/config.php";
+                        $selectedService = isset($_GET['service_name']) ? urldecode($_GET['service_name']) : '';
                         $stmt = mysqli_prepare($conn, "SELECT DISTINCT services FROM service");
                         mysqli_stmt_execute($stmt);
                         mysqli_stmt_store_result($stmt);
@@ -508,6 +520,7 @@ main {
 
                         while (mysqli_stmt_fetch($stmt)) {
                             echo '<optgroup label="' . $category . '">';
+
                             $stmt2 = mysqli_prepare($conn, "SELECT id, services, name, image, description FROM service WHERE services = ?");
                             mysqli_stmt_bind_param($stmt2, "s", $category);
                             mysqli_stmt_execute($stmt2);
@@ -515,12 +528,18 @@ main {
                             mysqli_stmt_bind_result($stmt2, $id, $services, $name, $image, $description);
 
                             while (mysqli_stmt_fetch($stmt2)) {
-                                echo '<option value="' . $name . '">' . $name . '</option>';
+                                $selected = ($selectedService == $name) ? 'selected' : '';
+                                echo '<option value="' . $name . '" ' . $selected . '>' . $name . '</option>';
                             }
+
                             echo '</optgroup>';
                         }
+
+                        mysqli_stmt_close($stmt);
+                        mysqli_close($conn);
                         ?>
                     </select>
+
 
                     <div class="invalid-feedback">
                             Please Select Services.
@@ -788,6 +807,12 @@ $(document).ready(function() {
         inputElement.value = inputElement.value.replace(/[^0-9]/g, '');
         if (inputElement.value.length > 11) {
             inputElement.value = inputElement.value.slice(0, 11);
+        }
+    };
+    function validateNum(inputElement) {
+        inputElement.value = inputElement.value.replace(/[^0-9]/g, '');
+        if (inputElement.value.length > 6) {
+            inputElement.value = inputElement.value.slice(0, 6);
         }
     };
 function updateTime() {

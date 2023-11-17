@@ -289,7 +289,7 @@ if ($isClientLoggedIn) {
 
 <section class="mb-5" id="s1">
 <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
-  <div class="carousel-inner mx-auto">
+  <div class="carousel-inner m-auto">
   <?php
 include "db_connect/config.php";
 $stmt = mysqli_prepare($conn, "SELECT id, services, image, name, description FROM service");
@@ -315,8 +315,9 @@ mysqli_stmt_bind_result($stmt, $id, $services, $image, $name, $description);
         echo '</div>';
         echo '<div class="card-body">';
         echo '<h5 class="card-title">' . $name . '</h5>';
-        echo '<p class="card-text">' . $description . '</p>';
-        echo '<a href="./t/service.php" class="btn text-white" style="background-color:#6537AE;">Go to services</a>';
+        $limitedDescription = strlen($description) > 60 ? substr($description, 0, 60) . '...' : $description;
+        echo '<p class="card-text">' . $limitedDescription . '</p>';
+        echo '<a href="./t/list_services.php?id=' . $id . '" class="btn text-white" style="background-color:#6537AE;">Go to services</a>';
         echo '</div>';
         echo '</div>';
 
@@ -347,7 +348,7 @@ mysqli_stmt_bind_result($stmt, $id, $services, $image, $name, $description);
 
 
 <section id="s1">
-  <div class="d-flex justify-content-center align-items-center py-5" style="background-color: #6537AE; min-height: 500px;">
+  <div class="d-flex justify-content-center align-items-center py-5 " style="background-color: #6537AE; min-height: 500px;">
     <div class="container">
       <div class="row g-4">
         <div class="col-lg-8">

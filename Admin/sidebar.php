@@ -357,7 +357,7 @@ color: purple;
             <ul class="dropdown-menu text-small shadow dropdown-menu-end p-1" aria-labelledby="dropdownNotification" style="max-height: 200px; overflow-y: auto;">
               <?php
               include "../../db_connect/config.php";
-              $stmt = mysqli_prepare($conn, "SELECT * FROM zp_appointment ORDER BY created DESC");
+              $stmt = mysqli_prepare($conn, "SELECT * FROM zp_appointment ORDER BY created");
               if ($stmt) {
                   mysqli_stmt_execute($stmt);
                   $result = mysqli_stmt_get_result($stmt);
