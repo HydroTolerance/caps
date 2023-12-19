@@ -38,8 +38,7 @@ if (isset($_POST['id'])) {
     </div>
     <form id="signUpForm" action="reschedule.php?reference_code=<?php echo $row['reference_code']; ?>" method="post">
 <div>
-        <label for="">Email of User</label>
-        <input type="text" class="form-control"  name="email" required readonly value="<?php echo ($email)?>">
+        <input type="hidden" class="form-control"  name="email" required readonly value="<?php echo ($email)?>">
     </div>
     <div>
         <label for="">Schedule Date (Rescheduled)</label>
@@ -54,8 +53,25 @@ if (isset($_POST['id'])) {
         </select>
     </div>
     <div>
-        <textarea name="apt_reason" class="form-control" id="" cols="30" rows="10"></textarea>
+    <label for="apt_reason">Reason for Rescheduling</label>
+    <select name="apt_reason" id="apt_reason" class="form-select" required onchange="showOtherReason()">
+        <option value="" disabled selected>Select a reason</option>
+        <option value="Time conflict">Time conflict</option>
+        <option value="Unexpected event">Unexpected event</option>
+        <option value="Health issue">Health issue</option>
+        <option value="Work commitment">Work commitment</option>
+        <option value="Transportation issues">Transportation issues</option>
+        <option value="Family emergency">Family emergency</option>
+        <option value="Weather conditions">Weather conditions</option>
+        <option value="Other">Other</option>
+    </select>
+
+    <div id="otherReasonDiv" style="display:none;">
+        <label for="otherReason">Please specify:</label>
+        <input type="text" id="otherReason" name="otherReason" class="form-control">
     </div>
+</div>
+    
     <?php if (isset($_POST['id'])) : ?>
         <input type="hidden" name="id" value="<?php echo $_POST['id']; ?>">
     <?php endif; ?>
@@ -65,57 +81,168 @@ if (isset($_POST['id'])) {
 </form>
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<?php
+    include "../db_connect/config.php";
+
+    $sql = "SELECT day_to_disable FROM disabled_days";
+    $result = $conn->query($sql);
+    $disableDates = array();
+    if ($result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            $disableDates[] = $row['day_to_disable'];
+        }
+    }
+    $sql = "SELECT day, is_available FROM availability";
+    $result = $conn->query($sql);
+    $disableDays = array();
+    if ($result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            if ($row['is_available'] == 0) {
+                $disableDays[] = $row['day'];
+            }
+        }
+    }
+
+    $conn->close();
+    ?>
 <script>
     var configuration = {
         dateFormat: "Y-m-d",
-        minDate: new Date().fp_incr(1),
+        allowInput: false,
+        minDate: new Date().fp_incr(0),
         maxDate: new Date().fp_incr(60),
-        disable: [
+        "disable": [
             function(date) {
-                return (date.getDay() === 2 || date.getDay() === 4 || date.getDay() === 0);
-            }
+                date.setHours(23, 59, 59, 999);
+                var dateString = date.toISOString().split('T')[0];
+                var dayName = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+                return <?php echo json_encode($disableDates); ?>.includes(dateString) ||
+                <?php echo json_encode($disableDays); ?>.includes(dayName[date.getDay()]);
+            },
         ]
     };
 
     flatpickr("#d", configuration);
-    var d = document.getElementById("d");
+</script>
+<script>
+
+d.addEventListener("change", updateTime);
+function updateTime() {
+    var d = document.getElementById("d").value;
     var time = document.getElementById("time");
+    time.innerHTML = "";
 
-    d.addEventListener("change", updateTime);
+    // Get current time
+    var currentTime = new Date();
+    var currentHours = currentTime.getHours();
+    var currentMinutes = currentTime.getMinutes();
+    var currentTotalMinutes = currentHours * 60 + currentMinutes;
 
-    function updateTime() {
-        var selectedDate = d.value;
-        time.innerHTML = "";
+    // Set the time limits
+    var limit1Hours = 13;
+    var limit1Minutes = 0;
+    var limit1TotalMinutes = limit1Hours * 60 + limit1Minutes;
 
-        var xmlhttp = new XMLHttpRequest();
-        xmlhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-                var response = JSON.parse(this.responseText);
-                var slots = response.slots;
-                var slotsLeft = response.slots_left;
+    var limit2Hours = 13;
+    var limit2Minutes = 30;
+    var limit2TotalMinutes = limit2Hours * 60 + limit2Minutes;
 
-                for (var slot in slots) {
-                    var option = document.createElement("option");
-                    option.value = slot;
-                    option.text = slot;
-                    var num_bookings = slots[slot];
-                    var slotsLeftForOption = slotsLeft - num_bookings;
-                    if (slotsLeftForOption <= 0) {
-                        option.disabled = true;
-                        slotsLeftForOption = 0;
-                    }
-                    time.add(option);
-                    var slotText = option.text + " (" + slotsLeftForOption + " slot(s) left)";
-                    option.text = slotText;
-                }
-                var num_slots = Object.keys(slots).length;
-                document.getElementById("num_slots").innerHTML = " (" + num_slots + " slots available)";
-            }
-        };
-        xmlhttp.open("GET", "get_slot.php?d=" + encodeURIComponent(selectedDate), true);
-        xmlhttp.send();
-    }
+    var limit3Hours = 14;
+    var limit3Minutes = 0;
+    var limit3TotalMinutes = limit3Hours * 60 + limit3Minutes;
     
+    var limit4Hours = 14;
+    var limit4Minutes = 30;
+    var limit4TotalMinutes = limit4Hours * 60 + limit4Minutes;
+    
+    var limit5Hours = 15;
+    var limit5Minutes = 0;
+    var limit5TotalMinutes = limit5Hours * 60 + limit5Minutes;
+
+    var limit6Hours = 15;
+    var limit6Minutes = 30;
+    
+    var limit6TotalMinutes = limit6Hours * 60 + limit6Minutes;
+
+    var limit7Hours = 16;
+    var limit7Minutes = 0;
+    var limit7TotalMinutes = limit7Hours * 60 + limit7Minutes;
+
+    // Check if the current time is beyond the limits
+    var disableAllSlots1 = currentTotalMinutes > limit1TotalMinutes;
+    var disableAllSlots2 = currentTotalMinutes > limit2TotalMinutes;
+    var disableAllSlots3 = currentTotalMinutes > limit3TotalMinutes;
+    var disableAllSlots4 = currentTotalMinutes > limit4TotalMinutes;
+    var disableAllSlots5 = currentTotalMinutes > limit5TotalMinutes;
+    var disableAllSlots6 = currentTotalMinutes > limit6TotalMinutes;
+    var disableAllSlots7 = currentTotalMinutes > limit7TotalMinutes;
+
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            var response = JSON.parse(this.responseText);
+            var slots = response.slots;
+            var slotsLeft = response.slots_left;
+
+            for (var slot in slots) {
+                var option = document.createElement("option");
+                option.value = slot;
+                option.text = slot;
+                var num_bookings = slots[slot];
+                var slotsLeftForOption = slotsLeft - num_bookings;
+                if (slotsLeftForOption <= 0) {
+                    option.disabled = true;
+                    slotsLeftForOption = 0;
+                }
+
+                // Disable slots based on different time limits
+                var currentDate = new Date();
+                var selectedDate = new Date(d);
+                var isCurrentDay = currentDate.toDateString() === selectedDate.toDateString();
+
+                if (disableAllSlots1 && isCurrentDay && slot == "1:00 PM - 1:30 PM") {
+                    option.disabled = true;
+                    slotsLeftForOption = 0;
+                }
+
+                if (disableAllSlots2 && isCurrentDay && slot == "1:30 PM - 2:00 PM") {
+                    option.disabled = true;
+                    slotsLeftForOption = 0;
+                }
+                if (disableAllSlots3 && isCurrentDay && slot == "2:00 PM - 2:30 PM") {
+                    option.disabled = true;
+                    slotsLeftForOption = 0;
+                }
+                if (disableAllSlots4 && isCurrentDay && slot == "2:30 PM - 3:00 PM") {
+                    option.disabled = true;
+                    slotsLeftForOption = 0;
+                }
+                if (disableAllSlots5 && isCurrentDay && slot == "3:00 PM - 3:30 PM") {
+                    option.disabled = true;
+                    slotsLeftForOption = 0;
+                }
+                if (disableAllSlots6 && isCurrentDay && slot == "3:30 PM - 4:00 PM") {
+                    option.disabled = true;
+                    slotsLeftForOption = 0;
+                }
+                if (disableAllSlots6 && isCurrentDay && slot == "4:00 PM - 4:30 PM") {
+                    option.disabled = true;
+                    slotsLeftForOption = 0;
+                }
+
+                time.add(option);
+                var slotText = option.text + " (" + slotsLeftForOption + " slot(s) left)";
+                option.text = slotText;
+            }
+
+            var num_slots = Object.keys(slots).length;
+            document.getElementById("num_slots").innerHTML = " (" + num_slots + " slots available)";
+        }
+    };
+    xmlhttp.open("GET", "get_slot.php?d=" + encodeURIComponent(d), true);
+    xmlhttp.send();
+}
+
 </script>
 <script>
 $(document).ready(function() {
@@ -128,5 +255,22 @@ $(document).ready(function() {
   });
 });
     </script>
+    <script>
+function showOtherReason() {
+    var select = document.getElementById("apt_reason");
+    var otherReasonDiv = document.getElementById("otherReasonDiv");
+    var otherReasonInput = document.getElementById("otherReason");
+
+    if (select.value === "Other") {
+        otherReasonDiv.style.display = "block";
+        otherReasonInput.required = true;
+        otherReasonInput.name = "apt_reason";
+    } else {
+        otherReasonDiv.style.display = "none";
+        otherReasonInput.required = false;
+        otherReasonInput.name = "";
+    }
+}
+</script>
 </body>
 </html>

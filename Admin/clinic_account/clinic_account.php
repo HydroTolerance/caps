@@ -38,6 +38,10 @@ th{
    background-color:#6537AE  !important;
    color: #fff  !important;
 }
+  .top-height {
+    margin-top: 22px;
+    height: -10px;
+  }
 </style>
 <body>
     <?php
@@ -111,11 +115,9 @@ th{
             $imageFileName = $defaultImage;
         }
 
-        $account_id = generateAccountID();
-
-        $sql = "INSERT INTO zp_accounts (zep_acc, clinic_firstname, clinic_lastname, clinic_email, clinic_gender, image, clinic_password, clinic_birthday, clinic_role, account_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')";
+        $sql = "INSERT INTO zp_accounts (clinic_firstname, clinic_lastname, clinic_email, clinic_gender, image, clinic_password, clinic_birthday, clinic_role, account_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'active')";
         $stmt = mysqli_prepare($conn, $sql);
-        mysqli_stmt_bind_param($stmt, "sssssssss", $account_id, $fname,  $lname, $email, $gender, $imageFileName, $password, $birthday, $role);
+        mysqli_stmt_bind_param($stmt, "ssssssss", $fname,  $lname, $email, $gender, $imageFileName, $password, $birthday, $role);
 
         if (mysqli_stmt_execute($stmt)) {
             require '../appointment/phpmailer/PHPMailerAutoload.php';
@@ -178,7 +180,7 @@ th{
                 $userData = $_SESSION['id'];
                 $clinicRole = $userData['clinic_role'];
                 $actionDescription = "Created a clinic account for: " . $fname . " " . $lname;
-                logActivity($conn, $userData['id'], $clinicRole, $actionDescription);
+                logActivity($conn, $userData['id'], $userData['clinic_lastname'], $clinicRole, $actionDescription);
 
                 // Success message and redirection
                 echo '<script>
@@ -312,7 +314,7 @@ if (isset($_POST['edit_submit'])) {
                 $userData = $_SESSION['id'];
                 $clinicRole = $userData['clinic_role'];
                 $actionDescription = "Updated clinic account for: " . $edit_fname . " " . $edit_lname;
-                logActivity($conn, $userData['id'], $clinicRole, $actionDescription);
+                logActivity($conn, $userData['id'], $userData['clinic_lastname'], $clinicRole, $actionDescription);
     
                 echo '<script>
                     Swal.fire({
@@ -342,7 +344,7 @@ if (isset($_POST['edit_submit'])) {
             $userData = $_SESSION['id'];
             $clinicRole = $userData['clinic_role'];
             $actionDescription = "Updated clinic account for: " . $edit_fname . " " . $edit_lname;
-            logActivity($conn, $userData['id'], $clinicRole, $actionDescription);
+            logActivity($conn, $userData['id'],  $userData['clinic_lastname'], $clinicRole, $actionDescription);
 
             echo '<script>
                     Swal.fire({
@@ -363,20 +365,20 @@ if (isset($_POST['edit_submit'])) {
     mysqli_close($conn);
 }
 
-function generateAccountID() {
-    include "../../db_connect/config.php";
-    $sql = "SELECT MAX(SUBSTRING_INDEX(id, '-', -1)) AS max_counter FROM zp_accounts";
-    $result = mysqli_query($conn, $sql);
-    $row = mysqli_fetch_assoc($result);
-    $max_counter = intval($row['max_counter']);
-    $accountID = 'clinic_account-' . str_pad($max_counter + 1, 3, '0', STR_PAD_LEFT);
+function generateAccountID($conn) {
+    // No need for custom logic, let the auto-increment handle it
+    $accountID = 'clinic_account-' . mysqli_insert_id($conn);
     return $accountID;
 }
 
-function logActivity($conn, $userId, $role, $actionDescription) {
-    $sql = "INSERT INTO activity_log (user_id, action_type, role, action_description) VALUES (?, 'Clinic Account', ?, ?)";
+
+function logActivity($conn, $userId, $name, $role, $actionDescription) {
+    $timezone = new DateTimeZone('Asia/Manila');
+    $dateTime = new DateTime('now', $timezone);
+    $timestamp = $dateTime->format('Y-m-d H:i:s');
+    $sql = "INSERT INTO activity_log (user_id, name, action_type, role, action_description, timestamp) VALUES (?, ?, 'Clinic Account', ?, ?, ?)";
     $stmt = mysqli_prepare($conn, $sql);
-    mysqli_stmt_bind_param($stmt, 'iss', $userId, $role, $actionDescription);
+    mysqli_stmt_bind_param($stmt, 'issss', $userId, $name, $role, $actionDescription, $timestamp);
 
     if (mysqli_stmt_execute($stmt)) {
         mysqli_stmt_close($stmt);
@@ -384,7 +386,6 @@ function logActivity($conn, $userId, $role, $actionDescription) {
         echo "Error: " . mysqli_error($conn);
     }
 }
-
 function deactivateAccount($id) {
     include "../../db_connect/config.php";
     $sql = "UPDATE zp_accounts SET account_status = 'deactivated' WHERE id = ?";
@@ -395,7 +396,7 @@ function deactivateAccount($id) {
         $userData = $_SESSION['id'];
         $clinicRole = $userData['clinic_role'];
         $actionDescription = "Changing Account: " . $fname . " " . $lname;
-        logActivity($conn, $userData['id'], $clinicRole, $actionDescription);
+        logActivity($conn, $userData['id'], $userData['clinic_lastname'], $clinicRole, $actionDescription);
         header("Location: clinic_account.php");
         exit();
     } else {
@@ -419,7 +420,7 @@ function generatePasswordFromBirthday($birthday) {
                         <div class="bg-white py-3 mb-3 border border-bottom">
                         <div class="d-flex justify-content-between mx-4">
                             <div>
-                                <h2 style="color:6537AE;" class="fw-bold">CLIENT ACCOUNT</h2>
+                                <h2 style="color:6537AE;" class="fw-bold">CLINIC ACCOUNT</h2>
                             </div>
                             <div class="align-items-center">
                                 <a class="btn bg-purple text-white" onclick="showInsertModal()">CREATE</a>
@@ -429,6 +430,22 @@ function generatePasswordFromBirthday($birthday) {
 
                 <div>
                     <div class="bg-white p-3 rounded-3 border mx-3 mb-1" >
+                    <div class="col-md-3">
+                        <label for="yearFilter">Filter by Role</label>
+                        <select id="yearFilter" class="form-select form-select-sm">
+                            <option value="">All Role</option>
+                            <option value="Staff">Staff</option>
+                            <option value="Derma">Derma</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="yearFilter1">Filter by Role</label>
+                        <select id="yearFilter1" class="form-select form-select-sm">
+                            <option value="">All Role</option>
+                            <option value="Active">Active</option>
+                            <option value="Deactivated">Deactivate</option>
+                        </select>
+                    </div>
                         <table id="Table" class="table table-striped" style="width:100%">
                             <thead>
                                 <tr>
@@ -449,7 +466,7 @@ function generatePasswordFromBirthday($birthday) {
                                         <td>
                                         <img src="<?php echo $row['image']; ?>" alt="Image Description" width="100">
                                         </td>
-                                        <td><?php echo $row['clinic_lastname'] . ", " . $row['clinic_firstname']?></td>
+                                        <td><?php echo $row['clinic_firstname'] . " " . $row['clinic_lastname']?></td>
                                         <td><?php echo $row['clinic_email'] ?></td>
                                         <td><?php echo $row['clinic_role'] ?></td>
                                         <td class="action-buttons">
@@ -510,7 +527,9 @@ function generatePasswordFromBirthday($birthday) {
 <script src="js/clinic.js"></script>
 <script>
     $(document).ready(function() {
-        $('#Table').DataTable({
+        var dataTable = $('#Table').DataTable({
+            dom: '<"row mx-auto"<"col-xl-2 col-lg-3 col-md-6 mt-4"l><"col-xl-3 col-lg-4 col-md-6 top-height"f><"col-xl-4"><"col-xl-3 col-lg-4 mt-3"B>>rtip',
+            
             responsive: true,
             scrollY: 500,
             scrollX: true,
@@ -518,8 +537,15 @@ function generatePasswordFromBirthday($birthday) {
             paging: true,
             fixedColumns: true,
             select: true,
+            "ordering": false,
         });
-    });
+        var serviceTypeColumn = dataTable.column(3);
+        $('#yearFilter').on('change', function () {
+            var selectedServiceType = $(this).val();
+            serviceTypeColumn.search(selectedServiceType).draw();
+        });
+    })
+
     function verifyAdminPassword(action, callback) {
     Swal.fire({
         title: 'Admin Verification',

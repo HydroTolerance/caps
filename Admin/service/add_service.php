@@ -13,10 +13,10 @@ $userData = $_SESSION['id'];
     <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
 </head>
 <body>
-    <form method="post" action="service.php" enctype="multipart/form-data">
+    <form method="post" action="service.php" enctype="multipart/form-data" onsubmit="return checkFileSize()">
         <div>
             <label>Image:</label>
-            <input type="file" name="image" class="form-control" accept=".jpeg, .jpg, .png" required>
+            <input type="file" name="image" id="image" class="form-control" accept=".jpeg, .jpg, .png" required>
         </div>
         <div>
             <label>Service Name:</label>
@@ -39,5 +39,32 @@ $userData = $_SESSION['id'];
         </div>
         
     </form>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+<script>
+    // Function to check the file size before form submission
+    function checkFileSize() {
+        var inputFile = document.getElementById('image');
+        var maxFileSize = 2 * 1024 * 1024; // 2 MB limit
+
+        if (inputFile.files.length > 0) {
+            var fileSize = inputFile.files[0].size;
+
+            if (fileSize > maxFileSize) {
+                // Display SweetAlert 2 error message
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: "File size exceeds the limit of 2 MB."
+                });
+
+                // Prevent form submission
+                return false;
+            }
+        }
+
+        // Continue with form submission
+        return true;
+    }
+</script>
 </body>
 </html>

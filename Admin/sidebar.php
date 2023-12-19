@@ -131,7 +131,7 @@ color: purple;
   color: #757575;
 }
 #navbar-wrapper .navbar a:hover {
-  color: #F8BE12;
+  color: #6537AE;
 }
 
 #content-wrapper {
@@ -312,6 +312,11 @@ color: purple;
                     <span class="ms-3"> - <i class="bi-collection"></i> Services</span>
                 </a>
             </li>
+            <li>
+                <a href="../announcement/announcement.php">
+                    <span class="ms-3"> - <i class="bi-megaphone"></i> Announcement</span>
+                </a>
+            </li>
             <li class="w-100">
                 <a href="../slot/settings.php">
                     <span class="ms-3"> - <i class="bi-gear"></i> Settings</span>
@@ -330,72 +335,162 @@ color: purple;
   </ul>
 </aside>
 
+
+<?php
+date_default_timezone_set('Asia/Manila');
+include "../../db_connect/config.php";
+
+function getAllNotifications($conn) {
+    // Select notifications created within the last 7 days and not read
+    $query = "SELECT * FROM notifications WHERE is_read = 0 AND created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) ORDER BY created_at DESC";
+    $stmt = mysqli_prepare($conn, $query);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
+    $notifications = [];
+
+    while ($notification = mysqli_fetch_assoc($result)) {
+        $notifications[] = $notification;
+    }
+
+    return $notifications;
+}
+
+function getAllNotificationsForAllAppointments($conn) {
+    // Select all notifications created within the last 7 days
+    $query = "SELECT * FROM notifications WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) ORDER BY created_at DESC";
+    $stmt = mysqli_prepare($conn, $query);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
+    $notifications = [];
+
+    while ($notification = mysqli_fetch_assoc($result)) {
+        $notifications[] = $notification;
+    }
+
+    return $notifications;
+}
+
+$allNotifications = getAllNotifications($conn);
+$allNotificationsForAllAppointments = getAllNotificationsForAllAppointments($conn);
+?>
+
 <div id="navbar-wrapper">
-  <nav class="navbar navbar-inverse">
-    <div class="container-fluid">
-      <div class="navbar-header">
-        <a href="#" class="navbar-brand" id="sidebar-toggle"><i class="bi bi-list"></i></a>
-      </div>
-      <div>
-      <nav class="navbar navbar-light">
-        <div class="container-fluid d-flex justify-content-end">
-          <div class="dropdown mx-4 width" >
-            <?php
-            include "../../db_connect/config.php";
-            $stmt = mysqli_prepare($conn, "SELECT * FROM zp_appointment");
-            $notificationCount = 0;
-            if ($stmt) {
-                mysqli_stmt_execute($stmt);
-                $result = mysqli_stmt_get_result($stmt);
-                $notificationCount = mysqli_num_rows($result);
-            }
-            ?>
-            <a href="#" class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle" id="dropdownNotification" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fs-5 bi bi-bell"></i>
-                <span id="notification-count" class="badge bg-danger"><?php echo $notificationCount; ?></span>
-            </a>
-            <ul class="dropdown-menu text-small shadow dropdown-menu-end p-1" aria-labelledby="dropdownNotification" style="max-height: 200px; overflow-y: auto;">
-              <?php
-              include "../../db_connect/config.php";
-              $stmt = mysqli_prepare($conn, "SELECT * FROM zp_appointment ORDER BY created");
-              if ($stmt) {
-                  mysqli_stmt_execute($stmt);
-                  $result = mysqli_stmt_get_result($stmt);
-                  while ($row = mysqli_fetch_assoc($result)) {
-                      if ($row['schedule_status'] == 'Sched') {
-                        echo '<li><a class="dropdown-item" href="../appointment/appointment.php?appointment_id=' . $row['id'] . '">The client has rescheduled the appointment: ' . $row['firstname'] . ' ' . $row['lastname'] . '</a></li>';
-                    } elseif ($row['schedule_status'] == 'Cancel') {
-                        echo '<li><a class="dropdown-item" href="../appointment/appointment.php?appointment_id=' . $row['id'] . '">The client has canceled the appointment: ' . $row['firstname'] . ' ' . $row['lastname'] . '</a></li>';
-                    } else {
-                      echo '<li><a class="dropdown-item" href="../appointment/appointment.php?appointment_id=' . $row['id'] . '">Appointment is Created: ' . $row['firstname'] . ' ' . $row['lastname'] . '</a></li>';
-                  }
-                  }
-                  mysqli_stmt_close($stmt);
-              }
-              ?>
-              </ul>
+    <nav class="navbar navbar-inverse">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a href="#" class="navbar-brand" id="sidebar-toggle"><i class="bi bi-list"></i></a>
+            </div>
+            <div>
+                <nav class="navbar navbar-light">
+                    <div class="container-fluid d-flex justify-content-end">
+                        <div class="dropdown mx-3">
+                            <a href="#" class="d-flex align-items-center text-dark text-decoration-none mx-auto" id="dropdownNotification" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-bell fs-5 "></i>
+                                <span class="badge bg-danger" id="notificationCount"><?php echo count($allNotifications); ?></span>
+                            </a>
+                            <ul class="dropdown-menu text-small shadow dropdown-menu-end" aria-labelledby="dropdownNotification" style="max-height: 200px; overflow-y: auto;">
+                                <li class="position-sticky">
+                                    <h1 class="dropdown-header text-center" style="color: #6537AE;">NOTIFICATIONS</h1>
+                                </li>
+                                <?php
+                                function time_elapsed_string($datetime, $full = false) {
+                                    $now = new DateTime;
+                                    $ago = new DateTime($datetime);
+                                    $diff = $now->diff($ago);
+
+                                    $diff_in_seconds = $now->getTimestamp() - $ago->getTimestamp();
+
+                                    $intervals = array(
+                                        'year' => 31536000,
+                                        'month' => 2592000,
+                                        'week' => 604800,
+                                        'day' => 86400,
+                                        'hour' => 3600,
+                                        'minute' => 60,
+                                        'second' => 1,
+                                    );
+
+                                    $result = '';
+                                    $count = 0;
+
+                                    foreach ($intervals as $interval => $seconds) {
+                                        $quotient = floor($diff_in_seconds / $seconds);
+
+                                        if ($quotient > 0) {
+                                            $count = $quotient;
+                                            $result .= "$count $interval" . ($quotient > 1 ? 's' : '') . ' ago';
+                                            break;
+                                        }
+                                    }
+                                    if (empty($result)) {
+                                        return 'just now';
+                                    }
+
+                                    return $result;
+                                }
+                                foreach ($allNotificationsForAllAppointments as $notification) :
+                                  $timeElapsed = time_elapsed_string($notification['created_at']);
+                              ?>
+                                  <li>
+                                      <a class="dropdown-item" href="../appointment/appointment.php?appointment_id=<?php echo $notification['appointment_id']; ?>">
+                                          <span style="font-size: 16px;"><?php echo $notification['message']; ?> </span><br>
+                                          <span style="color:#6537AE"><?php echo $timeElapsed; ?></span>
+                                      </a>
+                                  </li>
+                              <?php endforeach; ?>
+                          </ul>
+                      </div>
+                      <div class="dropdown">
+                          <a href="#" class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+                              <img src="<?php echo $userData['image']; ?>" class="rounded-circle" height="30px" width="30px">
+                              <span class="d-none d-sm-inline mx-1"><b> Hello!</b> <?php echo $userData['clinic_firstname']; ?></span>
+                          </a>
+                          <ul class="dropdown-menu text-small shadow dropdown-menu-end" aria-labelledby="dropdownUser1" style="color: #F8BE12;">
+                                <li><a class="dropdown-item" href="../profile/account.php">Manage Account</a></li>
+                              <li>
+                                  <hr class="dropdown-divider">
+                              </li>
+                              <li><a class="dropdown-item" href="../logout.php">Sign out</a></li>
+                          </ul>
+                      </div>
+                  </div>
+              </nav>
           </div>
-          <div class="dropdown">
-            <a href="#" class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
-              <img src="<?php echo $userData['image']; ?>" class="rounded-circle" height="30px" width="30px">
-              <span class="d-none d-sm-inline mx-1"><b> Hello!</b> <?php echo $userData['clinic_firstname']; ?></span>
-            </a>
-            <ul class="dropdown-menu text-small shadow dropdown-menu-end" aria-labelledby="dropdownUser1">
-              <li>
-                <hr class="dropdown-divider">
-              </li>
-              <li><a class="dropdown-item" href="../logout.php">Sign out</a></li>
-            </ul>
-          </div>
-        </div>
-      </nav>
       </div>
-    </div>
   </nav>
 </div>
-
-
-
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var notificationCount = document.getElementById('notificationCount');
+        var notificationDropdown = document.getElementById('dropdownNotification');
+        notificationDropdown.addEventListener('click', function () {
+            notificationCount.textContent = '0';
+        });
+    });
+</script>
+<script>
+    function markNotificationsAsRead() {
+        // Make an AJAX request to update is_read to 1
+        $.ajax({
+            type: "POST",
+            url: "../notification.php", // Create a separate PHP file to handle the update logic
+            data: { mark_as_read: true },
+            success: function(response) {
+                // Optionally, you can handle the response from the server if needed
+                console.log(response);
+            },
+            error: function(error) {
+                // Handle errors if any
+                console.error(error);
+            }
+        });
+    }
+    $('#dropdownNotification').on('click', function() {
+        markNotificationsAsRead();
+    });
+</script>
 <script>
   const $button  = document.querySelector('#sidebar-toggle');
 const $wrapper = document.querySelector('#wrapper');

@@ -61,6 +61,7 @@ if (isset($_POST['submit'])) {
 
     mysqli_stmt_bind_param($stmt, "ss", $question, $answer);
     if (mysqli_stmt_execute($stmt)) {
+        logActivity($conn, $userData['id'], $userData['clinic_lastname'], 'Add FAQ', $userData['clinic_role'], 'Added a new FAQ entry');
         echo '<script>
         Swal.fire({
             icon: "success",
@@ -88,6 +89,7 @@ if (isset($_POST['edit_submit'])) {
     $stmt = mysqli_prepare($conn, $sql);
     mysqli_stmt_bind_param($stmt, "ssi", $question, $answer, $id);
     if(mysqli_stmt_execute($stmt)){
+        logActivity($conn, $userData['id'], $userData['clinic_lastname'], 'Edit FAQ', $userData['clinic_role'], 'Edited an existing FAQ entry');
         echo '<script>
         Swal.fire({
             icon: "success",
@@ -102,6 +104,16 @@ if (isset($_POST['edit_submit'])) {
     else {
         echo "Error Updating Error: " . mysqli_error($conn);
     }
+}
+
+function logActivity($conn, $userId, $name, $actionType, $role, $actionDescription) {
+    $sql = "INSERT INTO activity_log (user_id, name, action_type, role, action_description) VALUES (?, ?, ?, ?, ?)";
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, 'issss', $userId, $name, $actionType, $role, $actionDescription);
+
+    if (mysqli_stmt_execute($stmt)) {
+        mysqli_stmt_close($stmt);
+}
 }
 ?>
 <div id="wrapper">

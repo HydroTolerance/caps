@@ -8,7 +8,7 @@ include "../db_connect/config.php";
 
 $email = $_POST['email'];
 $currentTimestamp = time();
-$expirationTimestamp = $currentTimestamp + 180;
+$expirationTimestamp = $currentTimestamp + 600;
 $checkSql = "SELECT id FROM otp_codes WHERE email = ? AND expiration_time >= ?";
 $checkStmt = $conn->prepare($checkSql);
 $checkStmt->bind_param("ss", $email, $currentTimestamp);
@@ -76,7 +76,7 @@ if ($checkResult->num_rows === 0) {
             <h1 style="text-align: center;">Z Skin Care Center</h1>
             <p>Dear user,</p>
             <p>Your verification code is: <span class="otp">' . $otp . '</span></p>
-            <p>This code will expire in 3 minutes. Please use it to complete the verification process.</p>
+            <p>This code will expire in 10 minutes. Please use it to complete the verification process.</p>
             <p>Thank you for choosing Z Skin Care Center.</p>
         </div>
     </body>
@@ -92,6 +92,6 @@ if ($checkResult->num_rows === 0) {
         echo json_encode(['success' => false, 'error' => $conn->error]);
     }
 } else {
-    echo json_encode(['success' => false, 'error' => 'An unexpired OTP already exists for this email. Wait next 3 minutes to request an OTP']);
+    echo json_encode(['success' => false, 'error' => 'An unexpired OTP already exists for this email. Wait next 10 minutes to request an OTP']);
 }
 ?>

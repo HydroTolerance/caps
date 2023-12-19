@@ -36,6 +36,7 @@ $userData = $_SESSION['id'];
     <?php
 if (isset($_POST['submit'])) {
     require_once "../../db_connect/config.php";
+
     $client = 'Client';
     $fname = $_POST['client_firstname'];
     $lname = $_POST['client_lastname'];
@@ -51,16 +52,19 @@ if (isset($_POST['submit'])) {
     $city = $_POST['client_city'];
     $province = $_POST['client_province'];
     $postalCode = $_POST['client_postal_code'];
-    $password = password_hash($birthday, PASSWORD_BCRYPT);
-
+    $createdAt = (new DateTime('now', new DateTimeZone('Asia/Manila')))->format('Y-m-d H:i:s');
     $econtact = $_POST['client_guardian'];
     $relation = $_POST['client_relation'];
     $econtactno = $_POST['client_emergency_contact_number'];
     $avatarFileName = ($gender === 'Male') ? 'maleAvatar.png' : 'femaleAvatar.png';
 
-    // Check if the email exists in zp_client_record
+    $passwordPlain = $birthday;
+
+    $passwordHashed = password_hash($passwordPlain, PASSWORD_BCRYPT);
+    
     $checkEmailSql = "SELECT COUNT(*) FROM zp_client_record WHERE client_email = ?";
     $checkEmailStmt = mysqli_prepare($conn, $checkEmailSql);
+
     if ($checkEmailStmt) {
         mysqli_stmt_bind_param($checkEmailStmt, "s", $email);
         mysqli_stmt_execute($checkEmailStmt);
@@ -68,44 +72,166 @@ if (isset($_POST['submit'])) {
         mysqli_stmt_fetch($checkEmailStmt);
         mysqli_stmt_close($checkEmailStmt);
 
-        if ($clientEmailCount > 0) {
-            // Email is occupied
-            echo "<script>
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Warning!',
-                    text: 'Email is already Already Exists.'
-                });
-            </script>";
-        } else {
-            // Perform the insertion
-            $clinicNumber = "clinic_number-" . rand(100, 999);
-            $insertSql = "INSERT INTO zp_client_record (clinic_number, client_firstname, client_lastname, client_middle, client_suffix, client_birthday, client_number, client_gender, client_email, client_password, client_emergency_person, client_relation, client_emergency_contact_number, client_avatar, client_house_number, client_street_name, client_barangay, client_city, client_province, client_postal_code, client_role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            $insertStmt = mysqli_prepare($conn, $insertSql);
+        $checkEmailSql = "SELECT COUNT(*) FROM zp_accounts WHERE clinic_email = ?";
+        $checkEmailStmt = mysqli_prepare($conn, $checkEmailSql);
 
-            if ($insertStmt) {
-                mysqli_stmt_bind_param($insertStmt, "sssssssssssssssssssss", $clinicNumber, $fname, $lname, $mname, $sname, $birthday, $contact, $gender, $email, $password, $econtact, $relation, $econtactno, $avatarFileName, $houseNumber, $streetName, $barangay, $city, $province, $postalCode, $client);
+        if ($checkEmailStmt) {
+            mysqli_stmt_bind_param($checkEmailStmt, "s", $email);
+            mysqli_stmt_execute($checkEmailStmt);
+            mysqli_stmt_bind_result($checkEmailStmt, $accountEmailCount);
+            mysqli_stmt_fetch($checkEmailStmt);
+            mysqli_stmt_close($checkEmailStmt);
 
-                if (mysqli_stmt_execute($insertStmt)) {
-                    $clinicRole = $userData['clinic_role'];
-                    $actionDescription = "Client added: " . $fname . " " . $lname;
-                    $insertLogQuery = "INSERT INTO activity_log (user_id, action_type, role, action_description) VALUES (?, 'Client Added', ?, ?)";
-                    $stmt = mysqli_prepare($conn, $insertLogQuery);
-                    mysqli_stmt_bind_param($stmt, 'iss', $userData['id'], $clinicRole, $actionDescription);
+            if ($clientEmailCount > 0 || $accountEmailCount > 0) {
+                echo "<script>
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Warning!',
+                        text: 'Email already exists.'
+                    });
+                </script>";
+            } else {
+                // Perform the insertion
+                $clinicNumber = "clinic_number-" . rand(100, 999);
+                $insertSql = "INSERT INTO zp_client_record (clinic_number, client_firstname, client_lastname, client_middle, client_suffix, client_birthday, client_number, client_gender, client_email, client_password, client_emergency_person, client_relation, client_emergency_contact_number, client_avatar, client_house_number, client_street_name, client_barangay, client_city, client_province, client_postal_code, client_role, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-                    if (mysqli_stmt_execute($stmt)) {
-                        echo "<script>
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Success!',
-                                text: 'Data added successfully.'
-                            }).then(function(result) {
-                                if (result.isConfirmed) {
-                                    window.location.href = 'client_record.php';
-                                }
-                            });
-                        </script>";
-                        exit();
+                $insertStmt = mysqli_prepare($conn, $insertSql);
+
+                if ($insertStmt) {
+                    mysqli_stmt_bind_param($insertStmt, "ssssssssssssssssssssss", $clinicNumber, $fname, $lname, $mname, $sname, $birthday, $contact, $gender, $email, $passwordHashed, $econtact, $relation, $econtactno, $avatarFileName, $houseNumber, $streetName, $barangay, $city, $province, $postalCode, $client, $createdAt);
+                    if (mysqli_stmt_execute($insertStmt)) {
+                        $clinicRole = $userData['clinic_role'];
+                        $actionDescription = "Client added: " . $fname . " " . $lname;
+                        $timezone = new DateTimeZone('Asia/Manila');
+                        $dateTime = new DateTime('now', $timezone);
+                        $timestamp = $dateTime->format('Y-m-d H:i:s');
+                        $insertLogQuery = "INSERT INTO activity_log (user_id, name, action_type, role, action_description, timestamp) VALUES (?, ?, ?, 'Client Added', ?, ?)";
+                        $stmt = mysqli_prepare($conn, $insertLogQuery);
+                        mysqli_stmt_bind_param($stmt, 'issss', $userData['id'],  $userData['clinic_lastname'], $clinicRole, $actionDescription, $timestamp);
+
+                        if (mysqli_stmt_execute($stmt)) {
+                            require 'phpmailer/PHPMailerAutoload.php';
+                            $mail = new PHPMailer(true);
+
+                            try {
+                                $mail->isSMTP();
+                                $mail->Host = 'smtp.gmail.com';
+                                $mail->SMTPAuth = true;
+                                $mail->Username = 'blazered098@gmail.com';
+                                $mail->Password = 'nnhthgjzjbdpilbh';
+                                $mail->SMTPSecure = 'tls';
+                                $mail->Port = 587;
+                                $mail->setFrom('blazered098@gmail.com', 'Z Skin Care Center');
+                                $mail->addAddress($email);
+                                $mail->isHTML(true);
+                                $mail->Subject = 'Account Created Successfully';
+                                $mail->Body =
+                                            '<!DOCTYPE html>
+                                            <html lang="en">
+                                            
+                                            <head>
+                                                <meta charset="UTF-8">
+                                                <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+                                                <title>Account Created Successfully</title>
+                                                <style>
+                                                    body {
+                                                        font-family: "Roboto", sans-serif;
+                                                        margin: 0;
+                                                        padding: 0;
+                                                        background-color: #f4f4f4;
+                                                        color: #333;
+                                                    }
+                                            
+                                                    .container {
+                                                        max-width: 600px;
+                                                        margin: 20px auto;
+                                                        padding: 20px;
+                                                        background-color: #fff;
+                                                        border-radius: 5px;
+                                                        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                                                    }
+                                            
+                                                    h2 {
+                                                        color: #6537AE;
+                                                    }
+                                            
+                                                    p {
+                                                        margin-bottom: 20px;
+                                                    }
+                                            
+                                                    .highlight {
+                                                        background-color: #f8f8f8;
+                                                        padding: 10px;
+                                                        border-radius: 5px;
+                                                        margin-bottom: 20px;
+                                                    }
+                                            
+                                                    .footer {
+                                                        text-align: center;
+                                                        margin-top: 20px;
+                                                        color: #888;
+                                                    }
+                                                </style>
+                                            </head>
+                                            
+                                            <body>
+                                                <div class="container">
+                                                    <h2>Your Account Has Been Created Successfully</h2>
+                                                    <p>
+                                                        Hello' . $fname . " " . $lname . ',
+                                                    </p>
+                                                    <p>
+                                                        Thank you for choosing Z Skin Care Center. Your account has been created successfully. Here are your account details:
+                                                    </p>
+                                                    <div class="highlight">
+                                                        <p><strong>Username (Email): </strong>' . $email .'</p>
+                                                        <p><strong>Password: </strong>' . $passwordPlain . '</p>
+                                                    </div>
+                                                    <p>
+                                                        Please keep your login credentials confidential. If you wish to change your password, you can do so by clicking the following link:
+                                                        <a href="https://zephyderm.infinityfreeapp.com/forgot_password.php">Change Password</a>
+                                                    </p>
+                                                    <p>
+                                                        Please keep your login credentials confidential. If you have any questions or need assistance, feel free to contact us.
+                                                    </p>
+                                                    <p>Best regards,</p>
+                                                    <p>Z Skin Care Center</p>
+                                                    <div class="footer">
+                                                        <p>This is an automated email, please do not reply.</p>
+                                                    </div>
+                                                </div>
+                                            </body>
+                                            
+                                            </html>';
+                                $mail->send();
+                                echo "<script>
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Success!',
+                                        text: 'Client record added successfully.'
+                                    }).then(function(result) {
+                                        if (result.isConfirmed) {
+                                            window.location.href = 'client_record.php';
+                                        }
+                                    });
+                                </script>";
+                                exit();
+                            } catch (Exception $e) {
+                                echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+                            }
+
+                        } else {
+                            echo "<script>
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error!',
+                                    text: 'Failed to add data.'
+                                });
+                            </script>";
+                            exit();
+                        }
+
+                        mysqli_stmt_close($stmt);
                     } else {
                         echo "<script>
                             Swal.fire({
@@ -117,30 +243,19 @@ if (isset($_POST['submit'])) {
                         exit();
                     }
 
-                    mysqli_stmt_close($stmt);
+                    mysqli_stmt_close($insertStmt);
                 } else {
-                    echo "<script>
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error!',
-                            text: 'Failed to add data.'
-                        });
-                    </script>";
-                    exit();
+                    echo "Error in preparing the insertion statement: " . mysqli_error($conn);
                 }
-
-                mysqli_stmt_close($insertStmt);
-            } else {
-                echo "Error in preparing the insertion statement: " . mysqli_error($conn);
             }
+        } else {
+            echo "Error in preparing the SQL statements: " . mysqli_error($conn);
         }
-    } else {
-        echo "Error in preparing the SQL statements: " . mysqli_error($conn);
     }
-
     mysqli_close($conn);
 }
 ?>
+
 <div id="wrapper">
     <?php include "../sidebar.php"; ?>
     <section id="content-wrapper">
@@ -150,7 +265,7 @@ if (isset($_POST['submit'])) {
                 </div>
                 <div class="m-2 bg-white text-dark p-4 rounded-4 border shadow-sm">
                     <a class="btn btn-secondary" href="client_record.php"><i class="bi bi-arrow-left"></i></a>
-                    <h2 style="color:6537AE;" class="text-center">Create Client Record</h2>
+                    <h2 style="color:6537AE;" class="text-center fw-bold mb-4">CREATE CLIENT RECORD</h2>
                     <form method="post" id="signUpForm" class="needs-validation" novalidate>
                         <div class="row">
                             <div class="mb-3 col-md-4">
@@ -192,10 +307,10 @@ if (isset($_POST['submit'])) {
                                 <div class="invalid-feedback">Please enter a valid phone number that starts with '09'.</div>
                             </div>
                             <div class="mb-3 col-md-3">
-                            <label for="validationCustom05" class="form-label mb-3">Date of Birth <span class="text-danger">*</span></label>
-                            <input class="form-control datepicker" id="d" type="text" name="client_birthday" required placeholder="">
-                            <div class="invalid-feedback">Please enter a valid date of birth.</div>
-                        </div>
+                                <label for="validationCustom05" class="form-label mb-3">Date of Birth <span class="text-danger">*</span></label>
+                                <input class="form-control datepicker" id="d" type="text" name="client_birthday" placeholder="" required autocomplete="off">
+                                <div class="invalid-feedback">Please enter a valid date of birth.</div>
+                            </div>
                             <div class="mb-3 col-md-3">
                                 <label for="validationCustom06" class="form-label mb-3">Email</label>
                                 <input class="form-control" id="validationCustom06" type="email" name="client_email" required>
@@ -234,8 +349,8 @@ if (isset($_POST['submit'])) {
                                 <div class="invalid-feedback">Please enter the province.</div>
                             </div>
                             <div class="mb-3 col-md-4">
-                                <label for="validationCustom12" class="form-label mb-3">Postal Code<span class="text-danger">*</label>
-                                <input class="form-control" id="validationCustom12" type="text" name="client_postal_code" required>
+                                <label for="validationCustom12" class="form-label mb-3">Postal Code</label>
+                                <input class="form-control" id="validationCustom12" type="tel" name="client_postal_code" pattern="[0-9]{4}" oninput="validateInput1(this)">
                                 <div class="invalid-feedback">N/A is acceptable for Postal.</div>
                             </div>
                         </div>
@@ -262,8 +377,9 @@ if (isset($_POST['submit'])) {
                             </div>
                         </div>
                         <div class="mb-3 text-end">
-                            <input class="btn btn-purple bg-purple text-white" type="submit" name="submit" value="Create Record">
+                            
                             <button type="button" class="btn btn-secondary" id="clearFormButton">Clear Form</button>
+                            <input class="btn btn-purple bg-purple text-white" type="submit" name="submit" value="Create Record">
                         </div>
                     </form>
                 </div>
@@ -276,7 +392,7 @@ if (isset($_POST['submit'])) {
     configuration = {
         allowInput: true,
         dateFormat: "Y-m-d",
-        maxDate: "today"
+        maxDate: "today",
     };
     flatpickr("#d", configuration);
 
@@ -302,6 +418,12 @@ if (isset($_POST['submit'])) {
         inputElement.value = inputElement.value.replace(/[^0-9]/g, '');
         if (inputElement.value.length > 11) {
             inputElement.value = inputElement.value.slice(0, 11);
+        }
+    };
+    function validateInput1(inputElement) {
+        inputElement.value = inputElement.value.replace(/[^0-9]/g, '');
+        if (inputElement.value.length > 4) {
+            inputElement.value = inputElement.value.slice(0, 4);
         }
     };
     function clearFormFields() {

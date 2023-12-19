@@ -5,10 +5,12 @@ $userData = [];
 $isClientLoggedIn = isset($_SESSION['client_email']);
 if ($isClientLoggedIn) {
     $userData = $_SESSION['id'];
+    
 }
 ?>
 
 <?php
+    date_default_timezone_set('Asia/Manila');
 if (isset($_POST['submit'])) {
     $receivedOTP = $_POST['verificationCode'];
     $email = $_POST['email'];
@@ -39,14 +41,28 @@ if (isset($_POST['submit'])) {
 
         $reference = generateReferenceCode();
         $appointment_id = generateAppointmentID();
-        $insertSql = "INSERT INTO zp_appointment (appointment_id, reference_code, firstname, lastname, number, email, health_concern, services, date, time, appointment_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending')";
+        $insertSql = "INSERT INTO zp_appointment (appointment_id, reference_code, firstname, lastname, number, email, health_concern, services, date, time, created, appointment_status, client_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending', ?)";
+        if (isset($userData['id'])) {
+            $client_id = $userData['id'];
+        } else {
+            // User is not logged in, set client_id to a default value (e.g., empty string)
+            $client_id = '';
+        }
         $insertStmt = mysqli_prepare($conn, $insertSql);
-        mysqli_stmt_bind_param($insertStmt, "ssssssssss", $appointment_id, $reference, $firstname, $lastname, $number, $email, $health, $services, $date, $time);
+        mysqli_stmt_bind_param($insertStmt, "ssssssssssss", $appointment_id, $reference, $firstname, $lastname, $number, $email, $health, $services, $date, $time, $currentdate, $client_id);
 
         if (mysqli_stmt_execute($insertStmt)) {
+            date_default_timezone_set('Asia/Manila');
+            $lastInsertedId = mysqli_insert_id($conn);
+            $currentDate = date("Y-m-d H:i:s");
+            $notificationMessage = "<strong>Appointment Created: </strong>" . mysqli_real_escape_string($conn, $firstname) . " " . mysqli_real_escape_string($conn, $lastname);
+            $notificationSql = "INSERT INTO notifications (message, appointment_id, created_at) VALUES (?, ?, ?)";
+            $notificationStmt = mysqli_prepare($conn, $notificationSql);
+            mysqli_stmt_bind_param($notificationStmt, "sss", $notificationMessage, $lastInsertedId, $currentDate);
+            mysqli_stmt_execute($notificationStmt);
             $to = $email;
-$subject = "Appointment Summary";
-$body = "
+            $subject = "Appointment Summary";
+            $body = "
 <!DOCTYPE html>
 <html lang='en'>
 <head>
@@ -59,15 +75,23 @@ $body = "
             background-color: #f4f4f4;
             margin: 0;
             padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
 
+        .container {
+            max-width: 600px;
+        }
 
         h1 {
             color: #6537AE;
         }
+
         p {
-          font-size: 16px;
-      }
+            font-size: 16px;
+        }
 
         ul {
             list-style: none;
@@ -99,19 +123,21 @@ $body = "
         <p>Here is a summary of your appointment details:</p>
         <ul>
             <li><strong>Name:</strong> $firstname $lastname</li>
-            <li><strong>Phone number:</strong> $num</li>
+            <li><strong>Phone number:</strong> $number</li>
             <li><strong>Email:</strong> $email</li>
-            <li><strong>Health Concern:</strong> $message</li>
-            <li><strong>Service:</strong> $option</li>
-            <li><strong>Schedule Date:</strong> " . date("F j, Y", strtotime($d)) . "</li>
+            <li><strong>Service:</strong> $services</li>
+            <li><strong>Schedule Date:</strong> " . date("F j, Y", strtotime($date)) . "</li>
             <li><strong>Schedule Time:</strong> $time</li>
+            <li><strong>Health Concern:</strong> $health</li>
         </ul>
         <p style='font-weight: bold; font-size: 20px;'>Reference Code: $reference</p>
-        <p>Thank you for your transaction! You can check your email for instructions on how to reschedule or cancel your appointment. Please note that rescheduling or cancelling of the appointment will only be possible within 2 weeks upon creating the appointment</p>
-        <p><a href='https://zskincarecenter.online/t/reschedule.php?reference_code=$reference'>Tap Here to Reschedule or Cancel</a></p>
+        <p>Thank you for your transaction. Please note that rescheduling your appointment is limited to 5 attempts, and cancelling is allowed only once. To proceed with rescheduling or cancelling, <a href='https://zephyderm.infinityfreeapp.com/t/reschedule.php?reference_code=$reference'>tap here.</a></p>
+        <p>Z Skin Care Center will need to <strong>acknowledge</strong> your requested date and time in order to confirm your appointment. Please note that this reference code will be used for your appointment.</p>
+        <p style='color: #888; margin-top: 20px;'>This is an automated email, please do not reply.</p>
     </div>
 </body>
 </html>";
+
 
 $smtpHost = 'smtp.gmail.com';
 $smtpPort = 587;
@@ -135,10 +161,6 @@ $mail->addAddress($to);
 $mail->Subject = $subject;
 $mail->isHTML(true);
 $mail->Body = $body;
-
-$imagePath = 'images/thank_you_from_zskin.png';
-$mail->addEmbeddedImage($imagePath, 'images/thank_you_from_zskin.png', 'images/thank_you_from_zskin.png');
-
 
 $mailSent = $mail->send();
 
@@ -187,14 +209,24 @@ $mailSent = $mail->send();
 
 function generateReferenceCode()
 {
-    $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    $reference = '';
-    $length = 6;
+    $currentYear = date('Y');
+    $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    $randomLetters = '';
+    $letterLength = 3;
 
-    for ($i = 0; $i < $length; $i++) {
+    for ($i = 0; $i < $letterLength; $i++) {
         $randomIndex = rand(0, strlen($characters) - 1);
-        $reference .= $characters[$randomIndex];
+        $randomLetters .= $characters[$randomIndex];
     }
+    $counterFile = 'reference_counter.txt';
+    $incrementNumber = file_get_contents($counterFile);
+    if ($currentYear != substr($incrementNumber, 0, 4)) {
+        $incrementNumber = sprintf('%s%05d', $currentYear, 1);
+    } else {
+        $incrementNumber++;
+    }
+    file_put_contents($counterFile, $incrementNumber);
+    $reference = sprintf('%s-%s-%05d', $currentYear, $randomLetters, substr($incrementNumber, 4));
 
     return $reference;
 }
@@ -323,33 +355,39 @@ main {
         font-size: 10px;
         }
         #pageloader {
-    background: rgba(255, 255, 255, 0.8);
-    display: none;
-    height: 100%;
-    position: fixed;
-    width: 100%;
-    z-index: 9999;
-}
+        background: rgba(255, 255, 255, 0.9);
+        display: none;
+        height: 100%;
+        position: fixed;
+        width: 100%;
+        z-index: 9999;
+    }
 
-.custom-loader {
-    border: 5px solid #6537AE;
-    border-top: 5px solid transparent;
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    animation-name: spin;
-    animation-duration: 1s;
-    animation-timing-function: linear;
-    animation-iteration-count: infinite;
-    margin: 0 auto;
-    margin-top: 50vh;
-}
+    .custom-loader {
 
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
+        margin: 0 auto;
+        margin-top: 35vh;
+    }
 
+    /* FlipX animation for the custom-loader and the image */
+    @keyframes flipX {
+        0% {
+            transform: scaleX(1);
+        }
+        50% {
+            transform: scaleX(-1);
+        }
+        100% {
+            transform: scaleX(1);
+        }
+    }
+
+    .flipX-animation {
+        animation-name: flipX;
+        animation-duration: 1s;
+        animation-timing-function: ease-in-out;
+        animation-iteration-count: infinite;
+    }
 
 .footer {
     background-color: #6537AE;
@@ -378,17 +416,13 @@ main {
 </head>
 <body style="background-color: #eee;">
 <div id="pageloader">
-    <div class="custom-loader"></div>
-</div>
-<div class="toast" role="alert" aria-live="assertive" aria-atomic="true" id="toastTrigger" data-bs-delay="5000">
-    <div class="toast-header">
-        <strong class="me-auto">Booking Success</strong>
-        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    <div class="custom-loader flipX-animation"></div>
+    <div class="text-center">
+        <img src="images/6.png" style="width: 125px;" alt="logo" class="mb-4 flipX-animation animate__animated">
     </div>
-    <div class="toast-body">
-        Your service has been booked successfully!
-    </div>
+    <h4 class="text-center" style="font-family: Lora;"> Please Wait</h4>
 </div>
+
 
 <nav class="navbar navbar-expand-lg px-3" style="background-color: transparent; background-color: #6537AE; /* Use your preferred solid color */" id="s1">
   <div class="container-fluid">
@@ -404,7 +438,7 @@ main {
         <a class="nav-link active  text-white fs-5" href="../index.php" id="s5">Home</a>
         </li>
         <li class="nav-item mx-2">
-          <a class="nav-link text-white fs-5" href="about.php" id="s5">About</a>
+          <a class="nav-link text-white fs-5" href="about.php" id="s5">About Us</a>
         </li>
         <li class="nav-item mx-2">
           <a class="nav-link text-white fs-5" href="service.php" id="s5">Services</a>
@@ -413,7 +447,7 @@ main {
           <a class="nav-link text-white fs-5" href="FAQ.php" id="s5">FAQ</a>
         </li>
         <li class="nav-item mx-2">
-          <a class="nav-link text-white fs-5" href="contact.php" id="s5">Contact</a>
+          <a class="nav-link text-white fs-5" href="contact.php" id="s5">Contact Us</a>
         </li>
       </ul>
       <?php if ($isClientLoggedIn): ?>
@@ -443,14 +477,28 @@ main {
           <div class="row g-0">
             <div class="col-lg-7 d-flex align-items-center">
               <div class=" px-3 py-4 p-md-5">
-              <form action="" method="post" id="signUpForm" class="row g-3 needs-validation" novalidate>
+              <form action="" method="post" id="signUpForm" class="needs-validation" novalidate>
                 <div class="row g-3">
+                    <?php
+                    if (isset($_GET['service_id']) && isset($_GET['service_name'])) {
+                        $service_id = $_GET['service_id'];
+                        $service_name = urldecode($_GET['service_name']);
+                        echo '<div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <h4 class="alert-heading">Well done!</h4>
+                                <p>The service <strong>' . $service_name . '</strong> has been selected.</p>
+                                <hr>
+                                <p class="mb-0">You can continue with your booking process.</p>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>';
+                    }
+                    ?>
                     <div class="col-12">
-                        <h3 class="fs-4 text-uppercase mb-4 text-center">Appointment Request form</h3>
+                        <h3 class="text-uppercase text-center" style="font-family: Lora;">Appointment Request form</h3>
+                        <p class="text-muted text-center">All times are in Manila Time</p>
                     </div>
                     <div class="col-md-6">
                         <label for="validationCustom01">First Name <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="validationCustom01" placeholder="First Name" name="firstname" required>
+                        <input type="text" class="form-control" id="validationCustom01" placeholder="Enter your first name" name="firstname" value="<?php echo isset($userData['client_firstname']) ? $userData['client_firstname'] : ''; ?>" <?php echo isset($userData['client_firstname']) ? 'readonly' : ''; ?> required>
                         <div class="invalid-feedback">
                             Please enter your firstname.
                         </div>
@@ -460,14 +508,14 @@ main {
                     </div>
                     <div class="col-md-6">
                         <label for="validationCustom01">Last Name <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" placeholder="Last Name" name="lastname" required>
+                        <input type="text" class="form-control" placeholder="Enter your last name" name="lastname" value="<?php echo isset($userData['client_lastname']) ? $userData['client_lastname'] : ''; ?>" <?php echo isset($userData['client_lastname']) ? 'readonly' : ''; ?> required>
                         <div class="invalid-feedback">
                             Please enter your lastname.
                         </div>
                     </div>
                     <div class="col-md-6">
                         <label for="validationCustom03">Email <span class="text-danger">*</span></label>
-                        <input type="email" class="form-control" placeholder="Enter Email" name="email" id="e" required>
+                        <input type="email" class="form-control" placeholder="Enter your email" name="email" id="e" value="<?php echo isset($userData['client_email']) ? $userData['client_email'] : ''; ?>" <?php echo isset($userData['client_email']) ? 'readonly' : ''; ?> required>
                         <div class="invalid-feedback">
                             Please enter your email.
                         </div>
@@ -475,7 +523,7 @@ main {
                     <div class="col-md-6">
                         <label for="verificationCode">Verification Code <span class="text-danger">*</span></label>
                         <div class="input-group">
-                            <input type="text" class="form-control" id="verificationCode" name="verificationCode" required pattern="[0-9]{6}" maxlength="6" oninput="validateNum(this)">
+                            <input type="text" class="form-control" id="verificationCode" name="verificationCode" placeholder="Enter your OTP" required pattern="[0-9]{6}" maxlength="6" oninput="validateNum(this)">
                             <button type="button" id="requestVerificationCode" class="btn text-white rounded-end" style="background-color:#6537AE;">Request</button>
                             <div class="invalid-feedback">
                                 Please input a valid 6-digit OTP.
@@ -483,28 +531,12 @@ main {
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <label for="validationCustom02">Phone Number <span class="text-danger">*</span></label>
-                        <input type="tel" class="form-control" id="number" placeholder="Phone Number"  name="number" required pattern="09[0-9]{9}" required oninput="validateInput(this)">
+                        <label for="validationCustom02">Phone Number (Optional)</label>
+                        <input type="tel" class="form-control" id="number" placeholder="Enter your phone number"  name="number"pattern="09[0-9]{9}" value="<?php echo isset($userData['client_number']) ? $userData['client_number'] : ''; ?>" <?php echo isset($userData['client_number']) ? 'readonly' : ''; ?> oninput="validateInput(this)">
                         <div class="invalid-feedback">
                         Please enter a valid phone number that starts with '09'.
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <label for="validationCustom04">Schedule Appointment Date<span class="text-danger">*</span></label>
-                        <input type="date" class="form-control" placeholder="Enter Schedule Date" id="d" name="date" onchange="updateTime()" required autocomplete="off">
-                        <div class="invalid-feedback">
-                            Please choose a date.
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="validationCustom05">Schedule Appointment Time<span class="text-danger">*</span></label>
-                        <select class="form-control" name="time" id="time" required>
-                        </select>
-                        <div class="invalid-feedback">
-                            Please enter your time.
-                        </div>
-                    </div>
-
                     <div class="col-md-6">
                     <label for="validationCustom06">Select Service<span class="text-danger">*</span></label>
                     <select class="select2 form-select" name="services" style="width: 100%;" required>
@@ -545,25 +577,51 @@ main {
                             Please Select Services.
                         </div>
                     </div>
+                    <div class="col-md-6">
+                        <label for="validationCustom04">Schedule Appointment Date<span class="text-danger">*</span></label>
+                        <input type="date" class="form-control" placeholder="Enter Schedule Date" id="d" name="date" onchange="updateTime()" required autocomplete="off" readonly>
+                        <div class="invalid-feedback">
+                            Please choose a date.
+                        </div>
+                        <div class="valid-feedback">
+                            Looks good!
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                <label for="validationCustom05">Schedule Appointment Time<span class="text-danger">*</span></label>
+                <select class="form-control" name="time" id="time" required>
+                </select>
+                <div class="invalid-feedback">
+                    Please enter your time.
+                </div>
+                <div class="valid-feedback">
+                    Looks good!
+                </div>
+            </div>
+                    
+                    
 
                     <div class="col-md-12">
-                        <label>Health Complaint<span class="text-danger">*</span></label>
-                        <textarea class="form-control" placeholder="Description" name="health_concern" required oninput="limitHealthConcern(this, 250);" onpaste="onPaste(event, this);"></textarea>
+                        <label>Health Concern (optional)</label>
+                        <textarea class="form-control" placeholder="Description" name="health_concern" oninput="limitHealthConcern(this, 1700);" onpaste="onPaste(event, this);" rows="10"></textarea>
                         <div class="invalid-feedback">
                             Please enter your health complaint.
                         </div>
-                        <div class="text-muted" id="wordCount">250 words remaining</div>
+                        <div class="text-muted" id="characterCount">1700 characters remaining</div>
                     </div>
-                    <div class="col-12">
+                    <div class="col-md-12">
                         <div class="form-check">
                             <input type="checkbox" class="form-check-input" id="termsCheckbox" name="terms" required>
-                            <span><a href="terms_and_condition.php" class="text-dark text-decoration-none">I agree to the terms and conditions</a><span class="text-danger">*</span></span>
+                            <span>I agree to the <a href="terms_and_condition.php" class="text-dark">terms and conditions</a><span class="text-danger">*</span></span>
                             <div class="invalid-feedback">
                                 You must agree to the terms and conditions to book an appointment.
                             </div>
                         </div>
                     </div>
-                    <div class="col-12 mt-5">                        
+                    <div class="col-md-12">
+                        <div class="text-muted text-center" id="characterCount">Z Skin Care Center will need to acknowledge your requested date and time in order to confirm your appointment</div>
+                    </div>
+                    <div class="col-md-12 mt-5">                        
                         <button type="submit" class="btn text-white float-end" name="submit" style="Background-color:#6537AE;">Book Appointment</button>
                         <button type="button" class="btn btn-secondary float-end me-2" id="clearFormButton">Clear Form</button>
                     </div>
@@ -572,63 +630,21 @@ main {
               </div>
             </div>
             <div class="col-lg-5">
-              <div class="card-body mx-md-4 mt-3">            
-                <div>
-                        <div class="mb-4">
-                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3859.983622552614!2d120.97964317502418!3d14.656870885836176!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3397b5d44210563b%3A0xbffa6a071a665e60!2sZ%20Skin%20Care%20Center!5e0!3m2!1sen!2sph!4v1698127735993!5m2!1sen!2sph" width="800" height="400" style="max-width: 100%;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                        </div>
-                    </div>
-                <div class="text-center mt-3">
-                <h3 class="fs-4 text-uppercase"style="col;">Z-Skin Schedule</h3>
-                    <?php
-                        include "../db_connect/config.php";
-
-                        // Fetch available days
-                        $stmt = mysqli_prepare($conn, "SELECT day FROM availability WHERE is_available != '0'");
-                        mysqli_stmt_execute($stmt);
-                        mysqli_stmt_store_result($stmt);
-                        mysqli_stmt_bind_result($stmt, $day);
-                        ?>
-                        <div class="row">
-                        <h4 class="fs-4 text-uppercase mt-3">Day Open</h4>
-                            <?php while (mysqli_stmt_fetch($stmt)) { ?>
-                                <div class="col-lg-4">
-                                    <div class="">
-                                        <p><?php echo $day; ?></p>
-                                    </div>
-                                </div>
-                            <?php } ?>
-                        </div>
-                        <h3 class="fs-4 text-uppercase"style="col;">Time Open</h3>
-                        <?php
-                        $stmt = mysqli_prepare($conn, "SELECT slots FROM appointment_slots");
-                        mysqli_stmt_execute($stmt);
-                        mysqli_stmt_store_result($stmt);
-                        mysqli_stmt_bind_result($stmt, $time);
-
-                        $startTime = null;
-                        $endTime = null;
-
-                        while (mysqli_stmt_fetch($stmt)) {
-                            list($start, $end) = explode(" - ", $time);
-
-                            if ($startTime === null || strtotime($start) < strtotime($startTime)) {
-                                $startTime = $start;
-                            }
-
-                            if ($endTime === null || strtotime($end) > strtotime($endTime)) {
-                                $endTime = $end;
-                            }
-                        }
-
-                        $combinedTimeRange = $startTime . " - " . $endTime;
-                        ?>
-                        <div class="row">
-                            <div class="d-flex align-items-center justify-content-center">
-                                <p><?php echo $combinedTimeRange; ?></p>
+              <div class="card-body"> 
+                <div class="text-center border">
+                    <h2 style="font-family: Lora;" class="mt-3">Z SKIN CARE CENTER</h3>
+                            <div class="row">
+                            <h3 class="mt-3" style="font-family: Lora;">DAYS OPEN</h4>
+                                <p>Monday, Wenesday, Friday and Saturday</p>
                             </div>
+                            <h3 class=""style="font-family: Lora;">TIME OPEN</h3>
+                            <p>Around 1:00 PM to 5:00 PM</p>
                         </div>
                     </div>
+                    <div class="mb-4 px-3">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3859.983622552614!2d120.97964317502418!3d14.656870885836176!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3397b5d44210563b%3A0xbffa6a071a665e60!2sZ%20Skin%20Care%20Center!5e0!3m2!1sen!2sph!4v1698127735993!5m2!1sen!2sph" width="900" height="500" style="max-width: 100%;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                        </div>         
+                    <div>
                 </div>
               </div>
             </div>
@@ -654,7 +670,7 @@ main {
         <div class="row">
           <div class="col-lg-4">
               <div>
-                <h2 style="font-family: Lora;">Z-SKIN</h2>
+                <h2 style="font-family: Lora;">Z SKIN CARE CENTER</h2>
                   <p>Care and help you achieve optimal skin health. We are
                     committed to providing you with comprehensive,
                     personalized care, staying up-to-date with the latest
@@ -668,16 +684,16 @@ main {
               <h2 style="font-family: Lora;">Navigation</h2>
               <ul class="list-unstyled">
                 <li>
-                  <a href="#" class="text-white">About Us</a>
+                  <a href="about.php" class="text-white">About Us</a>
                 </li>
                 <li>
-                  <a href="#" class="text-white">Services</a>
+                  <a href="service.php" class="text-white">Services</a>
                 </li>
                 <li>
-                  <a href="#" class="text-white">Faq</a>
+                  <a href="FAQ.php" class="text-white">FAQ</a>
                 </li>
                 <li>
-                  <a href="#" class="text-white">Contact Us</a>
+                  <a href="contact.php" class="text-white">Contact Us</a>
                 </li>
               </ul>
             </div>
@@ -685,7 +701,7 @@ main {
               <h2 style="font-family: Lora;"> Legal</h2>
               <ul class="list-unstyled">
                 <li>
-                  <a href="#" class="text-white">Terms and Condition</a>
+                  <a href="terms_and_condition.php" class="text-white">Terms and Condition</a>
                 </li>
               </ul>
             </div>
@@ -695,9 +711,14 @@ main {
               <h2 style="font-family: Lora;">Social Media</h2>
               <ul class="list-unstyled">
                 <li>
-                <a>
-                    <i class="bi bi-facebook text-white me-2"> </i>
+                <a href="https://www.facebook.com/Zskincarecenter" class="text-white">
+                    <i class="bi bi-facebook text-white me-2"></i>
                     Facebook</a>
+                </li>
+                <li>
+                <a href="https://www.instagram.com/zskincarecenter" class="text-white">
+                    <i class="bi bi-instagram text-white me-2"></i>
+                    Instagram</a>
                 </li>
               </ul>
             </div>
@@ -715,7 +736,7 @@ main {
   </div>
 </div>
 </footer>
-<div class=" text-center text-white p-1" style="background-color: #c23fe3;"> ©2023. | Z-Skin | All rights reserved. </div>
+<div class=" text-center text-white p-1" style="background-color: #c23fe3;"> © 2023 Z Skin Care Center. All Rights Reserved. </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/js/select2.min.js"></script>
@@ -739,6 +760,8 @@ $(document).ready(function() {
           imageWidth: 100,
           imageHeight: 100,
             title: 'Sending Verification Code',
+            text: 'The OTP code will be sending to your Email',
+            showConfirmButton: false,
             allowOutsideClick: false,
             onBeforeOpen: () => {
                 Swal.showLoading();
@@ -815,12 +838,58 @@ $(document).ready(function() {
             inputElement.value = inputElement.value.slice(0, 6);
         }
     };
-function updateTime() {
+    function updateTime() {
     var d = document.getElementById("d").value;
     var time = document.getElementById("time");
     time.innerHTML = "";
+
+    // Get current time
+    var currentTime = new Date();
+    var currentHours = currentTime.getHours();
+    var currentMinutes = currentTime.getMinutes();
+    var currentTotalMinutes = currentHours * 60 + currentMinutes;
+
+    // Set the time limits
+    var limit1Hours = 13;
+    var limit1Minutes = 0;
+    var limit1TotalMinutes = limit1Hours * 60 + limit1Minutes;
+
+    var limit2Hours = 13;
+    var limit2Minutes = 30;
+    var limit2TotalMinutes = limit2Hours * 60 + limit2Minutes;
+
+    var limit3Hours = 14;
+    var limit3Minutes = 0;
+    var limit3TotalMinutes = limit3Hours * 60 + limit3Minutes;
+    
+    var limit4Hours = 14;
+    var limit4Minutes = 30;
+    var limit4TotalMinutes = limit4Hours * 60 + limit4Minutes;
+    
+    var limit5Hours = 15;
+    var limit5Minutes = 0;
+    var limit5TotalMinutes = limit5Hours * 60 + limit5Minutes;
+
+    var limit6Hours = 15;
+    var limit6Minutes = 30;
+    
+    var limit6TotalMinutes = limit6Hours * 60 + limit6Minutes;
+
+    var limit7Hours = 16;
+    var limit7Minutes = 0;
+    var limit7TotalMinutes = limit7Hours * 60 + limit7Minutes;
+
+    // Check if the current time is beyond the limits
+    var disableAllSlots1 = currentTotalMinutes > limit1TotalMinutes;
+    var disableAllSlots2 = currentTotalMinutes > limit2TotalMinutes;
+    var disableAllSlots3 = currentTotalMinutes > limit3TotalMinutes;
+    var disableAllSlots4 = currentTotalMinutes > limit4TotalMinutes;
+    var disableAllSlots5 = currentTotalMinutes > limit5TotalMinutes;
+    var disableAllSlots6 = currentTotalMinutes > limit6TotalMinutes;
+    var disableAllSlots7 = currentTotalMinutes > limit7TotalMinutes;
+
     var xmlhttp = new XMLHttpRequest();
-    xmlhttp.onreadystatechange = function() {
+    xmlhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
             var response = JSON.parse(this.responseText);
             var slots = response.slots;
@@ -836,6 +905,44 @@ function updateTime() {
                     option.disabled = true;
                     slotsLeftForOption = 0;
                 }
+
+                // Disable slots based on different time limits
+                var currentDate = new Date();
+                var selectedDate = new Date(d);
+                var isCurrentDay = currentDate.toDateString() === selectedDate.toDateString();
+
+                if (disableAllSlots1 && isCurrentDay && slot == "1:00 PM - 1:30 PM") {
+                    option.disabled = true;
+                    slotsLeftForOption = 0;
+                }
+
+                if (disableAllSlots2 && isCurrentDay && slot == "1:30 PM - 2:00 PM") {
+                    option.disabled = true;
+                    slotsLeftForOption = 0;
+                }
+                if (disableAllSlots3 && isCurrentDay && slot == "2:00 PM - 2:30 PM") {
+                    option.disabled = true;
+                    slotsLeftForOption = 0;
+                }
+                if (disableAllSlots4 && isCurrentDay && slot == "2:30 PM - 3:00 PM") {
+                    option.disabled = true;
+                    slotsLeftForOption = 0;
+                }
+                if (disableAllSlots5 && isCurrentDay && slot == "3:00 PM - 3:30 PM") {
+                    option.disabled = true;
+                    slotsLeftForOption = 0;
+                }
+                if (disableAllSlots6 && isCurrentDay && slot == "3:30 PM - 4:00 PM") {
+                    option.disabled = true;
+                    slotsLeftForOption = 0;
+                }
+                if (disableAllSlots6 && isCurrentDay && slot == "4:00 PM - 4:30 PM") {
+                    option.disabled = true;
+                    slotsLeftForOption = 0;
+                }
+
+                // Add more conditions for additional time limits
+
                 time.add(option);
                 var slotText = option.text + " (" + slotsLeftForOption + " slot(s) left)";
                 option.text = slotText;
@@ -878,7 +985,7 @@ $conn->close();
     var configuration = {
         dateFormat: "Y-m-d",
         allowInput: true,
-        minDate: new Date().fp_incr(1),
+        minDate: new Date().fp_incr(0),
         maxDate: new Date().fp_incr(60),
         "disable": [
             function(date) {
@@ -893,7 +1000,8 @@ $conn->close();
     };
 
     flatpickr("#d", configuration);
-
+    $('#d').on('focus', ({ currentTarget }) => $(currentTarget).blur())
+$("#d").prop('readonly', false)
 </script>
 
 
@@ -902,10 +1010,10 @@ function showReminderAlert() {
   Swal.fire({
   icon: 'info',
   title: 'Important Reminders',
-  html: '<div class="text-start"> 1. Minors cannot book appointments.<br>' +
-    '2. If an authorized representative is making the appointment, they must present an original authorization letter and a valid ID.<br>' +
-    '3. Ensure accurate information for the applicant or authorized representative. .<br>' +
-    '4. Appointments are allocated on a first-come, first-served basis.</div?',
+  html: '<div class="text-start"> 1. Arrived at least 10 mins. before the scheduled appointment.<br>' +
+    '2. All patients and their companions are required to wear masks at all times.<br>' +
+    '3. Observe 1 patient - 1 companion policy for minors (<18 y/o), PWD, & seniors.<br>' +
+    '4. Patients with cough, colds, and fever are highly encouraged to reschedule their appointment.</div>',
   confirmButtonColor: '#6537AE',
   showClass: {
     html: 'text-start'
@@ -929,28 +1037,26 @@ $(document).ready(function() {
             text: 'None Selected'
         },
         theme: 'bootstrap-5',
-        allowClear: true
     });
 });
 </script>
 <script>
-function limitHealthConcern(textarea, maxWords) {
+function limitHealthConcern(textarea, maxCharacters) {
     let text = textarea.value;
-    let words = text.split(/\s+/);
-    if (words.length > maxWords) {
-        words = words.slice(0, maxWords);
-        textarea.value = words.join(" ");
+    if (text.length > maxCharacters) {
+        textarea.value = text.slice(0, maxCharacters);
     }
-    let wordsRemaining = maxWords - words.length;
-    let wordCountElement = document.getElementById("wordCount");
-    wordCountElement.textContent = wordsRemaining + " words remaining";
+    let charactersRemaining = maxCharacters - textarea.value.length;
+    let characterCountElement = document.getElementById("characterCount");
+    characterCountElement.textContent = charactersRemaining + " characters remaining";
 }
 
 function onPaste(event, textarea) {
     setTimeout(function () {
-        limitHealthConcern(textarea, 250);
+        limitHealthConcern(textarea, 1700);
     }, 0);
 }
+
 </script>
 
 <script>

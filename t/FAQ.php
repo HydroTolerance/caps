@@ -93,19 +93,6 @@ if ($isClientLoggedIn) {
         
     }
 
-.FAQ-container {
-        
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        padding: 20px;
-        height: 60vh;
-        background-image: url('images/image10.jpg');
-        background-size: cover;
-        background-repeat: no-repeat;
-        
-    }
 
     .item-container1 {
     background-color: #6537AE;
@@ -132,8 +119,8 @@ if ($isClientLoggedIn) {
 
 
 </head>
-
-<body>
+<?php include "announcement.php" ?>
+<body  style="background-color: #eee;">
 <nav class="navbar navbar-expand-lg px-3" style="background-color: transparent; background-color: #6537AE; /* Use your preferred solid color */" id="s1">
   <div class="container-fluid">
   <a class="navbar-brand mt-1" href="../../index.php">
@@ -148,7 +135,7 @@ if ($isClientLoggedIn) {
         <a class="nav-link active  text-white fs-5" href="../index.php" id="s5">Home</a>
         </li>
         <li class="nav-item mx-2">
-          <a class="nav-link text-white fs-5" href="about.php" id="s5">About</a>
+          <a class="nav-link text-white fs-5" href="about.php" id="s5">About Us</a>
         </li>
         <li class="nav-item mx-2">
           <a class="nav-link text-white fs-5" href="service.php" id="s5">Services</a>
@@ -157,30 +144,45 @@ if ($isClientLoggedIn) {
           <a class="nav-link text-white fs-5" href="FAQ.php" id="s5">FAQ</a>
         </li>
         <li class="nav-item mx-2">
-          <a class="nav-link text-white fs-5" href="contact.php" id="s5">Contact</a>
+          <a class="nav-link text-white fs-5" href="contact.php" id="s5">Contact Us</a>
         </li>
       </ul>
         <?php if ($isClientLoggedIn): ?>
-        <div class="dropdown">
+        <div class="dropdown float-start">
                 <a href="#" class="d-flex align-items-center text-dark text-decoration-none" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
                     <img src="../img/avatar/<?php echo $userData['client_avatar']; ?>" class="rounded-circle me-3" height="40px" width="40px">
                     <span class="d-none d-sm-inline mx-1"></span>
                 </a>
-                <ul class="dropdown-menu text-small shadow dropdown-menu-end" aria-labelledby="dropdownUser1">
+                <ul class="dropdown-menu text-small shadow dropdown-menu-end" aria-labelledby="dropdownUser1" style="left: -10px;">
+                    <li>
+                    <a class="dropdown-item" href="../Client/client_record/view.php">Profile Account</a>
+                    </li>
+                    <li>
+                    <hr class="dropdown-divider">
+                    </li>
                     <li><a class="dropdown-item" href="../Client/logout.php">Sign out</a></li>
                 </ul>
             </div>
         <?php else: ?>
             <a href="../login.php" class="btn btn-outline-light mx-2" type="submit" id="s5">Login</a>
         <?php endif; ?>
-        <a href="booking.php" class="btn btn-outline-light" type="submit" id="s5">Book an Appointment</a>
+        <a href="booking.php" class="btn btn-outline-light float-start" type="submit" id="s5">Book an Appointment</a>
     </div>
   </div>
 </nav>
 
-    <div class="FAQ-container">
-            
-        </div> 
+<div class="container-fluid p-0">
+    <div>
+        <div class="col-md-12">
+            <div class="FAQ-container text-center text-white">
+                <div style="background-color: #6537AE; height: 60vh; max-width: 100%;">
+                    <img src="images/faq.jpg" alt="Background Image" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
+                    <!-- Content within your FAQ container goes here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
     <div class="faq-content" style="background-color: #6537AE; display: flex; align-items: center; justify-content:center;">
     <div class="item-container1">
@@ -188,26 +190,38 @@ if ($isClientLoggedIn) {
       <h3 style="font-family: Lora;" class="text-center text-white">Frequently Asked Questions</h3>
     </div>
     </div>
-    <div class="my-5">
+<section>
+    <div class="bg-white m-3 rounded shadow">
+        <div class="accordion my-3" id="faqAccordion">
     <?php
-            include "../db_connect/config.php";
-            $result = mysqli_prepare($conn,"SELECT question, answer FROM faq");
-            mysqli_stmt_execute($result);
-            mysqli_stmt_store_result($result);
-            mysqli_stmt_bind_result($result,$question, $answer);
-            while (mysqli_stmt_fetch($result)){
-                ?>
-                <hr>
-                <div class="mx-5">
-                    <h2  style="color: #6537AE; font-family: Lora;"><?php echo $question?></h2>
-                    <p class="fs-4"><?php echo $answer?></p>
+    include "../db_connect/config.php";
+    $result = mysqli_prepare($conn, "SELECT question, answer FROM faq");
+    mysqli_stmt_execute($result);
+    mysqli_stmt_store_result($result);
+    mysqli_stmt_bind_result($result, $question, $answer);
+    $index = 1;
+    while (mysqli_stmt_fetch($result)) {
+    ?>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="faqHeading<?php echo $index; ?>">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse<?php echo $index; ?>" aria-expanded="true" aria-controls="faqCollapse<?php echo $index; ?>">
+                <h3  style="color: #6537AE; font-family: Lora;"><?php echo $question?></h3>
+                </button>
+            </h2>
+            <div id="faqCollapse<?php echo $index; ?>" class="accordion-collapse collapse" aria-labelledby="faqHeading<?php echo $index; ?>" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    <p> <?php echo $answer; ?></p>
                 </div>
-                <hr>
-
-        <?php
-        }
-        ?>
+            </div>
+        </div>
+    <?php
+        $index++;
+    }
+    ?>
+</div>
     </div>
+          
+    </section>
     <footer >
 <div class="mt-5">
     <footer class="footer">
@@ -219,7 +233,7 @@ if ($isClientLoggedIn) {
         <div class="row">
           <div class="col-lg-4">
               <div>
-                <h2 style="font-family: Lora;">Z-SKIN</h2>
+                <h2 style="font-family: Lora;">Z SKIN CARE CENTER</h2>
                   <p>Care and help you achieve optimal skin health. We are
                     committed to providing you with comprehensive,
                     personalized care, staying up-to-date with the latest
@@ -233,16 +247,16 @@ if ($isClientLoggedIn) {
               <h2 style="font-family: Lora;">Navigation</h2>
               <ul class="list-unstyled">
                 <li>
-                  <a href="#" class="text-white">About Us</a>
+                  <a href="about.php" class="text-white">About Us</a>
                 </li>
                 <li>
-                  <a href="#" class="text-white">Services</a>
+                  <a href="service.php" class="text-white">Services</a>
                 </li>
                 <li>
-                  <a href="#" class="text-white">Faq</a>
+                  <a href="FAQ.php" class="text-white">FAQ</a>
                 </li>
                 <li>
-                  <a href="#" class="text-white">Contact Us</a>
+                  <a href="contact.php" class="text-white">Contact Us</a>
                 </li>
               </ul>
             </div>
@@ -250,7 +264,7 @@ if ($isClientLoggedIn) {
               <h2 style="font-family: Lora;"> Legal</h2>
               <ul class="list-unstyled">
                 <li>
-                  <a href="#" class="text-white">Terms and Condition</a>
+                  <a href="terms_and_condition.php" class="text-white">Terms and Condition</a>
                 </li>
               </ul>
             </div>
@@ -260,9 +274,14 @@ if ($isClientLoggedIn) {
               <h2 style="font-family: Lora;">Social Media</h2>
               <ul class="list-unstyled">
                 <li>
-                <a>
-                    <i class="bi bi-facebook text-white me-2"> </i>
+                <a href="https://www.facebook.com/Zskincarecenter" class="text-white">
+                    <i class="bi bi-facebook text-white me-2"></i>
                     Facebook</a>
+                </li>
+                <li>
+                <a href="https://www.instagram.com/zskincarecenter" class="text-white">
+                    <i class="bi bi-instagram text-white me-2"></i>
+                    Instagram</a>
                 </li>
               </ul>
             </div>
@@ -272,7 +291,7 @@ if ($isClientLoggedIn) {
             <p>Address: Unit 4 One Kalayaan Place Building 284 Samson Road Victory Liner Compound, Caloocan, Philippines</p>
             <p> You can Contact Us</p>
             <p>Phone: 0915 759 2213</p>
-            <p >Email: zskincarecenter @gmail.com</p>
+            <p >Email: zskincarecenter@gmail.com</p>
           </div>
           </div>
           <div>
@@ -280,12 +299,41 @@ if ($isClientLoggedIn) {
   </div>
 </div>
 </footer>
-
+<div class=" text-center text-white p-1" style="background-color: #c23fe3;"> © 2023 Z Skin Care Center. All Rights Reserved. </div>
 
     <!-- Include Bootstrap JS and dependencies -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+<!-- Messenger Chat Plugin Code -->
+    <div id="fb-root"></div>
 
+    <!-- Your Chat Plugin code -->
+    <div id="fb-customer-chat" class="fb-customerchat">
+    </div>
+
+    <script>
+      var chatbox = document.getElementById('fb-customer-chat');
+      chatbox.setAttribute("page_id", "184630898063490");
+      chatbox.setAttribute("attribution", "biz_inbox");
+    </script>
+
+    <!-- Your SDK code -->
+    <script>
+      window.fbAsyncInit = function() {
+        FB.init({
+          xfbml            : true,
+          version          : 'v18.0'
+        });
+      };
+
+      (function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s); js.id = id;
+        js.src = 'https://connect.facebook.net/en_US/sdk/xfbml.customerchat.js';
+        fjs.parentNode.insertBefore(js, fjs);
+      }(document, 'script', 'facebook-jssdk'));
+    </script>
 </body>
 
 </html>

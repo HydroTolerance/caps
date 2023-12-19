@@ -24,7 +24,7 @@ if ($isClientLoggedIn) {
 <script src="https://unpkg.com/scrollreveal"></script>
 <link rel="stylesheet" href="../bootstrap-icons/font/bootstrap-icons.css">
 <link rel="shortcut icon" href="images/icon1.png" type="image/x-icon">
-
+<script src="https://unpkg.com/scrollreveal"></script>
     <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap');
 
@@ -78,7 +78,7 @@ if ($isClientLoggedIn) {
         text-align: center;
         padding: 20px;
         height: 60vh;
-        background-image: url('images/image10.jpg');
+        background-image: url('images/services.jpg');
         background-size: cover;
         background-repeat: no-repeat;
         
@@ -188,7 +188,8 @@ transition: color 0.3s;
 </head>
 
 <body>
-<nav class="navbar navbar-expand-lg px-3" style="background-color: transparent; background-color: #6537AE; /* Use your preferred solid color */" id="s1">
+<?php include "announcement.php" ?>
+<nav class="navbar navbar-expand-lg px-3" style="background-color: transparent; background-color: #6537AE; /* Use your preferred solid color */">
   <div class="container-fluid">
   <a class="navbar-brand mt-1" href="../index.php">
     <img src="images/zephyderm.png" alt="" height="30px" width="230px" class="mb-2">
@@ -199,54 +200,59 @@ transition: color 0.3s;
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
         <li class="nav-item mx-2">
-        <a class="nav-link active  text-white fs-5" href="../index.php" id="s5">Home</a>
+        <a class="nav-link active  text-white fs-5" href="../index.php">Home</a>
         </li>
         <li class="nav-item mx-2">
-          <a class="nav-link text-white fs-5" href="about.php" id="s5">About</a>
+          <a class="nav-link text-white fs-5" href="about.php">About Us</a>
         </li>
         <li class="nav-item mx-2">
-          <a class="nav-link text-white fs-5" href="service.php" id="s5">Services</a>
+          <a class="nav-link text-white fs-5" href="service.php">Services</a>
         </li>
         <li class="nav-item mx-2">
-          <a class="nav-link text-white fs-5" href="FAQ.php" id="s5">FAQ</a>
+          <a class="nav-link text-white fs-5" href="FAQ.php">FAQ</a>
         </li>
         <li class="nav-item mx-2">
-          <a class="nav-link text-white fs-5" href="contact.php" id="s5">Contact</a>
+          <a class="nav-link text-white fs-5" href="contact.php">Contact Us</a>
         </li>
       </ul>
       <?php if ($isClientLoggedIn): ?>
-        <div class="dropdown">
+        <div class="dropdown float-start">
                 <a href="#" class="d-flex align-items-center text-dark text-decoration-none" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
                 <img src="../img/avatar/<?php echo $userData['client_avatar']; ?>" class="rounded-circle me-3" height="40px" width="40px">
                     <span class="d-none d-sm-inline mx-1"></span>
                 </a>
-                <ul class="dropdown-menu text-small shadow dropdown-menu-end" aria-labelledby="dropdownUser1">
+                <ul class="dropdown-menu text-small shadow dropdown-menu-end" aria-labelledby="dropdownUser1" style="left: -10px;">
                 <li><a class="dropdown-item" href="../Client/client_record/view.php">Profile Account</a></li>
                     <li><a class="dropdown-item" href="../Client/logout.php">Sign out</a></li>
                 </ul>
             </div>
         <?php else: ?>
-            <a href="../login.php" class="btn btn-outline-light mx-2" type="submit" id="s5">Login</a>
+            <a href="../login.php" class="btn btn-outline-light mx-2" type="submit">Login</a>
         <?php endif; ?>
-        <a href="./t/booking.php" class="btn btn-outline-light" type="submit" id="s5">Book an Appointment</a>
+        <a href="booking.php" class="btn btn-outline-light float-start" type="submit">Book an Appointment</a>
     </div>
   </div>
 </nav>
 
-    <div class="service-container">
-            <div class="service-text">
-                <p><span style="font-weight: bold; font-family: Roboto;"></span>
-               </p>
+<div class="container-fluid p-0">
+    <div>
+        <div class="col-md-12">
+            <div class="FAQ-container text-center text-white">
+                <div style="background-color: #6537AE; height: 60vh; max-width: 100%;">
+                    <img src="images/services.jpg" alt="Background Image" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
+                    <!-- Content within your FAQ container goes here -->
+                </div>
             </div>
-        </div> 
+        </div>
+    </div>
+</div>
 
-  <div class="item-container1">
+  <div class="item-container1" id="s1">
     <h1 style=" font-family: Lora;">OUR SERVICES</h1>
     <h3 style=" font-family: Lora;">Consult a Board Certified Dermatologist</h3>
   </div>
 
-<div class="services-container">
-
+<div class="services-container" id="s1">
 <h2 style=" font-family: Lora;" class="text-center fw-bold fs-2 my-5 bg-purple">SERVICES OFFER</h2>
 
 <ul class="nav nav-tabs justify-content-center" id="myTab" role="tablist">
@@ -340,7 +346,7 @@ transition: color 0.3s;
 </div>
 <footer >
 <div class="mt-5">
-    <footer class="footer">
+    <footer class="footer" id="s1">
       <svg class="footer-wave-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 100" preserveAspectRatio="none">
         <path class="footer-wave-path" d="M851.8,100c125,0,288.3-45,348.2-64V0H0v44c3.7-1,7.3-1.9,11-2.9C80.7,22,151.7,10.8,223.5,6.3C276.7,2.9,330,4,383,9.8 c52.2,5.7,103.3,16.2,153.4,32.8C623.9,71.3,726.8,100,851.8,100z"></path>
       </svg>
@@ -349,7 +355,7 @@ transition: color 0.3s;
         <div class="row">
           <div class="col-lg-4">
               <div>
-                <h2 style="font-family: Lora;">Z-SKIN</h2>
+                <h2 style="font-family: Lora;">Z SKIN CARE CENTER</h2>
                   <p>Care and help you achieve optimal skin health. We are
                     committed to providing you with comprehensive,
                     personalized care, staying up-to-date with the latest
@@ -363,16 +369,16 @@ transition: color 0.3s;
               <h2 style="font-family: Lora;">Navigation</h2>
               <ul class="list-unstyled">
                 <li>
-                  <a href="#" class="text-white">About Us</a>
+                  <a href="about.php" class="text-white">About Us</a>
                 </li>
                 <li>
-                  <a href="#" class="text-white">Services</a>
+                  <a href="service.php" class="text-white">Services</a>
                 </li>
                 <li>
-                  <a href="#" class="text-white">Faq</a>
+                  <a href="FAQ.php" class="text-white">FAQ</a>
                 </li>
                 <li>
-                  <a href="#" class="text-white">Contact Us</a>
+                  <a href="contact.php" class="text-white">Contact Us</a>
                 </li>
               </ul>
             </div>
@@ -380,7 +386,7 @@ transition: color 0.3s;
               <h2 style="font-family: Lora;"> Legal</h2>
               <ul class="list-unstyled">
                 <li>
-                  <a href="#" class="text-white">Terms and Condition</a>
+                  <a href="terms_and_condition.php" class="text-white">Terms and Condition</a>
                 </li>
               </ul>
             </div>
@@ -390,9 +396,14 @@ transition: color 0.3s;
               <h2 style="font-family: Lora;">Social Media</h2>
               <ul class="list-unstyled">
                 <li>
-                <a>
-                    <i class="bi bi-facebook text-white me-2"> </i>
+                <a href="https://www.facebook.com/Zskincarecenter" class="text-white">
+                    <i class="bi bi-facebook text-white me-2"></i>
                     Facebook</a>
+                </li>
+                <li>
+                <a href="https://www.instagram.com/zskincarecenter" class="text-white">
+                    <i class="bi bi-instagram text-white me-2"></i>
+                    Instagram</a>
                 </li>
               </ul>
             </div>
@@ -402,7 +413,7 @@ transition: color 0.3s;
             <p>Address: Unit 4 One Kalayaan Place Building 284 Samson Road Victory Liner Compound, Caloocan, Philippines</p>
             <p> You can Contact Us</p>
             <p>Phone: 0915 759 2213</p>
-            <p >Email: zskincarecenter @gmail.com</p>
+            <p >Email: zskincarecenter@gmail.com</p>
           </div>
           </div>
           <div>
@@ -410,12 +421,88 @@ transition: color 0.3s;
   </div>
 </div>
 </footer>
-<div class=" text-center text-white p-1" style="background-color: #c23fe3;"> ©2023. | Z-Skin | All rights reserved. </div>
+<div class=" text-center text-white p-1" style="background-color: #c23fe3;"> © 2023 Z Skin Care Center. All Rights Reserved. </div>
     <!-- Include Bootstrap JS and dependencies -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+  ScrollReveal().reveal('#s1',{
+  delay: 175,
+  duration: 1500,
+  origin: "bottom",
+  interval: 600,
+});
+ScrollReveal().reveal('#s2',{
+  delay: 155,
+  duration: 2000,
+  opacity: 0,
+  easing   : 'ease-in-out',
+  distance: "70%",
+  origin: "bottom",
+});
+ScrollReveal().reveal('#s4',{
+  delay: 175,
+  duration: 1500,
+  opacity: 0,
+  distance: "70%",
+  origin: "top",
+});
+ScrollReveal().reveal('#s3',{
+  delay: 175,
+  duration: 1500,
+  opacity: 0,
+  distance: "70%",
+  origin: "top",
+});
+ScrollReveal().reveal('#s5',{
+  delay: 175,
+  duration: 1500,
+  origin: "center",
+});
+ScrollReveal().reveal('#carouselExampleDark',{
+  delay: 175,
+  duration: 1500,
+  origin: "center",
+});
 
+ScrollReveal().reveal('.col-md-4', {
+    duration: 1000, 
+    origin: 'bottom',
+    distance: '100px',
+    delay: 200,
+  });
+</script>
+<!-- Messenger Chat Plugin Code -->
+    <div id="fb-root"></div>
+
+    <!-- Your Chat Plugin code -->
+    <div id="fb-customer-chat" class="fb-customerchat">
+    </div>
+
+    <script>
+      var chatbox = document.getElementById('fb-customer-chat');
+      chatbox.setAttribute("page_id", "184630898063490");
+      chatbox.setAttribute("attribution", "biz_inbox");
+    </script>
+
+    <!-- Your SDK code -->
+    <script>
+      window.fbAsyncInit = function() {
+        FB.init({
+          xfbml            : true,
+          version          : 'v18.0'
+        });
+      };
+
+      (function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s); js.id = id;
+        js.src = 'https://connect.facebook.net/en_US/sdk/xfbml.customerchat.js';
+        fjs.parentNode.insertBefore(js, fjs);
+      }(document, 'script', 'facebook-jssdk'));
+    </script>
 </body>
 
 </html>

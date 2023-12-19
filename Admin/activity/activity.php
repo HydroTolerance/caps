@@ -52,6 +52,10 @@ th{
         color: #fff  !important;
         text-align: center !important;
         }
+                .top-height {
+    margin-top: 23px;
+    height: -10px;
+  }
 </style>
 <body>
 <div id="wrapper">
@@ -72,6 +76,7 @@ th{
                     <thead>
                         <tr>
                             <th>Role</th>
+                            <th>Name</th>
                             <th>Action</th>
                             <th>Description</th>
                             <th>Timestamp</th>
@@ -88,11 +93,17 @@ th{
                             while ($row = mysqli_fetch_assoc($result)) {
                                 echo "<tr>";
                                 echo "<td>" . $row['role'] . "</td>";
+                                echo "<td>" . $row['name'] . "</td>";
                                 echo "<td>" . $row['action_type'] . "</td>";
                                 echo "<td>" . $row['action_description'] . "</td>";
-                                echo "<td>" . $row['timestamp'] . "</td>";
+                                echo "<td>" . formatTimestamp($row['timestamp']) . "</td>";
+
                                 echo "</tr>";
                             }
+                        }
+                        function formatTimestamp($timestamp) {
+                            $dateTime = new DateTime($timestamp);
+                            return $dateTime->format('F j, Y h:i A');
                         }
                         ?>
                     </tbody>
@@ -114,6 +125,7 @@ document.getElementById('yearFilter').addEventListener('change', function() {
 <script>
 $(document).ready(function() {
     $('#reportTable').DataTable({
+        dom: '<"row  text-end"<"col-xl-2 col-lg-3 col-md-6 mt-4"l><"col-xl-3 col-lg-4 col-md-6 top-height"f><"col-xl-4"><"col-xl-3 col-lg-4 mt-3 text-end">>rtip',
         responsive: true,
         scrollY: 500,
         scrollX: true,

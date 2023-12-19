@@ -1,6 +1,7 @@
+
+
 <?php
 session_start();
-
 if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
     header("Location: unauthorized.php");
     exit;
@@ -15,20 +16,32 @@ $d = $_GET['date'];
 $time = $_GET['time'];
 $reference = $_GET['reference_code'];
 $currentdate = $_GET['created'];
+
 ?>
-
-
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>Appointment Summary</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Lora&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.3.2/html2canvas.min.js"></script>
   <link rel="stylesheet" href="css/style.css">
   <link rel="shortcut icon" href="images/icon1.png" type="image/x-icon">
 
   <style>
+          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', serif;
+    font-size: 16px;
+}
     .center-content {
       position: relative;
       display: flex;
@@ -60,6 +73,7 @@ $currentdate = $_GET['created'];
   </style>
 </head>
 <body style="background-color:#eee;">
+
 <nav class="navbar navbar-expand-lg px-3" style="background-color: transparent; background-color: #6537AE; /* Use your preferred solid color */" id="s1">
   <div class="container-fluid">
   <a class="navbar-brand mt-1" style="margin-right: 37px;" href="../index.php">
@@ -95,8 +109,11 @@ $currentdate = $_GET['created'];
       <div class="row justify-content-center">
         <div class="col-lg-7">
           <div class="bg-white p-4 rounded shadow-sm border">
-            <h2 class="mb-4 text-center fw-bold" style="color:#6537AE">Appointment Summary</h2>
-          <div class="row">
+            <div class="text-center mb-3">
+              <img src="images/6.png" alt="" class="img-fluid" height="100px" width="100px">
+            </div>
+            <h2 class="mb-4 text-center" style="color:#6537AE; font-family: Lora;">APPOINTMENT SUMMARY</h2>
+          <div class="row border mx-auto py-4">
             <div class="col-lg-6">
               <p><strong>Name:</strong> <?php echo "$firstname $lastname"; ?></p>
             </div>
@@ -128,7 +145,7 @@ $currentdate = $_GET['created'];
             </div>
             <div class="row">
   <div class="col-lg-12 context">
-    <p class="fst-italic">Thank you for your transaction! You can check your email for instructions on how to reschedule or cancel your appointment. Please note that rescheduling or cancelling of appointment will only be possible within 2 weeks upon creating the appointment</p>
+    <p class="fst-italic">Thank you for your transaction! You can check your email for instructions on how to reschedule or cancel your appointment. Please note that you can reschedule the appointment up to 5 times, and cancellation is allowed only once. Make sure to review and make any changes accordingly.</p>
   </div>
 </div>
 

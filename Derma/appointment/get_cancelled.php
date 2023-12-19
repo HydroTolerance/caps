@@ -23,12 +23,22 @@ if (isset($_POST['id'])) {
 
 <form id="signUpForm" action="appointment.php" method="post">
     <div>
-        <label for="">User's Email</label>
+        <label for="">Client Email</label>
         <input type="text" class="form-control" name="email" readonly value="<?php echo ($email)?>">
     </div>
     <div>
         <label for="">Reason for Cancellation</label>
-        <textarea class="form-control" placeholder="Enter reason for cancellation" name="apt_reason" required></textarea>
+        <select name="apt_reason" id="apt_reason" class="form-select" required onchange="showOtherReason()">
+          <option value="" hidden>Select Reason</option>
+          <option value="Unfortunately, your appointment is canceled due to a violation of our appointment policy. We will provide details on the issue and steps for resolution. We appreciate your understanding in maintaining a safe and respectful environment.">Policy Violation</option>
+          <option value="I regret to inform you that we need to cancel your upcoming appointment. Unfortunately, due to a scheduling oversight, your appointment was double-booked. We sincerely apologize for any inconvenience this may cause.">Double Booking</option>
+          <option value="Unfortunately, we need to cancel your appointment due to a natural disaster or unforeseen circumstances beyond our control. Your safety is our top priority, and we appreciate your understanding during this challenging time.">Natural Disaster</option>
+        <option value="Other">Other</option>
+    </select>
+    <div id="otherReasonDiv" style="display:none;">
+        <label for="otherReason">Please specify:</label>
+        <textarea type="text" id="otherReason" name="otherReason" class="form-control" rows="5"></textarea>
+    </div>
     </div>
     <?php if (isset($_POST['id'])) : ?>
         <input type="hidden" name="id" value="<?php echo $_POST['id']; ?>">
@@ -49,6 +59,23 @@ $(document).ready(function() {
   });
 });
     </script>
+        <script>
+function showOtherReason() {
+    var select = document.getElementById("apt_reason");
+    var otherReasonDiv = document.getElementById("otherReasonDiv");
+    var otherReasonInput = document.getElementById("otherReason");
+
+    if (select.value === "Other") {
+        otherReasonDiv.style.display = "block";
+        otherReasonInput.required = true;
+        otherReasonInput.name = "apt_reason";
+    } else {
+        otherReasonDiv.style.display = "none";
+        otherReasonInput.required = false;
+        otherReasonInput.name = "";
+    }
+}
+</script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 </body>
 </html>

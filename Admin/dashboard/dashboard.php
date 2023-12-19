@@ -1,5 +1,4 @@
 <?php
-
 include "../function.php";
 checklogin('Admin');
 $userData = $_SESSION['id'];
@@ -17,7 +16,7 @@ $userData = $_SESSION['id'];
         $rowPending = mysqli_fetch_assoc($resultPending);
         $totalPending = $rowPending['total_pending'];
 
-        $queryReschedule = "SELECT COUNT(*) as total_reschedule FROM zp_appointment WHERE appointment_status = 'Rescheduled' AND MONTH(date) = $currentYear";
+        $queryReschedule = "SELECT COUNT(*) as total_reschedule FROM zp_appointment WHERE appointment_status IN ('Rescheduled (Admin)', 'Rescheduled (Derma)', 'Rescheduled (Client)') AND MONTH(date) = $currentYear";
         $resultReschedule = mysqli_query($conn, $queryReschedule);
         $rowReschedule = mysqli_fetch_assoc($resultReschedule);
         $totalReschedule = $rowReschedule['total_reschedule'];
@@ -37,12 +36,12 @@ $userData = $_SESSION['id'];
         $rowDidnotshow= mysqli_fetch_assoc($resultDidnotshow);
         $totalDidnotshow = $rowDidnotshow['total_Didnotshow'];
 
-        $queryMale = "SELECT COUNT(*) as total_male FROM zp_client_record WHERE client_gender = 'Male'";
+        $queryMale = "SELECT COUNT(*) as total_male FROM zp_client_record WHERE client_gender = 'Male' AND MONTH(created_at) = $currentYear";
         $resultMale = mysqli_query($conn, $queryMale);
         $rowMale = mysqli_fetch_assoc($resultMale);
         $totalMale = $rowMale['total_male'];
 
-        $queryFemale = "SELECT COUNT(*) as total_female FROM zp_client_record WHERE client_gender = 'Female'";
+        $queryFemale = "SELECT COUNT(*) as total_female FROM zp_client_record WHERE client_gender = 'Female' AND MONTH(created_at) = $currentYear";
         $resultFemale = mysqli_query($conn, $queryFemale);
         $rowFemale = mysqli_fetch_assoc($resultFemale);
         $totalFemale = $rowFemale['total_female'];
@@ -53,7 +52,7 @@ $userData = $_SESSION['id'];
         $appointment_count = mysqli_fetch_assoc($stmt);
         $totalAppointments = $appointment_count['total_appointment'];
 
-        $queryTotalPatients = "SELECT COUNT(*) as total_patient FROM zp_client_record";
+        $queryTotalPatients = "SELECT COUNT(*) as total_patient FROM zp_client_record WHERE MONTH(created_at) = $currentYear";
         $resultTotalPatients = mysqli_query($conn, $queryTotalPatients);
 
         $queryServices = "SELECT management, COUNT(*) as service_count 
@@ -92,11 +91,11 @@ $userData = $_SESSION['id'];
         </head>
         <style>
             .status-indicator { display: inline-block; margin-right: 10px; width: 20px; height: 20px; border-radius: 50%; }
-    .bg-purple { background-color: #6f42c1; }
-    .bg-blue { background-color: #007bff; }
-    .bg-grey { background-color: #6c757d; } 
-    .bg-yellow { background-color: #ffc107; } 
-    .bg-green { background-color: #28a745; }
+            .bg-purple { background-color: #6f42c1; }
+            .bg-blue { background-color: #007bff; }
+            .bg-grey { background-color: #6c757d; } 
+            .bg-yellow { background-color: #FA9C1B; } 
+            .bg-green { background-color: #28a745; }
             .dropdown-menu {
             margin-left: -2rem;
         }
@@ -109,33 +108,48 @@ $userData = $_SESSION['id'];
             max-width: 100%;
             height: auto;
         }
-        
+        .fade-in {
+                animation: fadeIn 1s ease-in-out;
+                opacity: 0;
+                animation-fill-mode: forwards;
+            }
+            @keyframes fadeIn {
+                0% {
+                    opacity: 0;
+                }
+                100% {
+                    opacity: 1;
+                }
+            }
         </style>
         <body> 
+        <div id="content-container"></div>
+
         <div id="wrapper">
             <?php include "../sidebar.php"; ?>
-            <div class="bg-white py-3 mb-3 border border-bottom">
+                <div class="bg-white py-3 mb-3 border border-bottom">
                     <div class="d-flex justify-content-between mx-4">
                         <div>
                             <h2 style="color:6537AE;" class="fw-bold">DASHBOARD</h2>
                         </div>
                     </div>
                 </div>
-            <div class="m-3">
+            <div class="mx-3">
+
             <section id="content-wrapper">
-                    <div class="row">
+                    <div class="row mt-3">
                         
                     <div class="container-fluid">
                         <div class="row">
                             <div class="col-lg-3 mb-2">
                                 <div class="card bg-white p-4 fade-in rounded h-100 d-flex flex-column justify-content-between">
                                     <p>Total of Patients</p>
-                                    <span class="badge bg-purple fs-4 p-3 ms-auto rounded" style="padding: 10px;"><?php echo $totalPatient; ?></span>
+                                    <span class="badge bg-purple fs-4 p-3 ms-auto rounded" style="padding: 10px;"><?php echo  $totalPatient; ?></span>
                                 </div>
                             </div>
                             <div class="col-lg-3 mb-2">
                                 <div class="card bg-white p-4 fade-in rounded h-100 d-flex flex-column justify-content-between">
-                                    <p>Today's Appointment</p>
+                                    <p>Total of Appointment Today</p>
                                     <span class="badge bg-purple fs-4 p-3 ms-auto rounded" style="padding: 10px;"><?php echo $totalAppointments; ?></span>
                                 </div>
                             </div>
@@ -197,7 +211,7 @@ $userData = $_SESSION['id'];
                         
                             <div class="bg-white p-4 fade-in my-3 text-center rounded">
                                 <h2 class="text-center mb-3" style="color: #6f42c1;">Color Calendar Appointment Indicator</h2>
-                                <div class="status-indicator-container d-flex flex-wrap justify-content-center">
+                                <div class="status-indicator-container d-flex flex-wrap justify-content-between">
                                     <div class="text-center mx-2">
                                         <span class="status-indicator bg-green"></span> Completed
                                     </div>
@@ -233,7 +247,8 @@ $userData = $_SESSION['id'];
                             </div>
                         </div>
                     </div>
-                
+                                
+                </div>
             </section>
             </div>
         <script src="js/dashboard.js"></script>
@@ -244,12 +259,11 @@ $userData = $_SESSION['id'];
 
         <script>
             $(document).ready(function() {
-            // Data for the pie charts
 
             var appointmentChartData = {
                 datasets: [{
                     data: [<?php echo $totalPending; ?>,  <?php echo $totalAcknowledged; ?>, <?php echo $totalApproved; ?>,  <?php echo $totalDidnotshow; ?>, <?php echo $totalReschedule; ?>, <?php echo $totalCancelled; ?>],
-                    backgroundColor: ['#6c757d', '#6f42c1', '#28a745',  '#ffc107', '#007bff', '#dc3545'],
+                    backgroundColor: ['#6c757d', '#6f42c1', '#28a745',  '#FA9C1B', '#007bff', '#dc3545'],
                 }],
                 labels: ['Pending', 'Acknowledged', 'Completed', 'Did Not Show', 'Rescheduled', 'Cancelled'],
             };

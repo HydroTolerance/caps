@@ -24,7 +24,7 @@ if ($isClientLoggedIn) {
 <script src="https://unpkg.com/scrollreveal"></script>
 <link rel="stylesheet" href="bootstrap-icons/font/bootstrap-icons.css">
 <link rel="shortcut icon" href="images/icon1.png" type="image/x-icon">
-
+<script src="https://unpkg.com/scrollreveal"></script>
 
     <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap');
@@ -70,69 +70,6 @@ if ($isClientLoggedIn) {
 }
 
 
-
-.about-container {
-        
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        padding: 20px;
-        height: 30vh;
-        background-image: url('images/bga.jpg');
-        background-size: cover;
-        background-repeat: no-repeat;
-        height: 80vh;
-      }
-
-      .card {
-  border: none;
-  border-radius: 0;
-  box-shadow: 2px 6px 8px 0 rgba(22, 22, 26, 0.18);
-}
-
-.carousel-control-prev,
-.carousel-control-next {
-  background-color: #6537AE;
-  width: 6vh;
-  height: 6vh;
-  border-radius: 50%;
-  top: 50%;
-  transform: translateY(-50%);
-}
-.carousel-control-prev span,
-.carousel-control-next span {
-  width: 1.5rem;
-  height: 1.5rem;
-}
-@media screen and (min-width: 577px) {
-  .cards-wrapper {
-    display: flex;
-  }
-  .card {
-    margin: 0 0.5em;
-    width: calc(100% / 2);
-    height: calc(100% / 2);
-  }
-  .image-wrapper {
-    height: 20vw;
-    margin: 0 auto;
-  }
-}
-@media screen and (max-width: 576px) {
-  .card:not(:first-child) {
-    display: none;
-  }
-}
-
-.image-wrapper img {
-  max-width: 100%;
-  max-height: 100%;
-}
-      .carousel {
-  margin: 0 auto;
-  width: 80%;
-}
 .we-are-block {
 display: flex;
 flex-direction: column;
@@ -412,21 +349,58 @@ text-align: left;
 text-align: center;
 }
 }
-.FAQ-container {
-        
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        padding: 20px;
-        height: 70vh;
-        background-image: url('images/z-skin.jpg');
-        background-size: cover;
-        background-repeat: no-repeat;
-        
-    }
+
+    .card {
+  border: none;
+  border-radius: 0;
+  box-shadow: 2px 6px 8px 0 rgba(22, 22, 26, 0.18);
+}
+
+.carousel-control-prev,
+.carousel-control-next {
+  background-color: #6537AE;
+  width: 6vh;
+  height: 6vh;
+  border-radius: 50%;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.carousel-control-prev span,
+.carousel-control-next span {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+@media screen and (min-width: 577px) {
+  .cards-wrapper {
+    display: flex;
+  }
+  .card {
+    margin: 0 0.5em;
+    width: calc(100% / 2);
+    height: calc(100% / 2);
+  }
+  .image-wrapper {
+    height: 20vw;
+    margin: 0 auto;
+  }
+}
+@media screen and (max-width: 576px) {
+  .card:not(:first-child) {
+    display: none;
+  }
+}
+
+.image-wrapper img {
+  max-width: 100%;
+  max-height: 100%;
+}
 
 
+
+.card-body {
+    height: 200px; /* Adjust the height as needed */
+    overflow: hidden; /* Hide overflow content */
+}
 
  </style>
 
@@ -434,9 +408,9 @@ text-align: center;
 </head>
 
 <body>
+<?php include "announcement.php" ?>
 
-
-<nav class="navbar navbar-expand-lg px-3" style="background-color: transparent; background-color: #6537AE; /* Use your preferred solid color */" id="s1">
+<nav class="navbar navbar-expand-lg px-3" style="background-color: transparent; background-color: #6537AE; /* Use your preferred solid color */">
   <div class="container-fluid">
   <a class="navbar-brand mt-1" href="../index.php">
     <img src="images/zephyderm.png" alt="" height="30px" width="230px" class="mb-2">
@@ -447,45 +421,57 @@ text-align: center;
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
         <li class="nav-item mx-2">
-        <a class="nav-link active  text-white fs-5" href="../index.php" id="s5">Home</a>
+        <a class="nav-link active  text-white fs-5" href="../index.php">Home</a>
         </li>
         <li class="nav-item mx-2">
-          <a class="nav-link text-white fs-5" href="about.php" id="s5">About</a>
+          <a class="nav-link text-white fs-5" href="about.php">About Us</a>
         </li>
         <li class="nav-item mx-2">
-          <a class="nav-link text-white fs-5" href="service.php" id="s5">Services</a>
+          <a class="nav-link text-white fs-5" href="service.php">Services</a>
         </li>
         <li class="nav-item mx-2">
-          <a class="nav-link text-white fs-5" href="FAQ.php" id="s5">FAQ</a>
+          <a class="nav-link text-white fs-5" href="FAQ.php">FAQ</a>
         </li>
         <li class="nav-item mx-2">
-          <a class="nav-link text-white fs-5" href="contact.php" id="s5">Contact</a>
+          <a class="nav-link text-white fs-5" href="contact.php">Contact Us</a>
         </li>
       </ul>
-      <?php if ($isClientLoggedIn): ?>
-        <div class="dropdown">
+        <?php if ($isClientLoggedIn): ?>
+        <div class="dropdown float-start">
                 <a href="#" class="d-flex align-items-center text-dark text-decoration-none" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
-                <img src="../img/avatar/<?php echo $userData['client_avatar']; ?>" class="rounded-circle me-3" height="40px" width="40px">
+                    <img src="../img/avatar/<?php echo $userData['client_avatar']; ?>" class="rounded-circle me-3" height="40px" width="40px">
                     <span class="d-none d-sm-inline mx-1"></span>
                 </a>
-                <ul class="dropdown-menu text-small shadow dropdown-menu-end" aria-labelledby="dropdownUser1">
-                <li><a class="dropdown-item" href="../Client/client_record/view.php">Profile Account</a></li>
-                <li>
-                <hr class="dropdown-divider">
-              </li>
+                <ul class="dropdown-menu text-small shadow dropdown-menu-end" aria-labelledby="dropdownUser1" style="left: -10px;">
+                    <li>
+                    <a class="dropdown-item" href="../Client/client_record/view.php">Profile Account</a>
+                    </li>
+                    <li>
+                    <hr class="dropdown-divider">
+                    </li>
                     <li><a class="dropdown-item" href="../Client/logout.php">Sign out</a></li>
                 </ul>
             </div>
         <?php else: ?>
-            <a href="../login.php" class="btn btn-outline-light mx-2" type="submit" id="s5">Login</a>
+            <a href="../login.php" class="btn btn-outline-light mx-2" type="submit">Login</a>
         <?php endif; ?>
-        <a href="./t/booking.php" class="btn btn-outline-light" type="submit" id="s5">Book an Appointment</a>
+        <a href="booking.php" class="btn btn-outline-light float-start" type="submit">Book an Appointment</a>
     </div>
   </div>
 </nav>
-<div class="FAQ-container">
-            </div> 
-<section>
+<div class="container-fluid p-0" id="s5">
+    <div>
+        <div class="col-md-12">
+            <div class="FAQ-container text-center text-white">
+                <div style="background-color: #6537AE; height: 60vh; max-width: 100%;">
+                    <img src="images/z-skin.jpg" alt="Background Image" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
+                    <!-- Content within your FAQ container goes here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<section id="s5">
   <div style="background-color: #6537AE;">
     <div class="py-5">
       <h1 style=" font-family: Lora;" class="text-center text-white">OUR STORY</h1>
@@ -493,7 +479,7 @@ text-align: center;
   </div>
 </section>
 
-<section class="mx-3 py-5 text-center">
+<section class="mx-3 py-5 text-center" id="s5">
   <div class="col-md-9 mx-auto">
     <p style="font-size: 20px;">We are a leading dermatology clinic <span class="fw-bold" style="font-size: 20px;"> dedicated to helping our patients
       achieve optimal skin health and wellness.</span>
@@ -504,78 +490,65 @@ text-align: center;
   </div>
 </section>
 
-<section>
+<section id="s5">
   <div style="background-color: #6537AE;" class="pt-3 pb-5">
-    <div class="container">
-      <div class="row">
-        <div class="col-xl-6 col-lg-4 m-auto py-4 h-100">
-          <div class="">
-            <img src="images/dra. Zharlah.jpg" alt="" class="rounded"  style="height:auto; max-width: 100%;">
+    <div class="container bg-light p-3 rounded">
+          <div class="row gx-3">
+              <div class="col-lg-6 rounded-image m-auto">
+                  <img src="images/dra. Zharlah.jpg" alt="Dr. Zharlah" class="img-fluid" id="s1">
+              </div>
+              <div class="col-lg-6 content m-auto"  id="s1">
+                  <h2 class="mb-4 mt-3" style="font-family: Lora;">Dr. Zharlah Gulmatico-Flores MD, MMPHA, FPDS, FPADSFI</h2>
+                  <p>
+                      Dr. Zharlah A. Gulmatico-Flores, MD, FPDS. FPADSFI obtained her Doctor of Medicine degree at Our Lady of Fatima University.
+                      She completed her residency training in Dermatology at the Jose R. Reyes Memorial Medical Center and went on to pursue further training
+                      on Mohs Micrographic Surgery at Yonsei Severance Hospital in Seoul, South Korea and under the tutelage of Professor Isaac Zilinsky and
+                      Dr. Euhud Miller at Assaf Harofeh Medical Center in Israel. At present, Dr. Gulmatico-Flores is the Training Officer and Research Coordinator
+                      of the Department of Dermatology at Jose R. Reyes Memorial Medical Center and is the Chairperson of the same institution's Institutional
+                      Review Board Committee. She is an Associate Professor III at the Metropolitan Medical Center College of Medicine and Assistant professor
+                      III in Our Lady of Fatima University College of Medicine in the Department of Biochemistry. She is a Fellow and the Head of the Public
+                      Relations External Affairs Committee of the Philippine Dermatological Society. She is a Fellow of the American Academy of Dermatology
+                      and European Academy of Dermatology and Venereology. She is an active consultant at Quezon City General Hospital, ACE Medical Center,
+                      and Zephyris Skin Care Center.
+                  </p>
+              </div>
           </div>
-        </div>
-        <div class=" col-xl-6 col-lg-8 m-auto h-100">
-          <div class="bg-white p-5 rounded">
-          <h2 class="h-100" style="color:#6537AE; font-family: Lora;">Dr. Zharlah Gulmatico-Flores MD, MMPHA, FPDS, FPADSFI </h2> <br>
-          <p>
-            Dr. Zharlah A. Gulmatico-Flores, MD, FPDS. FPADSFI obtained
-            her Doctor of Medicine degree at Our Lady of Fatima University. 
-            She completed her residency training in Dermatology at the Jose R. Reyes 
-            Memorial Medical Center and went on to pursue further training on Mohs Micrographic
-              Surgery at Yonsei Severance Hospital in Seoul, South Korea and under the tutelage 
-              of Professor Isaac Zilinsky and Dr. Euhud Miller at Assaf Harofeh Medical Center 
-              in Israel. At present, Dr. Gulmatico-Flores is the Training Officer and Research 
-              Coordinator of the Department of Dermatology at Jose R. Reyes Memorial Medical Center
-              and is the Chairperson of the same institution's Institutional Review Board Committee. 
-              She is an Associate Professor III at the Metropolitan Medical Center College of Medicine 
-              and Assistant professor III in Our Lady of Fatima University College of Medicine in the 
-              Department of Biochemistry. She is a Fellow and the Head of the Public Relations External 
-              Affairs Committee of the Philippine Dermatological Society. She is a Fellow of the American 
-              Academy of Dermatology and European Academy of Dermatology and Venereology. She is an active 
-              consultant at Quezon City General Hospital, ACE Medical Center, and Zephyris Skin Care Center.</p>
-          </div>
-        </div>
       </div>
     </div>
   </div>
 </section>
 
-<section class="my-5">
-<h1 style=" font-family: Lora;" class="text-center mb-3">AWARDS</h1>
-<div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
+<section class="my-5" id="s5">
+<h1 style=" font-family: Lora;" class="text-center mb-5">AWARDS</h1>
+<div id="carouselExampleControls" class="carousel slide mx-3" data-bs-ride="carousel">
   <div class="carousel-inner">
     <div class="carousel-item active">
       <div class="cards-wrapper">
         <div class="card">
           <div class="image-wrapper">
-            <img src="https://codingyaar.com/wp-content/uploads/multiple-items-carousel-slide-1-card-1.jpg" alt="...">
+            <img src="images/awards2.jpg" alt="...">
           </div>
-          <div class="card-body">
-            <h5 class="card-title">Card title</h5>
-            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's
-              content.</p>
-            <a href="#" class="btn btn-primary">Go somewhere</a>
+          <div class="card-body text-center">
+            <h5 class="card-title" style="font-weight: 700;">CERTIFICATE OF ACHIEVEMENT</h5>
+            <p class="card-title">American Academy of Dermatology</p>
           </div>
         </div>
         <div class="card">
           <div class="image-wrapper">
-            <img src="https://codingyaar.com/wp-content/uploads/multiple-items-carousel-slide-1-card-2.jpg" alt="...">
+            <img src="images/awards7.jpg" alt="...">
           </div>
-          <div class="card-body">
-            <h5 class="card-title">Card title</h5>
-            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's
-              content.</p>
-            <a href="#" class="btn btn-primary">Go somewhere</a>
+          <div class="card-body text-center">
+            <h5 class="card-title" style="font-weight: 700;">PLAQUE OF RECOGNITION</h5>
+            <p class="card-title">Philippine Academy of Aesthetic and Age Management Medicine Inc</p>
           </div>
         </div>
         <div class="card">
           <div class="image-wrapper">
-            <img src="https://codingyaar.com/wp-content/uploads/multiple-items-carousel-slide-1-card-3.jpg" alt="...">
+            <img src="images/awards3.jpg"  alt="...">
           </div>
-          <div class="card-body">
-            <h5 class="card-title">Card title</h5>
-            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's
-              content.</p>
-            <a href="#" class="btn btn-primary">Go somewhere</a>
+          <div class="card-body  text-center">
+            <h5 class="card-title" style="font-weight: 700;">RESIDENCY TRAINING PROGRAM IN DERMATOLOGY</h5>
+            <p class="card-title">Jose R. Reyes Memorial Medical Center</p>
           </div>
         </div>
       </div>
@@ -584,76 +557,34 @@ text-align: center;
       <div class="cards-wrapper">
         <div class="card">
           <div class="image-wrapper">
-            <img src="https://codingyaar.com/wp-content/uploads/multiple-items-carousel-slide-2-card-1.jpg" alt="...">
+            <img src="images/awards4.jpg" alt="...">
           </div>
-          <div class="card-body">
-            <h5 class="card-title">Card title</h5>
-            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's
-              content.</p>
-            <a href="#" class="btn btn-primary">Go somewhere</a>
+          <div class="card-body text-center">
+            <h5 class="card-title " style="font-weight: 700;">CERTIFICATE OF ACHIEVEMENT</h5>
+            <p class="card-text">Yonsei University of College of Medicine</p>
           </div>
         </div>
         <div class="card">
           <div class="image-wrapper">
-            <img src="https://codingyaar.com/wp-content/uploads/multiple-items-carousel-slide-2-card-2.jpg" alt="...">
+            <img src="images/awards5.jpg" alt="...">
           </div>
-          <div class="card-body">
-            <h5 class="card-title">Card title</h5>
-            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's
-              content.</p>
-            <a href="#" class="btn btn-primary">Go somewhere</a>
+          <div class="card-body  text-center">
+            <h5 class="card-title" style="font-weight: 700;">PLAQUE OF RECOGNITION</h5>
+            <p class="card-title">Philippine Academy of Aesthetic and Age Management Medicine Inc</p>
           </div>
         </div>
         <div class="card">
           <div class="image-wrapper">
-            <img src="https://codingyaar.com/wp-content/uploads/multiple-items-carousel-slide-2-card-3.jpg" alt="...">
+            <img src="images/awards6.jpg" alt="...">
           </div>
-          <div class="card-body">
-            <h5 class="card-title">Card title</h5>
-            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's
-              content.</p>
-            <a href="#" class="btn btn-primary">Go somewhere</a>
+          <div class="card-body text-center">
+            <h5 class="card-title" style="font-weight: 700;">SKIN TECH PHARMA GROUP AND PLAQUE APPRECIATION</h5>
+            <p class="card-title">Philippine Academy of Aesthetic and Age Management Medicine Inc</p>
           </div>
         </div>
       </div>
     </div>
-    <div class="carousel-item">
-      <div class="cards-wrapper">
-        <div class="card">
-          <div class="image-wrapper">
-            <img src="https://codingyaar.com/wp-content/uploads/bootstrap-multiple-items-carousel-slide-3-card-1.jpg" alt="...">
-          </div>
-          <div class="card-body">
-            <h5 class="card-title">Card title</h5>
-            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's
-              content.</p>
-            <a href="#" class="btn btn-primary">Go somewhere</a>
-          </div>
-        </div>
-        <div class="card">
-          <div class="image-wrapper">
-            <img src="https://codingyaar.com/wp-content/uploads/multiple-items-carousel-slide-3-card-2.jpg" alt="...">
-          </div>
-          <div class="card-body">
-            <h5 class="card-title">Card title</h5>
-            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's
-              content.</p>
-            <a href="#" class="btn btn-primary">Go somewhere</a>
-          </div>
-        </div>
-        <div class="card">
-          <div class="image-wrapper">
-            <img src="https://codingyaar.com/wp-content/uploads/multiple-items-carousel-slide-3-card-3.jpg" alt="...">
-          </div>
-          <div class="card-body">
-            <h5 class="card-title">Card title</h5>
-            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's
-              content.</p>
-            <a href="#" class="btn btn-primary">Go somewhere</a>
-          </div>
-        </div>
-      </div>
-    </div>
+    
   </div>
   <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
     <span class="carousel-control-prev-icon" aria-hidden="true"></span>
@@ -674,13 +605,13 @@ text-align: center;
 
        
 
-        <div class="we-are-block my-5">
+        <div class="we-are-block my-5"  id="s5">
   <div id="about-us-section">
-    <div class="about-us-image">
+    <div class="about-us-image" id="s1">
     <img src="images/image6.png" width="851" height="459" alt="Building Pic">
     </div>
 
-    <div class="about-us-info">
+    <div class="about-us-info"  id="s1">
       <h2 style=" font-family: Lora;">Mission</h2>
       <p>Our mission is to provide you with the highest quality of
                     care and help you achieve optimal skin health. We are
@@ -692,10 +623,10 @@ text-align: center;
   </div>
 
   <div id="history-section">
-    <div class="history-image">
-      <img src="images/image6.png" width="951" height="471" alt="Building Pic">
+    <div class="history-image" id="s1">
+      <img src="images/image6.png" width="951" height="471" alt="Building Pic"  id="s5">
     </div>
-    <div class="history-info">
+    <div class="history-info" id="s1">
       <h2 style=" font-family: Lora;">Vision</h2>
       <p>Our vision for the clinic is to be a leading provider of
                     dermatology services in your community, known for
@@ -714,7 +645,7 @@ text-align: center;
 
     <footer >
 <div class="mt-5">
-    <footer class="footer">
+    <footer class="footer"  id="s5">
       <svg class="footer-wave-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 100" preserveAspectRatio="none">
         <path class="footer-wave-path" d="M851.8,100c125,0,288.3-45,348.2-64V0H0v44c3.7-1,7.3-1.9,11-2.9C80.7,22,151.7,10.8,223.5,6.3C276.7,2.9,330,4,383,9.8 c52.2,5.7,103.3,16.2,153.4,32.8C623.9,71.3,726.8,100,851.8,100z"></path>
       </svg>
@@ -723,7 +654,7 @@ text-align: center;
         <div class="row">
           <div class="col-lg-4">
               <div>
-                <h2 style="font-family: Lora;">Z-SKIN</h2>
+                <h2 style="font-family: Lora;">Z SKIN CARE CENTER</h2>
                   <p>Care and help you achieve optimal skin health. We are
                     committed to providing you with comprehensive,
                     personalized care, staying up-to-date with the latest
@@ -737,16 +668,16 @@ text-align: center;
               <h2 style="font-family: Lora;">Navigation</h2>
               <ul class="list-unstyled">
                 <li>
-                  <a href="#" class="text-white">About Us</a>
+                  <a href="about.php" class="text-white">About Us</a>
                 </li>
                 <li>
-                  <a href="#" class="text-white">Services</a>
+                  <a href="service.php" class="text-white">Services</a>
                 </li>
                 <li>
-                  <a href="#" class="text-white">Faq</a>
+                  <a href="FAQ.php" class="text-white">FAQ</a>
                 </li>
                 <li>
-                  <a href="#" class="text-white">Contact Us</a>
+                  <a href="contact.php" class="text-white">Contact Us</a>
                 </li>
               </ul>
             </div>
@@ -754,7 +685,7 @@ text-align: center;
               <h2 style="font-family: Lora;"> Legal</h2>
               <ul class="list-unstyled">
                 <li>
-                  <a href="#" class="text-white">Terms and Condition</a>
+                  <a href="terms_and_condition.php" class="text-white">Terms and Condition</a>
                 </li>
               </ul>
             </div>
@@ -764,9 +695,14 @@ text-align: center;
               <h2 style="font-family: Lora;">Social Media</h2>
               <ul class="list-unstyled">
                 <li>
-                <a>
-                    <i class="bi bi-facebook text-white me-2"> </i>
+                <a href="https://www.facebook.com/Zskincarecenter" class="text-white">
+                    <i class="bi bi-facebook text-white me-2"></i>
                     Facebook</a>
+                </li>
+                <li>
+                <a href="https://www.instagram.com/zskincarecenter" class="text-white">
+                    <i class="bi bi-instagram text-white me-2"></i>
+                    Instagram</a>
                 </li>
               </ul>
             </div>
@@ -776,7 +712,7 @@ text-align: center;
             <p>Address: Unit 4 One Kalayaan Place Building 284 Samson Road Victory Liner Compound, Caloocan, Philippines</p>
             <p> You can Contact Us</p>
             <p>Phone: 0915 759 2213</p>
-            <p >Email: zskincarecenter @gmail.com</p>
+            <p >Email: zskincarecenter@gmail.com</p>
           </div>
           </div>
           <div>
@@ -784,13 +720,89 @@ text-align: center;
   </div>
 </div>
 </footer>
-<div class=" text-center text-white p-1" style="background-color: #c23fe3;"> ©2023. | Z-Skin | All rights reserved. </div>
+<div class=" text-center text-white p-1" style="background-color: #c23fe3;"> © 2023 Z Skin Care Center. All Rights Reserved. </div>
 
     <!-- Include Bootstrap JS and dependencies -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+  ScrollReveal().reveal('#s1',{
+  delay: 175,
+  duration: 1500,
+  origin: "bottom",
+  interval: 600,
+});
+ScrollReveal().reveal('#s2',{
+  delay: 155,
+  duration: 2000,
+  opacity: 0,
+  easing   : 'ease-in-out',
+  distance: "70%",
+  origin: "bottom",
+});
+ScrollReveal().reveal('#s4',{
+  delay: 175,
+  duration: 1500,
+  opacity: 0,
+  distance: "70%",
+  origin: "top",
+});
+ScrollReveal().reveal('#s3',{
+  delay: 175,
+  duration: 1500,
+  opacity: 0,
+  distance: "70%",
+  origin: "top",
+});
+ScrollReveal().reveal('#s5',{
+  delay: 175,
+  duration: 1500,
+  origin: "center",
+});
+ScrollReveal().reveal('#carouselExampleDark',{
+  delay: 175,
+  duration: 1500,
+  origin: "center",
+});
 
+ScrollReveal().reveal('.col-md-4', {
+    duration: 1000, 
+    origin: 'bottom',
+    distance: '100px',
+    delay: 200,
+  });
+</script>
+<!-- Messenger Chat Plugin Code -->
+    <div id="fb-root"></div>
+
+    <!-- Your Chat Plugin code -->
+    <div id="fb-customer-chat" class="fb-customerchat">
+    </div>
+
+    <script>
+      var chatbox = document.getElementById('fb-customer-chat');
+      chatbox.setAttribute("page_id", "184630898063490");
+      chatbox.setAttribute("attribution", "biz_inbox");
+    </script>
+
+    <!-- Your SDK code -->
+    <script>
+      window.fbAsyncInit = function() {
+        FB.init({
+          xfbml            : true,
+          version          : 'v18.0'
+        });
+      };
+
+      (function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s); js.id = id;
+        js.src = 'https://connect.facebook.net/en_US/sdk/xfbml.customerchat.js';
+        fjs.parentNode.insertBefore(js, fjs);
+      }(document, 'script', 'facebook-jssdk'));
+    </script>
 </body>
 
 </html>

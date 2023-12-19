@@ -20,8 +20,119 @@ $userData = $_SESSION['id'];
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.rtl.min.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
 
+<style>
+            th{
+        background-color:#6537AE  !important;
+        color: #fff  !important;
+        }
+        .outline {
+        border: #6537AE 2px solid;
+        background-color: white;
+        color: #6537AE;
+        padding: 7px 15px;
+        }
+        .outline:hover {
+            border: #6537AE 2px solid;
+            background-color: #6537AE;
+            color: white;
+            padding: 7px 15px;
+        }
+        .top-height {
+            margin-top: 22px;
+            height: -5px;
+        }
+        .page-item.active .page-link {
+    background-color: #6537AE !important;
+    color: #fff !important;
+    border: #6537AE;
+}   
+            .nav-link{
+            color: purple;
+        }
+        .fc-day-grid-event > .fc-content {
+       white-space: normal;
+   }
+           .loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #6537AE;
+  transition: opacity 3s, visibility 0.75s;
+  z-index: 999999;
+}
+
+.loader--hidden {
+  opacity: 0.90;  
+  visibility: hidden;
+}
+
+
+@keyframes loading {
+  from {
+    transform: rotate(0turn);
+  }
+  to {
+    transform: rotate(1turn);
+  }
+}
+    @keyframes flipX {
+        0% {
+            transform: scaleX(1);
+        }
+        50% {
+            transform: scaleX(-1);
+        }
+        100% {
+            transform: scaleX(1);
+        }
+    }
+
+    .flipX-animation {
+        animation-name: flipX;
+        animation-duration: 1s;
+        animation-timing-function: ease-in-out;
+        animation-iteration-count: infinite;
+    }
+    #pageloader {
+        background: rgba(255, 255, 255, 0.9);
+        display: none;
+        height: 100%;
+        position: fixed;
+        width: 100%;
+        z-index: 9999;
+    }
+
+    .custom-loader1 {
+
+        margin: 0 auto;
+        margin-top: 35vh;
+    }
+    @keyframes flipX {
+        0% {
+            transform: scaleX(1);
+        }
+        50% {
+            transform: scaleX(-1);
+        }
+        100% {
+            transform: scaleX(1);
+        }
+    }
+
+    .flipX-animation {
+        animation-name: flipX;
+        animation-duration: 1s;
+        animation-timing-function: ease-in-out;
+        animation-iteration-count: infinite;
+    }
+</style>
     </head>
     <body>
     <?php
@@ -59,7 +170,6 @@ $userData = $_SESSION['id'];
             echo "Record not found";
             exit;
         }
-        // Retrieve additional info if available
         $info_sql = "SELECT diagnosis FROM zp_derma_record WHERE patient_id=?";
         $info_stmt = mysqli_prepare($conn, $info_sql);
         mysqli_stmt_bind_param($info_stmt, "i", $id);
@@ -74,111 +184,7 @@ $userData = $_SESSION['id'];
         mysqli_stmt_close($info_stmt);
         mysqli_close($conn);
     }
-
-    if (isset($_POST['add_diagnosis'])) {
-        include "../../db_connect/config.php";
     
-        $id = $_POST['id'];
-        $diagnosis = $_POST['diagnosis'];
-        $history = $_POST['history'];
-    
-        $date_diagnosis = date_default_timezone_set('Asia/Manila');
-        $date_diagnosis = date("Y-m-d");
-    
-        $management = $_POST['management'];
-        $notes = $_POST['notes'];
-    
-        if ($_FILES['image']['size'] > 0) {
-            $image = $_FILES['image']['name'];
-            $image_tmp = $_FILES['image']['tmp_name'];
-            $timestamp = time();
-            $image_extension = pathinfo($image, PATHINFO_EXTENSION);
-            $unique_image_name = $timestamp . '_' . uniqid() . '.' . $image_extension;
-            move_uploaded_file($image_tmp, "../../img/progress/" . $unique_image_name);
-        } else {
-            $unique_image_name = "";
-        }
-    
-        $info_sql = "INSERT INTO zp_derma_record (patient_id, date_diagnosis, history, management, diagnosis, notes, image) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        $info_stmt = mysqli_prepare($conn, $info_sql);
-        mysqli_stmt_bind_param($info_stmt, "issssss", $id, $date_diagnosis, $history, $management,  $diagnosis, $notes, $unique_image_name);
-    
-        if ($info_stmt->execute()) {
-            echo "<script>
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success!',
-                    text: 'Data Updated successfully.'
-                }).then(function() {
-                    window.location.href = 'edit_client_record.php?id=" . $id . "';
-                });</script>";
-        }else {
-            echo" Swal.fire({
-                icon: 'error',
-                title: 'Error!',
-                text: 'Failed to add data.'
-            });";
-        }
-    
-        mysqli_stmt_close($info_stmt);
-        mysqli_close($conn);
-    }
-    
-    
-    if (isset($_POST['add_appointment'])) {
-        include "../../db_connect/config.php";
-
-        $id = $_POST['id'];
-        $date = $_POST['date'];
-        $time = $_POST['time'];
-        $services = $_POST['services'];
-
-        $reference = generateReferenceCode();
-        $currentTimestamp = date("Y-m-d H:i:s");
-
-        $name_sql = "SELECT client_firstname, client_lastname, client_email FROM zp_client_record WHERE id=?";
-        $name_stmt = mysqli_prepare($conn, $name_sql);
-        mysqli_stmt_bind_param($name_stmt, "i", $id);
-        mysqli_stmt_execute($name_stmt);
-        $name_result = mysqli_stmt_get_result($name_stmt);
-    
-        if ($name_row = mysqli_fetch_assoc($name_result)) {
-            $fname = $name_row['client_firstname'];
-            $lname = $name_row['client_lastname'];
-            $email = $name_row['client_email'];
-
-            $info_sql = "INSERT INTO zp_appointment (client_id, firstname, reference_code, lastname, email, date, time, services, appointment_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?,'Pending')";
-            $info_stmt = mysqli_prepare($conn, $info_sql);
-            mysqli_stmt_bind_param($info_stmt, "isssssss", $id, $fname, $reference, $lname, $email, $date, $time, $services);
-    
-            if (mysqli_stmt_execute($info_stmt)) {
-                echo "<script>
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success!',
-                    text: 'Diagnosis is Added successfully.'
-                }).then(function() {
-                    window.location.href = 'edit_client_record.php?id=" . $id . "';
-                });
-                </script>";
-                exit();
-            } else {
-                echo "<script>
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error!',
-                    text: 'Failed to add data.'
-                });
-                </script>";
-            }
-        } else {
-            echo "Client not found";
-            exit;
-        }
-    mysqli_stmt_close($info_stmt);
-    mysqli_close($conn);
-    }
-        
 
     if (isset($_POST['update_diagnosis'])) {
         include "../../db_connect/config.php";
@@ -189,14 +195,12 @@ $userData = $_SESSION['id'];
         $editednotes = $_POST['edit_notes'];
         $imagePath = '';
     
-        // Check if a new image file is selected
         if ($_FILES['uploaded_image']['error'] == 0 && $_FILES['uploaded_image']['size'] > 0) {
             $targetDirectory = '../../img/progress/';
             $uniqueFilename = uniqid() . '_' . basename($_FILES['uploaded_image']['name']);
             $targetFile = $targetDirectory . $uniqueFilename;
     
             if (move_uploaded_file($_FILES['uploaded_image']['tmp_name'], $targetFile)) {
-                // Unlink (delete) the old image, except for the exception
                 $oldImagePathQuery = "SELECT image FROM zp_derma_record WHERE id=?";
                 $oldImagePathStmt = mysqli_prepare($conn, $oldImagePathQuery);
                 mysqli_stmt_bind_param($oldImagePathStmt, "i", $id);
@@ -240,7 +244,7 @@ $userData = $_SESSION['id'];
                     Swal.fire({
                         icon: 'success',
                         title: 'Success!',
-                        text: 'Data Updated successfully.'
+                        text: 'Client Diagnosis Updated Successfully.'
                     });
                 });
             </script>";
@@ -251,71 +255,87 @@ $userData = $_SESSION['id'];
         mysqli_stmt_close($update_stmt);
         mysqli_close($conn);
     }
-
-if (isset($_POST['archive'])) {
-    $id = $_POST['id'];
-    include "../../db_connect/config.php";
-    $archive_sql = "UPDATE zp_derma_record SET archive = 1 WHERE id = ?";
-    $archive_stmt = mysqli_prepare($conn, $archive_sql);
-    mysqli_stmt_bind_param($archive_stmt, "i", $id);
-
-    if ($archive_stmt->execute()) {
-        echo "Record archived successfully";
-    } else {
-        echo "Error archiving record: " . mysqli_error($conn);
-    }
-
-    mysqli_stmt_close($archive_stmt);
-    mysqli_close($conn);
-}
-
-
-function generateServiceDropdown($conn)
-    {
-    include "../../db_connect/config.php";
-    $stmt = mysqli_prepare($conn, "SELECT DISTINCT services FROM service");
-    mysqli_stmt_execute($stmt);
-    mysqli_stmt_store_result($stmt);
-    mysqli_stmt_bind_result($stmt, $category);
-
-    while (mysqli_stmt_fetch($stmt)) {
-        echo '<optgroup label="' . $category . '">';
-        $stmt2 = mysqli_prepare($conn, "SELECT id, services, name, image, description FROM service WHERE services = ?");
-        mysqli_stmt_bind_param($stmt2, "s", $category);
-        mysqli_stmt_execute($stmt2);
-        mysqli_stmt_store_result($stmt2);
-        mysqli_stmt_bind_result($stmt2, $id, $services, $name, $image, $description);
-
-        while (mysqli_stmt_fetch($stmt2)) {
-            echo '<option value="' . $name . '">' . $name . '</option>';
-        }
-        echo '</optgroup>';
-    }
-}
-
     
-    function generateReferenceCode() {
-        $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        $reference = '';
-        $length = 6;
-    
-        for ($i = 0; $i < $length; $i++) {
-            $randomIndex = rand(0, strlen($characters) - 1);
-            $reference .= $characters[$randomIndex];
-        }
-    
-        return $reference;
-    }
+
     
     
     ?>
+    <?php
+if (isset($_GET['success']) && $_GET['success'] === 'true') {
+    logActivity($conn, $userData['id'], $userData['clinic_lastname'], 'Add Client Diagnosis', $userData['clinic_role'], 'Add Client Diagnosis');
+    echo "<script>
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: 'Client Diagnosis Added successfully.'
+                }).then(function() {
+                    window.location.href = 'edit_client_record.php?id=" . $id . "';
+                });
+          </script>";
+          exit();
+}
+if (isset($_GET['insert']) && $_GET['insert'] === 'true') {
+    logActivity($conn, $userData['id'], $userData['clinic_lastname'], 'Add Client Appointment', $userData['clinic_role'], 'Add Client Appointment for next session');
+    echo "<script>
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: 'Client Appointment Added Successfully.'
+                }).then(function() {
+                    window.location.href = 'edit_client_record.php?id=" . $id . "';
+                });
+          </script>";
+          exit();
+}
+// Check for error parameter
+if (isset($_GET['error']) && $_GET['error'] === 'true') {
+
+    echo "<script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: 'Client Diagnosis Added successfully.'
+            }).then(function() {
+                window.location.href = 'edit_client_record.php?id=" . $id . "';
+            });
+          </script>";
+          exit();
+}
+function logActivity($conn, $userId, $name, $actionType, $role, $actionDescription) {
+    include "../../db_connect/config.php";
+    $timezone = new DateTimeZone('Asia/Manila');
+    $dateTime = new DateTime('now', $timezone);
+    $timestamp = $dateTime->format('Y-m-d H:i:s');
+    $sql = "INSERT INTO activity_log (user_id, name, action_type, role, action_description, timestamp) VALUES (?, ?, ?, ?, ?, ?)";
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, 'isssss', $userId, $name, $actionType, $role, $actionDescription, $timestamp);
+
+    if (mysqli_stmt_execute($stmt)) {
+        mysqli_stmt_close($stmt);
+}
+}
+?>
+<!-- The rest of your HTML content goes here -->
+<div class="loader">
+<div class="custom-loader flipX-animation"></div>
+    <div class="text-center">
+        <img src="../../t/images/iconwhite.png" style="width: 125px;" alt="logo" class="mb-4 flipX-animation animate__animated">
+    </div>
+</div>
+<div id="pageloader">
+    <div class="custom-loader1 flipX-animation"></div>
+    <div class="text-center">
+        <img src="../../t/images/6.png" style="width: 125px;" alt="logo" class="mb-4 flipX-animation animate__animated">
+    </div>
+    <h4 class="text-center" style="font-family: Lora;"> Please Wait</h4>
+</div>
         <div id="wrapper">
             <?php include "../sidebar.php"; ?>
             <section id="content-wrapper">
-                <div class="row">
+                <div>
                     <div class="col-lg-12">
                     <div class="mx-3">
-                    <form method="post" >
+                    <form method="post"  action="<?php echo $_SERVER['PHP_SELF']; ?>">
                             <div class="container">
                             <a class="btn btn-secondary" href="client_record.php"><i class="bi bi-arrow-left"></i></a>
                             <h2 style="color:6537AE;" class="text-center fw-bold">EDIT CLIENT RECORD</h2>
@@ -325,37 +345,38 @@ function generateServiceDropdown($conn)
                                 <div class="row justify-content-center">
                                     <div class="col-xl-3 col-lg-12">
                                         <div class="bg-white mb-4 p-5 text-center rounded border" style="height: 90%; padding-bottom: 25px;">
-                                            <img src="<?php echo $avatar; ?>" alt="Avatar" style="width: 155px; height: 155px; border-radius: 50%; margin: 0 auto;"><br>
+                                            <img src="../../img/avatar/<?php echo $avatar; ?>" alt="Avatar" style="width: 155px; height: 155px; border-radius: 50%; margin: 0 auto;"><br>
                                         </div>
                                     </div>
                                     <div class="col-xl-9 col-lg-12 mb-4">
                                         <div class="bg-white px-5 py-3 border rounded">
-                                            <div class="row mb-3">
+                                        <div class="row mt-3">
                                                 <div class="row">
-                                                    <strong><label class="mb-2">CLIENT INFORMATION:</label></strong>
+                                                    <label class="mb-2" style="color:#6537AE; font-weight: 700; ">CLIENT INFORMATION</label>
                                                     <hr>
                                                 </div>
                                                 <div class="col-md-4">
-                                                    <strong><p>Full Name: </p></strong>
+                                                    <p class="" style="color:#6537AE; font-weight: 700; ">Full Name </p>
                                                     <p><?php echo ($lname. ", " .$fname. " " .$mname. " " .$sname); ?></p>
                                                 </div>
                                                 <div class="col-md-4">
-                                                    <strong><label class="mb-3">Email:</label></strong>
-                                                    <p><?php echo $email ?></p>
+                                                    <p style="color:#6537AE; font-weight: 700; ">Date of Birth </p>
+                                                    <p><?php echo date('F d, Y', strtotime($dob)); ?></p>
                                                 </div>
                                                 <div class="col-md-4">
-                                                    <strong><label class="mb-3">Contact Number:</label></strong>
-                                                    <p><?php echo $contact ?></p>
+                                                    <p style="color:#6537AE; font-weight: 700; ">Gender </p>
+                                                    <p><?php echo $gender; ?></p>
                                                 </div>
                                             </div>
                                             <div class="row">
-                                                <div class="col-md-4">
-                                                    <strong><p>Gender: </p></strong>
-                                                    <p><?php echo $gender; ?></p>
+                                            <div class="col-md-6">
+                                                    <label class="mb-3" style="color:#6537AE; font-weight: 700; ">Email</label>
+                                                    <p><?php echo $email ?></p>
                                                 </div>
+
                                                 <div class="col-md-6">
-                                                    <strong><p>Date of Birth: </p></strong>
-                                                    <p><?php echo date('F m, Y', strtotime($dob)); ?></p>
+                                                    <label class="mb-3" style="color:#6537AE; font-weight: 700; ">Contact Number</label>
+                                                    <p><?php echo $contact ?></p>
                                                 </div>
                                             </div>
                                         </div>
@@ -363,46 +384,44 @@ function generateServiceDropdown($conn)
                                 </div>
                                 <div class="col-md-12 bg-white px-5 border rounded mb-3" style="padding: 20px;">
                                 <div class="row">
-                                    <strong><label class="mb-2">ADDRESS</label></strong>
+                                    <label class="mb-2" style="color:#6537AE; font-weight: 700; ">ADDRESS</label>
                                     <hr>
                                 </div>
                                 <div class="row mb-3">
                                     <div class="col-md-12">
-                                        <p><?php echo $houseNumber . " " . $streetName . " " . $barangay . ", " . $city . " " . $province . " " . $postalCode?></p>
+                                        <p ><?php echo $houseNumber . " " . $streetName . " " . $barangay . ", " . $city . " " . $province . " " . $postalCode?></p>
                                     </div>
                                     
                                 </div>
                                 <div class="col-md-12">
                                 <div class="row">
-                                    <strong><label class="mb-2">EMERGENCY CONTACT PERSON</label></strong>
+                                    <label class="mb-2" style="color:#6537AE; font-weight: 700; ">EMERGENCY CONTACT PERSON</label>
                                     <hr>
                                 </div>
                                 <div class="row mb-3">
                                     <div class="col-md-5">
-                                        <strong><label class="mb-3">Contact Person</label></strong>
+                                        <label class="mb-3" style="color:#6537AE; font-weight: 700; ">Contact Person</label>
                                         <p><?php echo $econtact ?></p>
                                     </div>
                                     <div class="col-md-4">
-                                        <strong><label class="mb-3">Relation</label></strong>
+                                        <label class="mb-3" style="color:#6537AE; font-weight: 700; ">Relation</label>
                                         <p><?php echo $relation ?></p>
                                     </div>
                                     <div class="col-md-3">
-                                        <strong><label class="mb-3">Contact Person Number</label></strong>
+                                        <label class="mb-3" style="color:#6537AE; font-weight: 700; ">Contact Person Number</label>
                                         <p><?php echo $econtactno ?></p>
                                     </div>
                                 </div>
                             </div>
                             </div>
                             <div class="col-md-12">
-
                             </div>
                         </form>
-                        <div class="bg-white pt-4">
-                            <h2 class="text-center">DIAGNOSIS OF THE PATIENT</h2>
+                        <div class="pt-3">
                         <nav>
                         <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                            <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">List Diagnosis</button>
-                            <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Create Diagnosis</button>
+                            <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">Diagnosis List</button>
+                            <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Appointment List</button>
                         </div>
                         </nav>
                         
@@ -411,55 +430,78 @@ function generateServiceDropdown($conn)
                             <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
                                 
                             <div id="diagnosisContainer" class="bg-white p-3">
-                            <table id="clientTable" class="table table table-bordered table-striped w-100">
+                                <div class="bg-white py-3 mb-3 border border-bottom">
+                                    <div class="d-flex justify-content-between mx-4">
+                                        <div>
+                                            <h2 style="color:6537AE;" class="fw-bold">CLIENT DIAGNOSIS</h2>
+                                        </div>
+                                        <div class="align-items-center">
+                                        <?php
+                                            include "../../db_connect/config.php";
+                                            $id = $_GET['id'];
+                                            $stmt = mysqli_prepare($conn, "SELECT * FROM zp_client_record WHERE id=?");
+                                            mysqli_stmt_bind_param($stmt, "i", $id);
+                                            mysqli_stmt_execute($stmt);
+                                            $result = mysqli_stmt_get_result($stmt);
+
+                                            if (mysqli_num_rows($result) > 0) {
+                                                $info_row = mysqli_fetch_assoc($result);
+                                                ?>
+                                                <a class="btn bg-purple text-white" onclick="addDiagnosisModal('<?php echo $info_row['id']; ?>')">CREATE</a>
+                                                <form method="post" action="">
+                                                    <input type="hidden" name="id" value="<?php echo $info_row['id']; ?>">
+                                                </form>
+                                                <?php
+                                            } else {
+                                                echo "Record not found";
+                                            }
+                                            mysqli_stmt_close($stmt);
+                                            mysqli_close($conn);
+                                        ?>
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <table id="clientTable" class="table table table-bordered table-striped w-100">
                                         <thead>
                                             <tr>
                                                 <th>Date</th>
-                                                <th>History</th>
+                                                <th>History/Physical Examination</th>
+                                                <th>History/Physical Examination</th>
                                                 <th>Diagnosis</th>
                                                 <th>Diagnosis</th>
-                                                <th>Progress Report</th>
+                                                <th class="text-nowrap">Progress Report</th>
                                                 <th>Management</th>
                                                 <th>Notes</th>
-                                                <th>All Information</th>
+                                                <th class="text-nowrap">Action</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                        <?php
-                                            if (isset($_GET['id'])) {
-                                                include "../../db_connect/config.php";
-                                                $id = $_GET['id'];
-                                                $stmt = mysqli_prepare($conn, "SELECT * FROM zp_derma_record WHERE patient_id=? AND archive != '1'");
-                                                mysqli_stmt_bind_param($stmt, "i", $id);
-                                                mysqli_stmt_execute($stmt);
-                                                $info_result = mysqli_stmt_get_result($stmt);
-                                                while ($info_row = mysqli_fetch_assoc($info_result)) {
-                                                ?>
+                                            <?php
+                                                if (isset($_GET['id'])) {
+                                                    include "../../db_connect/config.php";
+                                                    $id = $_GET['id'];
+                                                    $stmt = mysqli_prepare($conn, "SELECT * FROM zp_derma_record WHERE patient_id=? AND archive != '1'");
+                                                    mysqli_stmt_bind_param($stmt, "i", $id);
+                                                    mysqli_stmt_execute($stmt);
+                                                    $info_result = mysqli_stmt_get_result($stmt);
+                                                    while ($info_row = mysqli_fetch_assoc($info_result)) {
+                                                    ?>
                                                         <tr>
-                                                            <td><?php echo date('M d, Y', strtotime($info_row['date_diagnosis']))?></td>
+                                                            <td class="text-nowrap"><?php echo date('F d, Y', strtotime($info_row['date_diagnosis']))?></td>
+                                                            <td><?php echo $info_row['history']; ?></td>
                                                             <td><?php echo strlen($info_row['history']) > 50 ? substr($info_row['history'], 0, 50) . '...' : $info_row['history']; ?></td>
+                                                            <td><?php echo $info_row['diagnosis']; ?></td>
                                                             <td><?php echo strlen($info_row['diagnosis']) > 50 ? substr($info_row['diagnosis'], 0, 50) . '...' : $info_row['diagnosis']; ?></td>
-                                                            <td><?php echo strlen($info_row['diagnosis']) > 50 ? substr($info_row['diagnosis'], 0, 50) . '...' : $info_row['diagnosis']; ?></td>
-                                                            <td>
+                                                            <td class="text-center">
                                                                 <?php
-                                                                $imagePath = "../../img/progress/{$info_row['image']}";
-
-                                                                if (file_exists($imagePath) && is_file($imagePath)) {
-                                                                    $type = pathinfo($imagePath, PATHINFO_EXTENSION);
-                                                                    $data = file_get_contents($imagePath);
-                                                                    $imgData = base64_encode($data);
-                                                                    $src = 'data:image/' . $type . ';base64,' . $imgData;
-                                                                    echo "<img class='img-fluid' src='{$src}' alt='' height='200px' width='200px'>";
-                                                                } else {
-                                                                    $defaultImagePath = "../../img/progress/white.jpg";
-                                                                    $defaultType = pathinfo($defaultImagePath, PATHINFO_EXTENSION);
-                                                                    $defaultData = file_get_contents($defaultImagePath);
-                                                                    $defaultImgData = base64_encode($defaultData);
-                                                                    $defaultSrc = 'data:image/' . $defaultType . ';base64,' . $defaultImgData;
-                                                                    
-                                                                    echo "<img class='img-fluid' src='{$defaultSrc}' alt='' height='200px' width='200px'>";
-                                                                }
-                                                                
+                                                                    $imagePath = "../../img/progress/{$info_row['image']}";
+                                                                    if (file_exists($imagePath) && is_file($imagePath)) {
+                                                                        echo "<img class='img-fluid' src='{$imagePath}' alt='' height='100px' width='100px'>";
+                                                                    } else {
+                                                                        $defaultImagePath = "../../img/progress/white.jpg";
+                                                                        echo "<img class='img-fluid' src='{$defaultImagePath}' alt='' height='100px' width='100px'>";
+                                                                    }
                                                                 ?>
                                                             </td>
                                                             <td><?php echo $info_row['management']?></td>
@@ -498,64 +540,37 @@ function generateServiceDropdown($conn)
                         </div>
                             <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
                                 <div class="rounded p-3 bg-white">
-                                    <div class="text-dark border rounded p-3 mb-3">
-                                        <form method="post" enctype="multipart/form-data">
-                                            <input type="hidden" name="id" value="<?php echo $id; ?>">
+                                    <div class="text-dark border p-3 mb-3">
+                                    <div class="d-flex justify-content-between mx-2">
+                                        <div>
+                                            <h2 style="color:6537AE;" class="fw-bold">CLIENT APPOINTMENT</h2>
+                                        </div>
+                                        <div class="align-items-center">
+                                        <?php
+                                            include "../../db_connect/config.php";
+                                            $id = $_GET['id'];
+                                            $stmt = mysqli_prepare($conn, "SELECT * FROM zp_client_record WHERE id=?");
+                                            mysqli_stmt_bind_param($stmt, "i", $id);
+                                            mysqli_stmt_execute($stmt);
+                                            $result = mysqli_stmt_get_result($stmt);
 
-                                            <div class="mb-3">
-                                                <label class="form-label">Insert Progress</label>
-                                                <input type="file" name="image" id="image" class="form-control" accept="image/jpeg, image/jpg, image/png">
-                                            </div>
-
-                                            <div class="mb-3" id="history_div">
-                                                <label class="form-label">History of the Patient</label>
-                                                <textarea class="form-control" name="history" id="summernote" rows="4"></textarea>
-                                            </div>
-
-                                            <div class="mb-3" id="diagnosis_div">
-                                                <label class="form-label">Diagnosis of the Patient <span class="text-danger">*</span></label>
-                                                <textarea class="form-control" name="diagnosis" id="summernote" rows="4" required></textarea>
-                                            </div>
-
-                                            <div class="mb-3" id="management_div">
-                                                <label class="form-label">Management <span class="text-danger">*</span></label>
-                                                <select class="form-select select2" name="management" style="width: 100%;" required>
-                                                    <option value=""></option>
-                                                    <?php generateServiceDropdown($conn); ?>
-                                                </select>
-                                            </div>
-
-                                            <div class="mb-3" id="session_notes_div">
-                                                <label class="form-label">Session Notes <span class="text-danger">*</span></label>
-                                                <textarea class="form-control" name="notes" rows="4" required></textarea>
-                                            </div>
-
-                                            <div class="mb-3 mt-md-3 text-end">
-                                                <input class="btn bg-purple text-white" type="submit" name="add_diagnosis" value="Add Diagnosis">
-                                            </div>
-                                        </form>
+                                            if (mysqli_num_rows($result) > 0) {
+                                                $info_row = mysqli_fetch_assoc($result); // Fetch the data
+                                                ?>
+                                                <a class="btn bg-purple text-white" onclick="addAppointmentModal('<?php echo $info_row['id']; ?>')">CREATE</a>
+                                                <form method="post" action="">
+                                                    <input type="hidden" name="id" value="<?php echo $info_row['id']; ?>">
+                                                </form>
+                                                <?php
+                                            } else {
+                                                echo "Record not found";
+                                            }
+                                            mysqli_stmt_close($stmt);
+                                            mysqli_close($conn);
+                                        ?>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-
-                            </div>
-                            
-                            </div>
-                        </div>
-                        
-                            
-                            <!-- Another Tab-->
-                            <nav>
-                        <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                            <button class="nav-link active" id="nav-diagnosis-tab" data-bs-toggle="tab" data-bs-target="#nav-diagnosis" type="button" role="tab" aria-controls="nav-diagnosis" aria-selected="true">Appointment Schedule</button>
-                            <button class="nav-link" id="nav-appointment-tab" data-bs-toggle="tab" data-bs-target="#nav-appointment" type="button" role="tab" aria-controls="nav-appointment" aria-selected="false">Create Appointment</button>
-                        </div>
-                        </nav>
-                        <div class="bg-white">
-                        <div class="tab-content" id="nav-tabContent">
-                            <div class="tab-pane fade show active" id="nav-diagnosis" role="tabpanel" aria-labelledby="nav-diagnosis-tab">
-                            <div id="diagnosisContainer" class="bg-white p-3">
-                            
                             <div class="text-dark border rounded p-3 mb-3">
                                 <div class="d-flex justify-content-center">
                                     <div id="calendar"></div>
@@ -563,7 +578,7 @@ function generateServiceDropdown($conn)
                             </div>
                             <ul class="nav nav-tabs" id="myTab" role="tablist">
                                     <li class="nav-item" role="presentation">
-                                        <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">Upcomming Appointment</button>
+                                        <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">Upcoming Appointment</button>
                                     </li>
                                     <li class="nav-item" role="presentation">
                                         <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab" aria-controls="profile" aria-selected="false">Past Appoinment</button>
@@ -572,7 +587,6 @@ function generateServiceDropdown($conn)
                                 <div class="tab-content" id="myTabContent">
                                 <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
                                     <table class="table table-bordered my-3">
-                                        <tr><th colspan='3' class='text-center' style='background-color: #f2f2f2;'>Upcoming Appointment</th></tr>
                                         <tr>
                                             <th>Date</th>
                                             <th>Time</th>
@@ -581,6 +595,7 @@ function generateServiceDropdown($conn)
                                         <?php
                                         if (isset($_GET['id'])) {
                                             $id = $_GET['id'];
+                                            date_default_timezone_set('Asia/Manila');
                                             include "../../db_connect/config.php";
                                             $currentDate = date("Y-m-d");
                                             $upcomingAppointmentsQuery = "SELECT * FROM zp_appointment WHERE client_id = '$id' AND date >= '$currentDate'";
@@ -590,6 +605,7 @@ function generateServiceDropdown($conn)
                                                 $appointmentTime = $appointmentRow['time'];
                                                 $appointmentService = $appointmentRow['services'];
                                                 echo "<tr>";
+                                                $appointmentDate = date("F j, Y", strtotime($appointmentRow['date']));
                                                 echo "<td>$appointmentDate</td>";
                                                 echo "<td>$appointmentTime</td>";
                                                 echo "<td>$appointmentService</td>";
@@ -603,7 +619,6 @@ function generateServiceDropdown($conn)
                                 </div>
                                 <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
                                 <table class="table table-bordered my-3">
-                                        <tr><th colspan='3' class='text-center' style='background-color: #f2f2f2;'>Past Appointment</th></tr>
                                         <tr>
                                             <th>Date</th>
                                             <th>Time</th>
@@ -612,9 +627,8 @@ function generateServiceDropdown($conn)
                                         <?php
                                         if (isset($_GET['id'])) {
                                             $id = $_GET['id'];
+                                            date_default_timezone_set('Asia/Manila');
                                             include "../../db_connect/config.php";
-                                            
-                                            // Fetch upcoming appointments (assuming the date is in the future)
                                             $currentDate = date("Y-m-d");
                                             $pastAppointmentsQuery = "SELECT * FROM zp_appointment WHERE client_id = '$id' AND date < '$currentDate'";
                                             $pastAppointmentsResult = mysqli_query($conn, $pastAppointmentsQuery);
@@ -623,6 +637,7 @@ function generateServiceDropdown($conn)
                                                 $appointmentTime = $appointmentRow['time'];
                                                 $appointmentService = $appointmentRow['services'];
                                                 echo "<tr>";
+                                                $appointmentDate = date("F j, Y", strtotime($appointmentRow['date']));
                                                 echo "<td>$appointmentDate</td>";
                                                 echo "<td>$appointmentTime</td>";
                                                 echo "<td>$appointmentService</td>";
@@ -636,48 +651,15 @@ function generateServiceDropdown($conn)
                                 </div>
                                 </div>
                             </div>
-                            </div>
-                            <div class="tab-pane fade" id="nav-appointment" role="tabpanel" aria-labelledby="nav-appointment-tab">
-                            <div class="rounded p-5 bg-white">
-                                <h2 style="color: #6537AE;" class="text-center mb-5">Next Appointment for Client</h2>
-                            <form method="post">
-                                <input type="hidden" name="id" value="<?php echo $id; ?>">
-                                <div class="container">
-                                    <div class="row">
-                                        <div class="col-md-4">
-                                            <label for="">Select Date Appointment<span class="text-danger">*</span></label>
-                                            <input type="date" class="form-control" placeholder="Enter Schedule Date" id="d" name="date" value="<?php echo isset($date) ? $date : ''; ?>" required autocomplete="off">
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label>Select Time Appointment <span class="text-danger">*</span></label>
-                                            <select class="form-control" name="time" id="time" required>
-                                                <option value="" disabled>-- Select Time --</option>
-                                                <?php if (isset($time)): ?>
-                                                    <option value="<?php echo $time; ?>"><?php echo $time; ?></option>
-                                                <?php endif; ?>
-                                            </select>
-                                        </div>
-                                            <div class="col-md-4">
-                                                <label> Services <span class="text-danger">*</span></label>
-                                                <div>
-                                                    
-                                                </div>
-                                                <select class="select2 form-select" name="services" required>
-                                                    <?php generateServiceDropdown($conn); ?>
-                                                </select>
-                                            </div>
-                                        <div class="mb-3 mt-3 ">
-                                            <input type="submit" name="add_appointment" class="btn btn-purple bg-purple text-white float-end" value="Add Appointment">
-                                        </div>
                                     </div>
                                 </div>
-                                
-                            </form>
+                            </div>
+
                             </div>
                             
                             </div>
-                            
-                            </div>
+                        </div>
+                        
 
                 </div>
                 
@@ -688,7 +670,7 @@ function generateServiceDropdown($conn)
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="dataModalLabel">Edit Diagnosis</h5>
+                    <h5 class="modal-title" style="color:6537AE" id="dataModalLabel">EDIT DIAGNOSIS</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -698,11 +680,42 @@ function generateServiceDropdown($conn)
         </div>
     </div>
     <div class="modal fade" id="displaydata" aria-labelledby="dataModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="dataModalLabel">Full Data</h5>
+                    <h5 class="modal-title" style="color:6537AE" id="dataModalLabel">FULL DATA</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Data will be dynamically inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Popper.js -->
+    <div class="modal fade" id="insertDiagnosis" tabindex="-1" aria-labelledby="insertModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" style="color:6537AE" id="insertModalLabel">CREATE DIAGNOSIS</h5>
+                    <div class="modal-footer">
+                    <button type="button" class="btn-close float-end" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <!-- Data will be dynamically inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="insertAppointment" tabindex="-1" aria-labelledby="insertModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" style="color:6537AE" id="insertModalLabel">CREATE APPOINTMENT</h5>
+                    <div class="modal-footer">
+                    <button type="button" class="btn-close float-end" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
                 </div>
                 <div class="modal-body">
                     <!-- Data will be dynamically inserted here -->
@@ -728,66 +741,30 @@ function generateServiceDropdown($conn)
     <script src="https://cdn.datatables.net/datetime/1.1.5/js/dataTables.dateTime.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <script>
-        $(document).ready(function() {
-            $('#calendar').fullCalendar({
-                editable: true,
-                header: {
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: 'month,agendaWeek,agendaDay'
-                },
-                events: 'get_schedule.php?id=<?php echo $id; ?>',
-                eventClick: function(event) {
-                    alert('Event clicked: ' + event.title);
-                }
+$(document).ready(function() {
+    $('#calendar').fullCalendar({
+        header: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'month,agendaWeek,agendaDay'
+        },
+        events: './get_schedule.php?id=<?php echo $id; ?>',
+        eventClick: function(event) {
+            Swal.fire({
+                title: 'Event Clicked!',
+                html: '<p>Service:</p>' +
+                      '<p>' + event.title + '</p>' +
+                      '<p>Time:</p>' +
+                      '<p>' + event.time + '</p>',
+                icon: 'info',
+                confirmButtonText: 'OK'
             });
-        });
-    </script>
-<?php
-include "../../db_connect/config.php";
-
-$sql = "SELECT day_to_disable FROM disabled_days";
-$result = $conn->query($sql);
-$disableDates = array();
-if ($result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        $disableDates[] = $row['day_to_disable'];
-    }
-}
-$sql = "SELECT day, is_available FROM availability";
-$result = $conn->query($sql);
-$disableDays = array();
-if ($result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        if ($row['is_available'] == 0) {
-            $disableDays[] = $row['day'];
         }
-    }
-}
+    });
+});
 
-$conn->close();
-?>
-<script>
-    var configuration = {
-        dateFormat: "Y-m-d",
-        allowInput: true,
-        minDate: new Date().fp_incr(1),
-        maxDate: new Date().fp_incr(60),
-        "disable": [
-            function(date) {
-                date.setHours(23, 59, 59, 999);
-                var dateString = date.toISOString().split('T')[0];
-                var dayName = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-                
-                return <?php echo json_encode($disableDates); ?>.includes(dateString) ||
-                       <?php echo json_encode($disableDays); ?>.includes(dayName[date.getDay()]);
-            },
-        ]
-    };
+    </script>
 
-    flatpickr("#d", configuration);
-
-</script>
       <script>
    document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('clearFormButton').addEventListener('click', function () {
@@ -797,6 +774,7 @@ $conn->close();
 </script>
 <script>
 function showData(id) {
+    console.log(id);
 $.ajax({
     url: 'edit_diagnosis.php',
     type: 'POST',
@@ -808,7 +786,9 @@ $.ajax({
 })
 }
 function showDiagnosis(id) {
+    console.log(id);
 $.ajax({
+    
     url: 'get_diagnosis.php',
     type: 'POST',
     data: { id: id },
@@ -818,152 +798,37 @@ $.ajax({
     }
 })
 }
+function addDiagnosisModal(id) {
+    console.log(id); 
+    $.ajax({
+        url: 'create_diagnosis.php',
+        type: 'POST',
+        data: { id: id },
+        success: function (response) {
+            $('#insertDiagnosis .modal-body').html(response);
+            $('#insertDiagnosis').modal('show');
+        }
+    });
+}
+function addAppointmentModal(id) {
+    console.log(id);
+    $.ajax({
+        url: 'create_appointment.php',
+        type: 'POST',
+        data: { id: id },
+        success: function (response) {
+            $('#insertAppointment .modal-body').html(response);
+            $('#insertAppointment').modal('show');
+        }
+    });
+}
 </script>
 <script>
     $(document).ready(function() {
     var table = $('#clientTable').DataTable({
         order: [[0, 'desc']],
         responsive: true,
-        dom: "<'row'<'col-sm-1 mt-2 text-center'B><'col-md-1 mt-2 ' l><'col-md-10'f>>" +
-     "<'row'<'col-md-12'tr>>" +
-     "<'row'<'col-md-12'i><'col-md-12'p>>",
-     buttons: [
-    {
-        extend: 'collection',
-        text: '<i class="bi bi-box-arrow-up"></i>',
-        buttons: [
-            {
-                extend: 'pdfHtml5',
-                text: 'PDF',
-                title: 'Z Skin Care Report (<?php echo $fname . " " . $mname . " " . $lname . " " . $sname; ?>)',
-                exportOptions: {
-                    columns: [0, 1, 3, 4, 5],
-                    stripHtml: true
-                },
-                customize: function(doc) {
-            doc.content[1].table.widths = ['20%', '20%', '20%', '20%', '20%'];
-            doc.content[0] = {
-                text: 'Z Skin Care Report',
-                style: 'title',
-                margin: [0, 0, 0, 5],
-            };
-            var imagePaths = $('.img-fluid').map(function () {
-            return this.src;
-        }).get();
-    for (var i = 0, c = 1; i < imagePaths.length; i++, c++) {
-        doc.content[1].table.body[c][3] = {
-            image: imagePaths[i],
-            width: 100
-        };
-    }
-            doc.styles.title = {
-                color: '#2D1D10',
-                fontSize: '16',
-                alignment: 'center',
-            };
-            doc.content[1].table.headerRows = 1;
-            doc.content[1].table.body[0].forEach(function(cell) {
-                cell.fillColor = '#6537AE';
-                cell.color = '#fff';
-            });
-            doc.content.splice(1, 0, {
-  layout: 'noBorders',
-  table: {
-    widths: ['*', '*'],
-    body: [
-      [
-        {
-          text: 'Name: ' + '<?php echo $fname . " " . $mname . " " . $lname . " " . $sname; ?>',
-          margin: [10, 0, 0, 5],
-          alignment: 'left'
-        },
-        {
-          text: 'DOB: ' + '<?php echo $dob; ?>',
-          margin: [0, 0, 10, 5],
-          alignment: 'right'
-        }
-      ],
-      [
-        {
-          text: 'Gender: ' + '<?php echo $gender; ?>',
-          margin: [10, 0, 0, 5],
-          alignment: 'left'
-        },
-        {
-          text: 'Contact: ' + '<?php echo $contact; ?>',
-          margin: [0, 0, 10, 5],
-          alignment: 'right'
-        }
-      ],
-      [
-        {
-          text: 'Email: ' + '<?php echo $email; ?>',
-          margin: [10, 0, 0, 5],
-          alignment: 'left'
-        },
-        {
-          text: 'Emergency Contact: ' + '<?php echo $econtact; ?>',
-          margin: [0, 0, 10, 5],
-          alignment: 'right'
-        }
-      ],
-      [
-        {
-          text: 'Relation: ' + '<?php echo $relation; ?>',
-          margin: [10, 0, 0, 5],
-          alignment: 'left'
-        },
-        {
-          text: 'Emergency Contact No: ' + '<?php echo $econtactno; ?>',
-          margin: [0, 0, 10, 5],
-          alignment: 'right'
-        }
-      ],
-      [
-        {
-          text: 'Address: ' + '<?php echo $houseNumber . " " . $streetName  . " " . $barangay . " " . $province; ?>',
-          margin: [10, 0, 0, 5],
-          alignment: 'left'
-        },
-        {
-          text: 'Postal Code: ' + '<?php echo $postalCode; ?>',
-          margin: [0, 0, 10, 5],
-          alignment: 'right'
-        }
-      ],
-    ]
-  }
-  
-});
-
-
-
-        },
-    },
-            'copy',
-            {
-                extend: 'excelHtml5',
-                text: 'Excel',
-                title: 'Z-Skin Care Report',
-                orientation: 'landscape',
-                exportOptions: {
-                    columns: [0, 1, 3, 5],
-                }
-                
-            },
-            {
-                    extend: 'print',
-                    text: 'Print',
-                    customize: function (win) {
-                        $(win.document.body)
-                            .find('table')
-                            .addClass('compact-print-table');
-                    }
-                }
-        ]
-    }
-],
-
+        dom: '<"row  text-end"<"col-xl-2 col-lg-3 col-md-6 mt-4"l><"col-xl-3 col-lg-4 col-md-6 top-height"f><"col-xl-4"><"col-xl-3 col-lg-4 mt-3 text-end">>rtip',
         scrollY: 500,
         scrollX: true,
         scrollCollapse: true,
@@ -971,7 +836,10 @@ $.ajax({
         fixedColumns: true,
         select: true,
         "columnDefs": [
-            {"targets": [2],"visible": false, "searchable": false},
+            {"targets": [1],"visible": false, "searchable": false},
+            {"targets": [3],"visible": false, "searchable": false},
+            { "orderable": false, "targets": [1, 2, 3, 4, 5, 6, 7] },
+        { "orderable": true, "targets": [0] }
     ],
     });
 })
@@ -988,5 +856,16 @@ $.ajax({
     })
 
 </script>
+<script>
+    window.addEventListener("load", () => {
+  const loader = document.querySelector(".loader");
+
+  loader.classList.add("loader--hidden");
+
+  loader.addEventListener("transitionend", () => {
+    document.body.removeChild(loader);
+  });
+});
+        </script>
     </body>
     </html>

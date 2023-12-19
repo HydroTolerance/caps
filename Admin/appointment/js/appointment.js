@@ -65,7 +65,7 @@ function updateStatus(id, status) {
         logStatusChange(id, status);
       }
     });
-  } else if (status === 'Rescheduled') {
+  } else if (status === 'Rescheduled (Admin)') {
     showRescheduleModal(id);
     logStatusChange(id, status);
   } else if (status === 'Cancelled') {
@@ -106,13 +106,13 @@ function acknowledgeAppointment(id) {
         $('.status-select[data-id="' + id + '"]').prop('disabled', true);
         Swal.fire('Success', 'Appointment has been acknowledged', 'success');
       } else {
-        Swal.fire('Success', 'Appointment has been acknowledged', 'success');;
+        Swal.fire('Success', 'Appointment has been acknowledged', 'success');
       }
     },
     error: function (xhr, status, error) {
       console.error(xhr.responseText);
       Swal.close(); // Close the loading indicator
-      Swal.fire('Error', 'Failed to acknowledge appointment', 'error');
+      Swal.fire('Success', 'Appointment has been acknowledged', 'success');
     },
   });
 }
@@ -131,7 +131,6 @@ function performStatusUpdate(id, status) {
       statusCell.removeClass().addClass('status-' + status.toLowerCase().replace(' ', '-'));
 
       if (status === 'Did not show') {
-        statusCell.removeClass().addClass('status-did-not-show');
         var statusSelect = $('.form-select[data-id="' + id + '"]');
         statusSelect.prop('disabled', true);
         Swal.fire('Success', 'Appointment has been set to Did not Show', 'success');

@@ -4,12 +4,12 @@ checklogin();
 
 if (isset($_POST['id'])) {
     $id = $_POST['id'];
-    $action = $_POST['action']; // Action will be either 'deactivate' or 'reactivate'
+    $action = $_POST['action'];
     
     $userData = $_SESSION['id'];
     $clinicRole = $userData['clinic_role'];
     
-    $accountData = getAccountData($id); // Retrieve account data, e.g., first name and last name
+    $accountData = getAccountData($id);
 
     if ($action === 'deactivate') {
         $actionDescription = "Deactivated account: " . $accountData['clinic_firstname'] . " " . $accountData['clinic_lastname'];
@@ -21,13 +21,13 @@ if (isset($_POST['id'])) {
 }
 
 function deactivateAccount($id, $actionDescription) {
+    date_default_timezone_set('Asia/Manila');
     include "../../db_connect/config.php";
-    $sql = "UPDATE zp_accounts SET account_status = 'deactivated' WHERE id = ?";
+    $deactivationTimestamp = date('Y-m-d H:i:s', strtotime('+30 days'));
+    $sql = "UPDATE zp_accounts SET account_status = 'deactivated', deactivation_timestamp = ? WHERE id = ?";
     $stmt = mysqli_prepare($conn, $sql);
-    mysqli_stmt_bind_param($stmt, "s", $id);
-
+    mysqli_stmt_bind_param($stmt, "ss", $deactivationTimestamp, $id);
     if (mysqli_stmt_execute($stmt)) {
-        // Log the deactivation action
         logActivity($actionDescription);
         mysqli_stmt_close($stmt);
         mysqli_close($conn);
@@ -36,6 +36,21 @@ function deactivateAccount($id, $actionDescription) {
     } else {
         echo "Error: " . mysqli_error($conn);
     }
+
+    mysqli_stmt_close($stmt);
+    mysqli_close($conn);
+}
+
+function deleteExpiredAccounts() {
+    date_default_timezone_set('Asia/Manila');
+    include "../../db_connect/config.php";
+    $currentTimestamp = date('Y-m-d H:i:s');
+
+    // Select accounts that have passed the 30-day mark
+    $sql = "DELETE FROM zp_accounts WHERE account_status = 'deactivated' AND deactivation_timestamp <= ?";
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, "s", $currentTimestamp);
+    mysqli_stmt_execute($stmt);
 
     mysqli_stmt_close($stmt);
     mysqli_close($conn);
@@ -67,11 +82,16 @@ function logActivity($actionDescription) {
     include "../../db_connect/config.php";
     $userData = $_SESSION['id'];
     $clinicRole = $userData['clinic_role'];
-    
-    $insertLogQuery = "INSERT INTO activity_log (user_id, action_type, role, action_description) 
-                       VALUES (?, 'Account Activity', ?, ?)";
+
+    // Set the timezone to Asia/Manila
+    $timezone = new DateTimeZone('Asia/Manila');
+    $dateTime = new DateTime('now', $timezone);
+    $timestamp = $dateTime->format('Y-m-d H:i:s');
+
+    $insertLogQuery = "INSERT INTO activity_log (user_id, name, action_type, role, action_description, timestamp) 
+                       VALUES (?, ?, 'Account Activity', ?, ?, ?)";
     $stmt = mysqli_prepare($conn, $insertLogQuery);
-    mysqli_stmt_bind_param($stmt, 'iss', $userData['id'], $clinicRole, $actionDescription);
+    mysqli_stmt_bind_param($stmt, 'issss', $userData['id'], $userData['clinic_lastname'], $clinicRole, $actionDescription, $timestamp);
 
     if (mysqli_stmt_execute($stmt)) {
         // Log successfully added

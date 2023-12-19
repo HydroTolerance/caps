@@ -11,10 +11,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         include "../../db_connect/config.php";
         $actionDescription = "Appointment status updated to: " . $newStatus;
         $clinicRole = $userData['clinic_role'];
-        $insertLogQuery = "INSERT INTO activity_log (user_id, action_type, role, action_description) 
-                           VALUES (?, 'Appointment Status Update', ?, ?) ";
+        $insertLogQuery = "INSERT INTO activity_log (user_id, name, action_type, role, action_description) 
+                           VALUES (?,  ?,'Appointment Status Update', ?, ?) ";
         $stmt = mysqli_prepare($conn, $insertLogQuery);
-        mysqli_stmt_bind_param($stmt, 'iss', $userData['id'], $clinicRole, $actionDescription);
+        mysqli_stmt_bind_param($stmt, 'isss', $userData['id'], $userData['clinic_lastname'], $clinicRole, $actionDescription);
         if (mysqli_stmt_execute($stmt)) {
             echo json_encode(['success' => true]);
         } else {

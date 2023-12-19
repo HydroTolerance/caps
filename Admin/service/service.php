@@ -25,11 +25,16 @@ $userData = $_SESSION['id'];
         color: #fff  !important;
         text-align: center !important;
         }
+        .top-height {
+            margin-top: 23px;
+            height: -10px;
+        }
     </style>
     <body>
-    <?php 
+<?php 
+        include "../../db_connect/config.php";
 if (isset($_POST['submit'])) {
-    include "../../db_connect/config.php";
+
     if (isset($_FILES['image'])) {
         $uploadDir = "../../img/services/";
         $fileExtension = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
@@ -48,6 +53,7 @@ if (isset($_POST['submit'])) {
     $stmt = mysqli_prepare($conn, $sql);
     mysqli_stmt_bind_param($stmt, "ssss", $service, $answer, $name, $uniqueFilename);
     if (mysqli_stmt_execute($stmt)) {
+        logActivity($conn, $userData['id'], $userData['clinic_lastname'], 'Add Services', $userData['clinic_role'], 'Added a new Services');
         echo '<script>
         Swal.fire({
             icon: "success",
@@ -65,10 +71,6 @@ if (isset($_POST['submit'])) {
     mysqli_stmt_close($stmt);
     mysqli_close($conn);
 }
-
-?>
-<?php
-include "../../db_connect/config.php";
 
 if (isset($_POST['edit_submit'])) {
     $id = $_POST['id'];
@@ -115,6 +117,7 @@ if (isset($_POST['edit_submit'])) {
     }
 
     if (mysqli_stmt_execute($stmt)) {
+        logActivity($conn, $userData['id'], $userData['clinic_lastname'], 'Edit Services', $userData['clinic_role'], 'Edit Services');
         echo '<script>
         Swal.fire({
             icon: "success",
@@ -128,6 +131,18 @@ if (isset($_POST['edit_submit'])) {
     } else {
         echo "Error Updating: " . mysqli_error($conn);
     }
+}
+function logActivity($conn, $userId, $name, $actionType, $role, $actionDescription) {
+    $timezone = new DateTimeZone('Asia/Manila');
+    $dateTime = new DateTime('now', $timezone);
+    $timestamp = $dateTime->format('Y-m-d H:i:s');
+    $sql = "INSERT INTO activity_log (user_id, name, action_type, role, action_description, timestamp) VALUES (?, ?, ?, ?, ?, ?)";
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, 'isssss', $userId, $name, $actionType, $role, $actionDescription, $timestamp);
+
+    if (mysqli_stmt_execute($stmt)) {
+        mysqli_stmt_close($stmt);
+}
 }
 ?>
 
@@ -150,12 +165,22 @@ if (isset($_POST['edit_submit'])) {
                 </div>
                     <div class="col-lg-12">
             <div class="bg-white p-3 rounded-3 border mx-3">
+                    <div class="col-md-3">
+                    <label for="yearFilter">Filter by Service</label>
+                    <select id="yearFilter" class="form-select form-select-sm">
+                        <option value="">All Service Type</option>
+                        <option value="Skin">Skin</option>
+                        <option value="Hair">Hair</option>
+                        <option value="Nail">Nail</option>
+                    </select>
+                </div>
                 <table id="clientTable" class="table table-bordered text-center" style="width: 100%;">
                     <thead>
                         <tr>
                             
-                            <th>Images</th>
+                            
                             <th>Service Type</th>
+                            <th>Images</th>
                             <th>Service Name</th>
                             <th>Description</th>
                             <th>Action</th>
@@ -164,17 +189,18 @@ if (isset($_POST['edit_submit'])) {
                     <tbody>
                         <?php
                         include "../../db_connect/config.php";
-                        $stmt = mysqli_prepare($conn, "SELECT id, services, name, image, description FROM service");
+                        $stmt = mysqli_prepare($conn, "SELECT id, services, name, image, description FROM service ORDER BY id DESC");
                         mysqli_stmt_execute($stmt);
                         mysqli_stmt_store_result($stmt);
                         mysqli_stmt_bind_result($stmt, $id, $services, $name, $image, $description);
                         while (mysqli_stmt_fetch($stmt)) {
                             ?>
                             <tr>
-                                <td><img src="../../img/services/<?php echo $image;?>" alt="" width="50px" height="50px"></td>
+                                
                                 <td><?php echo $services; ?></td>
+                                <td><img src="../../img/services/<?php echo $image;?>" alt="" width="50px" height="50px"></td>
                                 <td><?php echo $name; ?></td>
-                                <td><?php echo $description; ?></td>
+                                <td><?php echo strlen($description) > 60 ? substr($description, 0, 60) . '...' : $description; ?></td>
                                 <td class="action-buttons">
                                 <button type="button" onclick="showRescheduleModal('<?php echo $id; ?>')" class="btn text-white edit-button" style="background-color: #6537AE;">Edit</button>
                                 <a href="#" onclick="deleteFAQ(<?php echo $id; ?>)" class="text-decoration-none btn" style="  border-color: purple; color: purple;">Delete</a>
@@ -218,11 +244,24 @@ if (isset($_POST['edit_submit'])) {
 </div> 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.0/dist/sweetalert2.min.js"></script>
 <script> $(document).ready(function() {
-    $('#clientTable').DataTable({
+var dataTable = $('#clientTable').DataTable({
+        dom: '<"row  text-end"<"col-xl-2 col-lg-3 col-md-6 mt-4"l><"col-xl-3 col-lg-4 col-md-6 top-height"f><"col-xl-4"><"col-xl-3 col-lg-4 mt-3 text-end">>rtip',
+        "columnDefs": [
+            { "orderable": false, "targets": [1, 3, 4] }
+        ],
         responsive: true,
-            "ordering": false,
+                    scrollY: 500,
+        scrollX: true,
+        scrollCollapse: true,
+        paging: true,
+        fixedColumns: true,
     });
+var serviceTypeColumn = dataTable.column(0);
+$('#yearFilter').on('change', function () {
+    var selectedServiceType = $(this).val();
+    serviceTypeColumn.search(selectedServiceType).draw();
 });
+})
 
 
     function showRescheduleModal(id) {
@@ -287,6 +326,29 @@ if (isset($_POST['edit_submit'])) {
     });
 
         return false;
+    }
+</script>
+<script>
+    // Function to check the file size before form submission
+    function checkFileSize() {
+        var inputFile = document.getElementById('image');
+        var maxFileSize = 2 * 1024 * 1024; // 2 MB limit
+
+        if (inputFile.files.length > 0) {
+            var fileSize = inputFile.files[0].size;
+
+            if (fileSize > maxFileSize) {
+                // Display SweetAlert 2 error message
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: "File size exceeds the limit of 2 MB."
+                });
+                return false;
+            }
+        }
+
+        return true;
     }
 </script>
     </body>

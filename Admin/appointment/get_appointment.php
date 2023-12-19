@@ -9,19 +9,13 @@ if (isset($_POST['id'])) {
     $result = mysqli_stmt_get_result($stmt);
     if ($row = mysqli_fetch_array($result)) {
         $fullName = $row['firstname'] . ' ' . $row['lastname'];
-        $formattedDate = date('M d, Y', strtotime($row['date']));
+        $formattedDate = date('F d, Y', strtotime($row['date']));
         $output = '
                         <label class="fw-bold">Full Name</label><br>
                         <label>' . $fullName . '</label><br>
                         <hr>
-                        <label class="fw-bold">Number</label><br>
-                        <label>' . $row['number'] . '</label><br>
-                        <hr>
                         <label class="fw-bold">Email</label><br>
                         <label>' . $row['email'] . '</label><br>
-                        <hr>
-                        <label class="fw-bold">Message</label><br>
-                        <label>' . $row['health_concern'] . '</label><br>
                         <hr>
                         <label class="fw-bold">Services</label><br>
                         <label>' . $row['services'] . '</label><br>
@@ -32,8 +26,17 @@ if (isset($_POST['id'])) {
                         <label class="fw-bold">Time</label><br>
                         <label>' . $row['time'] . '</label><br>
                         <hr>
+                        <label class="fw-bold">Number</label><br>
+                        <label>' . $row['number'] . '</label><br>
+                        <hr>
                         <label class="fw-bold">Status</label><br>
                         <label>' . $row['appointment_status'] . '</label><br>
+                        <hr>
+                        <label class="fw-bold">Message</label><br>
+                        <label>' . $row['health_concern'] . '</label><br>
+                        <hr>
+                        <label class="fw-bold">Reschedule or Cancell Reason</label><br>
+                        <label>' . $row['apt_reason'] . '</label><br>
                         <hr>
         ';
     } else {

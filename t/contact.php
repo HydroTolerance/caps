@@ -176,6 +176,7 @@ if (isset($_POST['update'])) {
 
 
 ?>
+<?php include "announcement.php" ?>
 <nav class="navbar navbar-expand-lg px-3" style="background-color: transparent; background-color: #6537AE; /* Use your preferred solid color */" id="s1">
   <div class="container-fluid">
   <a class="navbar-brand mt-1" href="../index.php">
@@ -190,7 +191,7 @@ if (isset($_POST['update'])) {
         <a class="nav-link active  text-white fs-5" href="../index.php" id="s5">Home</a>
         </li>
         <li class="nav-item mx-2">
-          <a class="nav-link text-white fs-5" href="about.php" id="s5">About</a>
+          <a class="nav-link text-white fs-5" href="about.php" id="s5">About Us</a>
         </li>
         <li class="nav-item mx-2">
           <a class="nav-link text-white fs-5" href="service.php" id="s5">Services</a>
@@ -199,24 +200,29 @@ if (isset($_POST['update'])) {
           <a class="nav-link text-white fs-5" href="FAQ.php" id="s5">FAQ</a>
         </li>
         <li class="nav-item mx-2">
-          <a class="nav-link text-white fs-5" href="contact.php" id="s5">Contact</a>
+          <a class="nav-link text-white fs-5" href="contact.php" id="s5">Contact Us</a>
         </li>
       </ul>
       <?php if ($isClientLoggedIn): ?>
-        <div class="dropdown">
+        <div class="dropdown float-start">
                 <a href="#" class="d-flex align-items-center text-dark text-decoration-none" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
                 <img src="../img/avatar/<?php echo $userData['client_avatar']; ?>" class="rounded-circle me-3" height="40px" width="40px">
                     <span class="d-none d-sm-inline mx-1"></span>
                 </a>
-                <ul class="dropdown-menu text-small shadow dropdown-menu-end" aria-labelledby="dropdownUser1">
-                <li><a class="dropdown-item" href="../Client/client_record/view.php">Profile Account</a></li>
+                <ul class="dropdown-menu text-small shadow dropdown-menu-end" aria-labelledby="dropdownUser1" style="left: -10px;">
+                <li>
+                  <a class="dropdown-item" href="../Client/client_record/view.php">Profile Account</a>
+                </li>
+                <li>
+                  <hr class="dropdown-divider">
+                </li>
                     <li><a class="dropdown-item" href="../Client/logout.php">Sign out</a></li>
                 </ul>
             </div>
         <?php else: ?>
             <a href="../login.php" class="btn btn-outline-light mx-2" type="submit" id="s5">Login</a>
         <?php endif; ?>
-        <a href="./t/booking.php" class="btn btn-outline-light" type="submit" id="s5">Book an Appointment</a>
+        <a href="booking.php" class="btn btn-outline-light float-start" type="submit" id="s5">Book an Appointment</a>
     </div>
   </div>
 </nav>
@@ -305,7 +311,7 @@ if (isset($_POST['update'])) {
                         <div class="mb-3">
                             <textarea class="form-control" rows="6" name="message" placeholder="Message" required></textarea>
                         </div>
-                        <button type="submit" name="update" class="btn text-white" style="background-color: #6537AE;">Send</button>
+                        <button type="submit" name="update" class="btn text-white float-end" style="background-color: #6537AE;">Send your message</button>
                     </form>
                 </div>
             </div>
@@ -324,7 +330,7 @@ if (isset($_POST['update'])) {
         <div class="row">
           <div class="col-lg-4">
               <div>
-                <h2 style="font-family: Lora;">Z-SKIN</h2>
+                <h2 style="font-family: Lora;">Z SKIN CARE CENTER</h2>
                   <p>Care and help you achieve optimal skin health. We are
                     committed to providing you with comprehensive,
                     personalized care, staying up-to-date with the latest
@@ -338,16 +344,16 @@ if (isset($_POST['update'])) {
               <h2 style="font-family: Lora;">Navigation</h2>
               <ul class="list-unstyled">
                 <li>
-                  <a href="#" class="text-white">About Us</a>
+                  <a href="about.php" class="text-white">About Us</a>
                 </li>
                 <li>
-                  <a href="#" class="text-white">Services</a>
+                  <a href="service.php" class="text-white">Services</a>
                 </li>
                 <li>
-                  <a href="#" class="text-white">Faq</a>
+                  <a href="FAQ.php" class="text-white">FAQ</a>
                 </li>
                 <li>
-                  <a href="#" class="text-white">Contact Us</a>
+                  <a href="contact.php" class="text-white">Contact Us</a>
                 </li>
               </ul>
             </div>
@@ -355,7 +361,7 @@ if (isset($_POST['update'])) {
               <h2 style="font-family: Lora;"> Legal</h2>
               <ul class="list-unstyled">
                 <li>
-                  <a href="#" class="text-white">Terms and Condition</a>
+                  <a href="terms_and_condition.php" class="text-white">Terms and Condition</a>
                 </li>
               </ul>
             </div>
@@ -365,9 +371,14 @@ if (isset($_POST['update'])) {
               <h2 style="font-family: Lora;">Social Media</h2>
               <ul class="list-unstyled">
                 <li>
-                <a>
-                    <i class="bi bi-facebook text-white me-2"> </i>
+                <a href="https://www.facebook.com/Zskincarecenter" class="text-white">
+                    <i class="bi bi-facebook text-white me-2"></i>
                     Facebook</a>
+                </li>
+                <li>
+                <a href="https://www.instagram.com/zskincarecenter" class="text-white">
+                    <i class="bi bi-instagram text-white me-2"></i>
+                    Instagram</a>
                 </li>
               </ul>
             </div>
@@ -377,7 +388,7 @@ if (isset($_POST['update'])) {
             <p>Address: Unit 4 One Kalayaan Place Building 284 Samson Road Victory Liner Compound, Caloocan, Philippines</p>
             <p> You can Contact Us</p>
             <p>Phone: 0915 759 2213</p>
-            <p >Email: zskincarecenter @gmail.com</p>
+            <p >Email: zskincarecenter@gmail.com</p>
           </div>
           </div>
           <div>
@@ -385,7 +396,7 @@ if (isset($_POST['update'])) {
   </div>
 </div>
 </footer>
-<div class=" text-center text-white p-1" style="background-color: #c23fe3;"> ©2023. | Z-Skin | All rights reserved. </div>
+<div class=" text-center text-white p-1" style="background-color: #c23fe3;"> © 2023 Z Skin Care Center. All Rights Reserved. </div>
     <!-- Include Bootstrap JS and dependencies -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
@@ -401,7 +412,36 @@ if (isset($_POST['update'])) {
         });
     }
 </script>
+<!-- Messenger Chat Plugin Code -->
+    <div id="fb-root"></div>
 
+    <!-- Your Chat Plugin code -->
+    <div id="fb-customer-chat" class="fb-customerchat">
+    </div>
+
+    <script>
+      var chatbox = document.getElementById('fb-customer-chat');
+      chatbox.setAttribute("page_id", "184630898063490");
+      chatbox.setAttribute("attribution", "biz_inbox");
+    </script>
+
+    <!-- Your SDK code -->
+    <script>
+      window.fbAsyncInit = function() {
+        FB.init({
+          xfbml            : true,
+          version          : 'v18.0'
+        });
+      };
+
+      (function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s); js.id = id;
+        js.src = 'https://connect.facebook.net/en_US/sdk/xfbml.customerchat.js';
+        fjs.parentNode.insertBefore(js, fjs);
+      }(document, 'script', 'facebook-jssdk'));
+    </script>
 </body>
 
 </html>

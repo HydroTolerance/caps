@@ -2,32 +2,70 @@
 include "../function.php";
 checklogin('Admin');
 $userData = $_SESSION['id'];
-$target_file = ""; // Define a default value for $target_file
+?>
 
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Settings</title>
+        <style>
+    #previewImage {
+        border-radius: 50%;
+        overflow: hidden;
+        width: 200px;
+        height: 200px;
+        max-height: 200px;
+    }
+</style>
+</head>
+<body>
+    <?php
+$target_file = "";
 if (isset($_POST['edit_submit'])) {
     $userID = $_SESSION['id']['id'];
     include "../../db_connect/config.php";
 
     if ($_FILES['image']['name']) {
-        if ($_SESSION['id']['image']) {
-            unlink($_SESSION['id']['image']);
-        }
         $target_dir = "../../img/img/";
         $file_name = basename($_FILES["image"]["name"]);
         $file_extension = pathinfo($file_name, PATHINFO_EXTENSION);
         $unique_filename = uniqid() . '_' . time() . '.' . $file_extension;
         $target_file = $target_dir . $unique_filename;
-        
-        if ($_FILES["image"]["size"] > 5000000) {
+
+        if ($_FILES["image"]["size"] > 1000000) {
             echo "<script>
                 Swal.fire({
                     icon: 'error',
                     title: 'Error!',
-                    text: 'Sorry, your file is too large. Max 5MB allowed.'
+                    text: 'Sorry, your file is too large. Max 1MB allowed.'
+                }).then(function(result) {
+                    if (result.isConfirmed) {
+                        window.location.href = 'account.php';
+                    }
+                });
+                </script>";
+            exit(); // Exit script if the file is too large
+        }
+
+        // Check for upload errors
+        if ($_FILES["image"]["error"] > 0) {
+            echo "<script>
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: 'Error during file upload: " . $_FILES["image"]["error"] . "'
+                }).then(function(result) {
+                    if (result.isConfirmed) {
+                        window.location.href = 'account.php';
+                    }
                 });
                 </script>";
             exit();
         }
+
         if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) {
             // Image is updated
             $stmt = mysqli_prepare($conn, "UPDATE zp_accounts SET clinic_firstname=?, clinic_lastname=?, clinic_email=?, clinic_gender=?,  image=? WHERE id=?");
@@ -47,18 +85,19 @@ if (isset($_POST['edit_submit'])) {
         $stmt = mysqli_prepare($conn, "UPDATE zp_accounts SET clinic_firstname=?, clinic_lastname=?, clinic_email=?, clinic_gender=? WHERE id=?");
         mysqli_stmt_bind_param($stmt, "ssssi", $_POST['edit_fname'], $_POST['edit_lname'], $_POST['edit_email'], $_POST['edit_gender'],  $userID);
     }
+
     if ($stmt->execute()) {
         // Update other fields
         $_SESSION['id']['clinic_firstname'] = $_POST['edit_fname'];
         $_SESSION['id']['clinic_lastname'] = $_POST['edit_lname'];
         $_SESSION['id']['clinic_email'] = $_POST['edit_email'];
         $_SESSION['id']['clinic_gender'] = $_POST['edit_gender'];
-        
+
         // Update the image only if it was uploaded
         if ($_FILES['image']['name']) {
-            $_SESSION['id']['image'] = $target_file; 
+            $_SESSION['id']['image'] = $target_file;
         }
-        
+
         echo "<script>
             window.addEventListener('DOMContentLoaded', (event) => {
                 Swal.fire({
@@ -72,7 +111,6 @@ if (isset($_POST['edit_submit'])) {
                 });
             });
         </script>";
-        exit();
     } else {
         echo "<script>
             Swal.fire({
@@ -82,69 +120,65 @@ if (isset($_POST['edit_submit'])) {
             });
             </script>";
     }
+
     mysqli_stmt_close($stmt);
     mysqli_close($conn);
 }
 ?>
-
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile Settings</title>
-    
-</head>
-</head>
-<body>
     <div id="wrapper">
         <?php include "../sidebar.php"; ?>
             <section id="content-wrapper">
             <div class="container mt-5">
         <div class="row justify-content-center">
             <div class="col-md-6">
-                <div class="card">
+                <div class="card shadow">
                     <div class="card-header">
-                        <h3 class="card-title text-center">Profile Settings</h3>
+                        <h3 class="card-title text-center fw-bold" style="color:#6537AE;">PROFILE SETTINGS</h3>
                     </div>
                     <div class="card-body">
                         <form method="post" enctype="multipart/form-data">
-                            <div class="mb-3">
-                                <label for="image" class="form-label">Current Image:</label>
+                            <div class="mb-3 text-center">
                                 <div class="current-image">
-                                    <?php if (!empty($userData['image'])) : ?>
-                                        <img src="<?php echo $userData['image']; ?>" alt="Current Image" class="img-fluid">
-                                    <?php else : ?>
-                                        <p>No Image Available</p>
-                                    <?php endif; ?>
+                                    <div class="text-center">
+                                        <?php if (!empty($userData['image'])) : ?>
+                                            <img src="<?php echo $userData['image']; ?>" alt="Current Image" class="img-fluid rounded-circle" style="border: solid 3px #6537AE;" id="previewImage">
+                                        <?php else : ?>
+                                            <p>No Image Available</p>
+                                        <?php endif; ?>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="mb-3">
-                                <label for="image" class="form-label">Upload New Image (Max 5MB):</label>
-                                <input type="file" class="form-control" name="image" accept="image/*" id="image" onchange="previewImage()">
+                            <div class="mb-3 text-center">
+                                <div style="background-color: #6537AE; padding: 10px; text-align: center;" class="w-50 mx-auto">
+                                    <label for="image" style="color: #fff; cursor: pointer;">Upload an Image</label>
+                                    <input type="file" name="image" accept="image/*" id="image" style="display: none;" onchange="previewFile()">
+                                </div>
                             </div>
-                            <div class="mb-3">
-                                <label for="edit_fname" class="form-label">First Name</label>
-                                <input type="text" class="form-control" id="edit_fname" name="edit_fname" value="<?php echo $userData['clinic_firstname']; ?>" required>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="edit_fname" class="form-label">First Name</label>
+                                    <input type="text" class="form-control" id="edit_fname" name="edit_fname" value="<?php echo $userData['clinic_firstname']; ?>" required>
+                                </div>
+                                <div class="col-md-6  mb-3">
+                                    <label for="edit_lname" class="form-label">Last Name</label>
+                                    <input type="text" class="form-control" id="edit_lname" name="edit_lname" value="<?php echo $userData['clinic_lastname']; ?>" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="edit_email" class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="edit_email" name="edit_email" value="<?php echo $userData['clinic_email']; ?>" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="edit_gender" class="form-label">Gender</label>
+                                    <select name="edit_gender" id="edit_gender" class="form-select" required>
+                                        <option hidden>-- Select Gender --</option>
+                                        <option value="Male" <?php echo ($userData['clinic_gender'] === 'Male') ? 'selected' : ''; ?>>Male</option>
+                                        <option value="Female" <?php echo ($userData['clinic_gender'] === 'Female') ? 'selected' : ''; ?>>Female</option>
+                                    </select>
+                                </div>
                             </div>
-                            <div class="mb-3">
-                                <label for="edit_lname" class="form-label">Last Name</label>
-                                <input type="text" class="form-control" id="edit_lname" name="edit_lname" value="<?php echo $userData['clinic_lastname']; ?>" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="edit_email" class="form-label">Email</label>
-                                <input type="email" class="form-control" id="edit_email" name="edit_email" value="<?php echo $userData['clinic_email']; ?>" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="edit_gender" class="form-label">Gender</label>
-                                <select name="edit_gender" id="edit_gender" class="form-select" required>
-                                    <option selected disabled>-- Select Gender --</option>
-                                    <option value="Male" <?php echo ($userData['clinic_gender'] === 'Male') ? 'selected' : ''; ?>>Male</option>
-                                    <option value="Female" <?php echo ($userData['clinic_gender'] === 'Female') ? 'selected' : ''; ?>>Female</option>
-                                </select>
-                            </div>
-                            <button type="submit" name="edit_submit" class="btn btn-primary">Save Changes</button>
+                            
+
+                            <button type="submit" name="edit_submit" class="btn text-white float-end" style="background-color:6537AE;">Save Changes</button>
                         </form>
                     </div>
                 </div>
@@ -211,5 +245,23 @@ if (isset($_POST['edit_submit'])) {
         });
     });
     </script>
+        <script>
+    function previewFile() {
+        var preview = document.getElementById('previewImage');
+        var fileInput = document.getElementById('image');
+        var file = fileInput.files[0];
+        var reader = new FileReader();
+
+        reader.onloadend = function () {
+            preview.src = reader.result;
+        };
+
+        if (file) {
+            reader.readAsDataURL(file);
+        } else {
+            preview.src = "";
+        }
+    }
+</script>
 </body>
 </html>

@@ -7,7 +7,7 @@ $query = "SELECT appointment_slots.slots, COUNT(zp_appointment.time) AS total_bo
               SELECT time
               FROM zp_appointment
               WHERE date = '$d'
-              AND appointment_status IN ('rescheduled', 'completed', 'pending', 'acknowledged')
+              AND appointment_status IN ('Rescheduled (Admin)', 'Rescheduled (Derma)', 'Rescheduled (Client)', 'completed', 'pending', 'acknowledged')
               AND appointment_status NOT IN ('Cancelled', 'did not show')
           ) AS zp_appointment
           ON appointment_slots.slots = zp_appointment.time

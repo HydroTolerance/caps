@@ -26,6 +26,7 @@ $.ajax({
 });
 }
 function statusAccount(id, action) {
+    verifyAdminPassword('create', () => {
     let statusText = action === 'deactivate' ? 'deactivated' : 'activated';
     let confirmationText = `Are you sure you want to ${statusText} this account?`;
     let confirmButtonColor = action === 'deactivate' ? '#d33' : '#28a745';
@@ -70,4 +71,5 @@ function statusAccount(id, action) {
             });
         }
     });
+});
 }

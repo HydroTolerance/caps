@@ -44,43 +44,56 @@ th{
                         </div>
                     </div>
                     <div class="bg-white p-3 rounded-3 border mx-3">
-                        <table id="clientTable" class="table table-bordered table-striped" style="width:100%">
-                            <thead>
-                                <tr>
-                                    <th>First Name</th>
-                                    <th>Last Name</th>
-                                    <th>Day of Birth</th>
-                                    <th>Contact Number</th>
-                                    <th>Email Address</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php
-                                include "../../db_connect/config.php";
-                                $stmt = mysqli_prepare($conn, "SELECT * FROM zp_client_record");
-                                mysqli_stmt_execute($stmt);
-                                $result = mysqli_stmt_get_result($stmt);
-                                while ($row = mysqli_fetch_array($result)) {
-                                    ?>
-
+                        <table id="archiveTable" class="table table-bordered table-striped nowrap" style="width:100%">
+                                <thead>
                                     <tr>
-                                        <td><?php echo $row['client_firstname']?></td>
-                                        <td><?php echo $row['client_lastname']?></td>
-                                        <td><?php echo date('F, m Y', strtotime($row['client_birthday']))?></td>
-                                        <td><?php echo $row['client_number']?></td>
-                                        <td><?php echo $row['client_email']?></td>
-                                        <td class="action-buttons">
-                                            <a href="view.php?id=<?php echo $row['id']?>" class="btn bg-purple text-white"> View</a>
-                                            <a href="edit_client_record.php?id=<?php echo $row['id']?>" class="btn btn-outline-purple">Edit</a>
-                                        </td>
+                                        <th>Date Updated</th>
+                                        <th>First Name</th>
+                                        <th>Last Name</th>
+                                        <th>Date of Birth</th>
+                                        <th>Contact Number</th>
+                                        <th>Email Address</th>
+                                        <th>Action</th>
                                     </tr>
-                                <?php
-                                }
-                                mysqli_close($conn);
-                                ?>
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    <?php
+                                    include "../../db_connect/config.php";
+                                    $tableName = 'zp_client_record';
+                                    $dermaTableName = 'zp_derma_record';
+                                    
+                                    $stmt = mysqli_prepare($conn, "
+                                        SELECT c.*, MAX(d.date_diagnosis) AS latest_update
+                                        FROM $tableName c
+                                        LEFT JOIN $dermaTableName d ON c.id = d.patient_id
+                                        WHERE c.is_archived = 0
+                                        GROUP BY c.id
+                                        ORDER BY latest_update DESC
+                                    ");
+                                    mysqli_stmt_execute($stmt);
+                                    $result = mysqli_stmt_get_result($stmt);
+                                    while ($row = mysqli_fetch_array($result)) {
+                                        ?>
+
+                                        <tr>
+                                            <td><?php echo $row['latest_update'] ? date('F d, Y', strtotime($row['latest_update'])) : 'N/A'; ?></td>
+                                            <td><?php echo $row['client_firstname']?></td>
+                                            <td><?php echo $row['client_lastname']?></td>
+                                            <td><?php echo date('F d, Y', strtotime($row['client_birthday']))?></td>
+                                            <td><?php echo $row['client_number']?></td>
+                                            <td><?php echo $row['client_email']?></td>
+                                            
+                                            <td class="action-buttons">
+                                                <a href="view.php?id=<?php echo $row['id']?>" class="btn bg-purple text-white"> View</a>
+                                                <a href="edit_client_record.php?id=<?php echo $row['id']?>" class="btn btn-outline-purple">Edit</a>
+                                            </td>
+                                        </tr>
+                                    <?php
+                                    }
+                                    mysqli_close($conn);
+                                    ?>
+                                </tbody>
+                            </table>
                     </div>
                     </div>
                     </div>
@@ -94,7 +107,8 @@ th{
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         $(document).ready(function() {
-            var table = $('#clientTable').DataTable({
+            var table = $('#archiveTable').DataTable({
+                dom: '<"row  text-end"<"col-xl-2 col-lg-3 col-md-6 mt-4"l><"col-xl-3 col-lg-4 col-md-6 top-height"f><"col-xl-4"><"col-xl-3 col-lg-4 mt-3 text-end">>rtip',
                 responsive: true,
                 scrollY: 500,
                 scrollX: true,
@@ -102,6 +116,11 @@ th{
                 paging: true,
                 fixedColumns: true,
                 select: true,
+                "ordering": false,
+            });
+            $('#yearFilter').on('change', function() {
+                var selectedYear = $(this).val();
+                table.column(0).search(selectedYear).draw();
             });
         });
     </script>

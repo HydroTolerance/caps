@@ -60,6 +60,22 @@ th{
 table.child-dt thead {
   background: blue;
 }
+.outline {
+        border: #6537AE 2px solid;
+        background-color: white;
+        color: #6537AE;
+        padding: 7px 15px;
+    }
+    .outline:hover {
+        border: #6537AE 2px solid;
+        background-color: #6537AE;
+        color: white;
+        padding: 7px 15px;
+    }
+  .top-height {
+    margin-top: 23px;
+    height: -10px;
+  }
 </style>
 <body>
 <div id="wrapper">
@@ -81,7 +97,7 @@ table.child-dt thead {
                 <div class="row">
                 <div class="col-md-6">
                     <label for="yearFilter">Filter by Year:</label>
-                    <select id="yearFilter" class="form-select">
+                    <select id="yearFilter" class="form-select form-select-sm">
                         <option value="">All Years</option>
                         <?php
                         $query = "SELECT DISTINCT YEAR(date_diagnosis) AS year FROM zp_derma_record ORDER BY year DESC";
@@ -95,7 +111,7 @@ table.child-dt thead {
                 </div>
                 <div class="col-md-6">
                     <label for="monthFilter">Filter by Month:</label>
-                    <select id="monthFilter" class="form-select">
+                    <select id="monthFilter" class="form-select form-select-sm">
                         <option value="">All Months</option>
                         <?php
                         $query = "SELECT DISTINCT MONTHNAME(date_diagnosis) AS month FROM zp_derma_record ORDER BY date_diagnosis";
@@ -111,7 +127,7 @@ table.child-dt thead {
                 
                 </div>
                 
-                <table id="reportTable" class="table table-striped nowrap" style="width:100%">
+                <table id="reportTable" class="table table-bordered  table-striped nowrap" style="width:100%">
                     <thead>
                         <tr>
                             <th>Service Label</th>
@@ -150,66 +166,91 @@ $(document).ready(function() {
     var table = $('#reportTable').DataTable({
         order: [[0, 'desc']],
         responsive: true,
-        dom: "<'row'<'col-sm-1 mt-2'B><'col-md-1 mt-2' l><'col-md-10'f>>" +
-            "<'row'<'col-md-12'tr>>" +
-            "<'row'<'col-md-12'i><'col-md-12'p>>",
+        "columnDefs": [
+            { "orderable": false, "targets": [0] } // Disable sorting for the 2nd and 3rd columns (0-based index)
+        ],
+        dom: '<"row mx-auto"<"col-xl-2 col-lg-3 col-md-6 mt-4"l><"col-xl-3 col-lg-4 col-md-6 top-height"f><"col-xl-4"><"col-xl-3 col-lg-4 mt-3 text-end"B>>rtip',
         buttons: [
             {
-                extend: 'collection',
-                text: '<i class="bi bi-box-arrow-up"></i>',
-                buttons: [
-                    {
-                        extend: 'pdfHtml5',
-                        text: 'PDF',
-                        title: 'Z-skin Care Report',
-                        orientation: 'landscape',
-                        customize: function(doc) {
-                            doc.content[1].table.widths = ['25%', '25%', '25%', '25%'];
-                            doc.styles.title = {
-                                color: '#2D1D10',
-                                fontSize: '16',
-                                alignment: 'center'
-                            };
-                            doc.content[1].table.headerRows = 1; // Add this line to target the header row
-                            doc.content[1].table.body[0].forEach(function(cell) {
-                                cell.fillColor = '#6537AE'; // Purple color
-                                cell.color = '#fff'; // White text color
-                            });
-                        },
-                    },
-                    'copy',
-                    {
-                        extend: 'excelHtml5',
-                        text: 'Excel',
-                        title: 'Z SKin Care Excel Report',
-                        orientation: 'landscape',
-                    },
-                    {
-                        extend: 'print',
-                        text: 'Print',
-                        customize: function (win) {
-                            $(win.document.body)
-                                .find('table')
-                                .addClass('compact-print-table'); // Apply custom CSS class for printing
-                        }
-                    }
-                ]
+                extend: 'pdfHtml5',
+                text: '<i class="bi bi-filetype-pdf fs-6"></i> PDF',
+                title: 'Z-skin Care Report',
+                orientation: 'landscape',
+                className: 'outline',
+                customize: function(doc) {
+                    doc.content[1].table.widths = ['25%', '25%', '25%', '25%'];
+                    doc.styles.title = {
+                        color: '#2D1D10',
+                        fontSize: '16',
+                        alignment: 'center'
+                    };
+                    doc.content[1].table.headerRows = 1; // Add this line to target the header row
+                    doc.content[1].table.body[0].forEach(function(cell) {
+                        cell.fillColor = '#6537AE'; // Purple color
+                        cell.color = '#fff'; // White text color
+                    });
+                    logActivityForFileDownload('pdf');
+                },
+            },
+            {
+                extend: 'excelHtml5',
+                text: '<i class="bi bi-file-earmark-spreadsheet fs-6"> </i>Excel',
+                title: 'Z SKin Care Excel Report',
+                orientation: 'landscape',
+                className: 'outline',
+                customize: function (xlsx) {
+                    logActivityForFileDownload('excel');  // Specify the file type as 'excel'
+                }
+            },
+            {
+                extend: 'print',
+                text: '<i class="bi bi-printer fs-6"> </i>Print',
+                className: 'outline',
+                customize: function (win) {
+                    $(win.document.body)
+                        .find('table')
+                        .addClass('compact-print-table'); // Apply custom CSS class for printing
+                }
             }
         ],
     });
-
-    // Filter by Year
     $('#yearFilter').on('change', function() {
         var selectedYear = $(this).val();
         table.column(1).search(selectedYear).draw();
     });
-
-    // Filter by Month
     $('#monthFilter').on('change', function() {
         var selectedMonth = $(this).val();
         table.column(2).search(selectedMonth).draw();
     });
 });
+function logActivityForFileDownload(fileType) {
+    var userData = <?php echo json_encode($_SESSION['id']); ?>;
+    var clinicRole = userData['clinic_role'];
+    var name = userData['clinic_lastname'];
+    var actionDescription = "Downloaded Z Skin Care Diagnosis Report";
+    actionDescription += " (" + fileType.toUpperCase() + ")";
+
+    logActivity(userData['id'], name, clinicRole, actionDescription);
+}
+function logActivity(userId, name, role, actionDescription) {
+    $.ajax({
+        url: '../appointment/log_activity.php',
+        type: 'POST',
+        data: {
+            user_id: userId,
+            name: name,
+            action_type: 'File Download',
+            role: role,
+            action_description: actionDescription
+        },
+        success: function (response) {
+
+        },
+        error: function (error) {
+            console.error("Error logging activity: ", error);
+        }
+    });
+}
 </script>
 
 </body>
